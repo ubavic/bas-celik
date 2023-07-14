@@ -2,6 +2,8 @@
 
 **Baš Čelik** je čitač elektronskih ličnih karata. Program je osmišljen kao zamena za zvaničnu aplikaciju *Čelik*. Nažalost, zvanična aplikacija može se pokrenuti samo na Windows operativnivnom sistemu, dok BašČelik (u teoriji) funkcioniše na tri operativna sistema (Windows/Linux/OSX).
 
+![Interfejs](assets/ui.png)
+
 Aplikacija bi trebalo da podržava očitavanje svih ličnih karata, ali za sada nije testirana na starim (izdate pre avgusta 2014. godine), kao ni na najnovijim (izdate nakon februara 2023. godine). U napred sam zahvalan za bilo kakvu povratnu informaciju.
 
 ## Upotreba
