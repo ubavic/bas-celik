@@ -20,7 +20,7 @@ jobs:
       - uses: "marvinpinto/action-automatic-releases@latest"
         id: create_release
         with:
-          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          repo_token: "${{ secrets.RELEASE_TOKEN }}"
           prerelease: false
           title: 'Verzija ${{ steps.git_tag.outputs.tag }}'
   unix:
