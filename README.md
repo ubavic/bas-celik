@@ -18,7 +18,7 @@ Ako u bilo kom trenutku dođe do greške, informacija o greški će se ispisati 
 
 Izvršne datoteke poslednje verzije programa možete preuzeti sa [Releases](https://github.com/ubavic/bas-celik/releases)  stranice.
 
-Trenutno nije ponuđena izvršna verzija za OSX, te će korisnici tog operativnog sistema morati sami da iskompajliraju program. Plan je da se uskoro ovaj nedostatak prvaziđe.
+Trenutno nije ponuđena izvršna verzija za OSX, te će korisnici tog operativnog sistema morati sami da iskompajliraju program. Plan je da se uskoro ovaj nedostatak prevaziđe.
 
 ## Kompilacija 
 
