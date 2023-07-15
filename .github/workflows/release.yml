@@ -26,27 +26,21 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest]
-        go: [1.16.x]
+        go: ['1.20']
     runs-on: ${{ matrix.os }}
     needs: release
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - uses: olegtarasov/get-tag@v2.1
         id: git_tag
         with:
           tagRegex: 'v(.*)'
           tagRegexGroup: 1
       - name: Install Go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v4
         with:
           go-version: ${{ matrix.go }}
-      - uses: actions/cache@v2
-        with:
-          path: ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-
       - name: Test
         run: make test RACE=1 ENVIRONMENT=production
       - name: Build
@@ -60,33 +54,27 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.release.outputs.upload_url }}
-          asset_path: ./bin/hosts
-          asset_name: hosts-${{ matrix.os }}-${{ steps.git_tag.outputs.tag }}
+          asset_path: ./bin/bas-celik
+          asset_name: bas-celik-${{ matrix.os }}-${{ steps.git_tag.outputs.tag }}
           asset_content_type: application/octet-stream
   windows:
     strategy:
       matrix:
-        go: [1.16.x]
+        go: ['1.20']
     runs-on: windows-latest
     needs: release
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - uses: olegtarasov/get-tag@v2.1
         id: git_tag
         with:
           tagRegex: 'v(.*)'
           tagRegexGroup: 1
       - name: Install Go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v4
         with:
           go-version: ${{ matrix.go }}
-      - uses: actions/cache@v2
-        with:
-          path: ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-
       - name: Test
         run: make test RACE=1 ENVIRONMENT=production
       - name: Build
@@ -100,6 +88,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.release.outputs.upload_url }}
-          asset_path: ./bin/hosts.exe
-          asset_name: hosts-windows-${{ steps.git_tag.outputs.tag }}.exe
+          asset_path: ./bin/bas-celik.exe
+          asset_name: bas-celik-windows-${{ steps.git_tag.outputs.tag }}.exe
           asset_content_type: application/octet-stream
