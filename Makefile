@@ -20,7 +20,7 @@ endif
 .PHONY: build
 build:
 ifeq ($(ENVIRONMENT),production)
-	CGO_ENABLED=0 go build -ldflags="-s -w -o ./bin/$(BINARY_NAME)$(EXT) main.go
+	go build -ldflags="-s -w" -o ./bin/$(BINARY_NAME)$(EXT) main.go
 else ifeq ($(ENVIRONMENT),development)
 	go build -o ./bin/$(BINARY_NAME)$(EXT) main.go
 else

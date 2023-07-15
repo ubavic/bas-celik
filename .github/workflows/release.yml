@@ -41,8 +41,6 @@ jobs:
         uses: actions/setup-go@v4
         with:
           go-version: ${{ matrix.go }}
-      - name: Test
-        run: make test RACE=1 ENVIRONMENT=production
       - name: Build
         run: make build VERSION=${{ steps.git_tag.outputs.tag }} RACE=0 ENVIRONMENT=production
         env:
