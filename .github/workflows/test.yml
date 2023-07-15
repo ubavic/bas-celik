@@ -8,15 +8,33 @@ on:
     branches:
       - main
 jobs:
-  test:
+  test-linux:
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ubuntu-latest]
         go: ["1.20.x"]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
+      - name: Install Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: ${{ matrix.go }}
+      - name: 'Install Deps'
+        run: |
+          sudo apt install libpcsclite-dev libgl1-mesa-dev xorg-dev
+      - name: Test ${{ matrix.go }}
+        run: make test RACE=1 ENVIRONMENT=development
+  test:
+    strategy:
+      matrix:
+        os: [macos-latest, windows-latest]
+        go: ["1.20.x"]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
       - name: Install Go
         uses: actions/setup-go@v4
         with:

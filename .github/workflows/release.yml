@@ -11,17 +11,14 @@ jobs:
       upload_url: ${{ steps.create_release.outputs.upload_url }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
-      - name: Create Release
+        uses: actions/checkout@v3
+      - uses: "marvinpinto/action-automatic-releases@latest"
         id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          draft: false
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          automatic_release_tag: ${{ github.ref }}
           prerelease: false
+          title: ${{ github.ref }}
   unix:
     strategy:
       matrix:
