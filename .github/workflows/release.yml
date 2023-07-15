@@ -12,11 +12,16 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+      - uses: olegtarasov/get-tag@v2.1
+        id: git_tag
+        with:
+          tagRegex: 'v(.*)'
+          tagRegexGroup: 1
       - uses: "marvinpinto/action-automatic-releases@latest"
         id: create_release
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          automatic_release_tag: ${{ github.ref }}
+          automatic_release_tag: ${{ steps.git_tag.outputs.tag }}
           prerelease: false
           title: 'Verzija ${{ github.ref }}'
   unix:
