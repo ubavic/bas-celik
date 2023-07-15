@@ -5,3 +5,4 @@ bas-celik.*
 *.exe
 fyne-cross/
 main
+bin/
