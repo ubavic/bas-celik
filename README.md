@@ -12,7 +12,7 @@ Povežite čitač za računar i pokrenite aplikaciju. Ubacite ličnu kartu u či
 
 Kreirani PDF dokument izgleda maksimalno približno dokumentu koji se dobija sa zvaničnom Čelik aplikacijom.
 
-Ako u bilo kom trenutku dođe do greške, informacija o greški će se ispisati u donjem levom uglu.
+Ako u bilo kom trenutku dođe do greške, informacija o grešci će se ispisati u donjem levom uglu.
 
 ## Preuzimanje 
 
