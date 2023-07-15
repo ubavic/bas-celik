@@ -21,7 +21,6 @@ jobs:
         id: create_release
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          automatic_release_tag: ${{ steps.git_tag.outputs.tag }}
           prerelease: false
           title: 'Verzija ${{ github.ref }}'
   unix:
