@@ -22,7 +22,7 @@ jobs:
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           prerelease: false
-          title: 'Verzija ${{ github.ref }}'
+          title: 'Verzija ${{ steps.git_tag.outputs.tag }}'
   unix:
     strategy:
       matrix:
