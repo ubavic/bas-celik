@@ -4,7 +4,7 @@ ENVIRONMENT ?= development
 VERSION ?= dev
 EXT ?=
 
-BINARY_NAME=bas-celik
+BINARY_NAME ?= bas-celik
 
 .PHONY: all
 all: clean test build

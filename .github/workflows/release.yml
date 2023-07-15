@@ -1,9 +1,9 @@
-name: 'Release'
+name: "Release"
 
 on:
   push:
     tags:
-      - 'v*'
+      - "v*"
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -15,19 +15,19 @@ jobs:
       - uses: olegtarasov/get-tag@v2.1
         id: git_tag
         with:
-          tagRegex: 'v(.*)'
+          tagRegex: "v(.*)"
           tagRegexGroup: 1
       - uses: "marvinpinto/action-automatic-releases@latest"
         id: create_release
         with:
           repo_token: "${{ secrets.RELEASE_TOKEN }}"
           prerelease: false
-          title: 'Verzija ${{ steps.git_tag.outputs.tag }}'
+          title: "Verzija ${{ steps.git_tag.outputs.tag }}"
   unix:
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
-        go: ['1.20']
+        os: ["ubuntu-latest", "macos-latest", "windows-latest"]
+        go: ["1.20"]
     runs-on: ${{ matrix.os }}
     needs: release
     steps:
@@ -36,56 +36,54 @@ jobs:
       - name: installs linux Deps
         if: ${{ matrix.os == 'ubuntu-latest' }}
         run: |
-          sudo apt update && sudo apt upgrade -y
+          sudo apt update
           sudo apt install -y libpcsclite-dev libgl1-mesa-dev xorg-dev
       - uses: olegtarasov/get-tag@v2.1
         id: git_tag
         with:
-          tagRegex: 'v(.*)'
+          tagRegex: "v(.*)"
           tagRegexGroup: 1
       - name: Install Go
         uses: actions/setup-go@v4
         with:
           go-version: ${{ matrix.go }}
+      - name: Build Windows
+        if: ${{ matrix.os == 'windows-latest' }}
+        run: make build VERSION=${{ steps.git_tag.outputs.tag }} RACE=0 ENVIRONMENT=production EXT=.exe
       - name: Build
         run: make build VERSION=${{ steps.git_tag.outputs.tag }} RACE=0 ENVIRONMENT=production
+      - name: Build
+        run: make build VERSION=${{ steps.git_tag.outputs.tag }} RACE=0 ENVIRONMENT=production BINARY_NAME=bas-celik-darwin-arm
+        if: ${{ matrix.os == 'macos-latest' }}
+        env:
+          GOOS: darwin
+          GOARCH: arm64
       - name: Upload Release Asset
-        id: upload-release-asset
         uses: actions/upload-release-asset@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
         with:
           upload_url: ${{ needs.release.outputs.upload_url }}
           asset_path: ./bin/bas-celik
           asset_name: bas-celik-${{ matrix.os }}-${{ steps.git_tag.outputs.tag }}
           asset_content_type: application/octet-stream
-  windows:
-    strategy:
-      matrix:
-        go: ['1.20']
-    runs-on: windows-latest
-    needs: release
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - uses: olegtarasov/get-tag@v2.1
-        id: git_tag
-        with:
-          tagRegex: 'v(.*)'
-          tagRegexGroup: 1
-      - name: Install Go
-        uses: actions/setup-go@v4
-        with:
-          go-version: ${{ matrix.go }}
-      - name: Test
-        run: make test RACE=1 ENVIRONMENT=production
-      - name: Build
-        run: make build VERSION=${{ steps.git_tag.outputs.tag }} RACE=0 ENVIRONMENT=production EXT=.exe
+
       - name: Upload Release Asset
-        id: upload-release-asset
         uses: actions/upload-release-asset@v1
+        if: ${{ matrix.os == 'macos-latest' }}
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+        with:
+          upload_url: ${{ needs.release.outputs.upload_url }}
+          asset_path: ./bin/bas-celik-darwin-arm
+          asset_name: bas-celik-${{ matrix.os }}-arm-${{ steps.git_tag.outputs.tag }}
+          asset_content_type: application/octet-stream
+
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
+        if: ${{ matrix.os == 'windows-latest' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
         with:
           upload_url: ${{ needs.release.outputs.upload_url }}
           asset_path: ./bin/bas-celik.exe
