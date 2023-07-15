@@ -1,0 +1,105 @@
+name: 'Release'
+
+on:
+  push:
+    tags:
+      - 'v*'
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
+  unix:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        go: [1.16.x]
+    runs-on: ${{ matrix.os }}
+    needs: release
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - uses: olegtarasov/get-tag@v2.1
+        id: git_tag
+        with:
+          tagRegex: 'v(.*)'
+          tagRegexGroup: 1
+      - name: Install Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: ${{ matrix.go }}
+      - uses: actions/cache@v2
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+      - name: Test
+        run: make test RACE=1 ENVIRONMENT=production
+      - name: Build
+        run: make build VERSION=${{ steps.git_tag.outputs.tag }} RACE=0 ENVIRONMENT=production
+        env:
+          CGO_ENABLED: 0
+      - name: Upload Release Asset
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.release.outputs.upload_url }}
+          asset_path: ./bin/hosts
+          asset_name: hosts-${{ matrix.os }}-${{ steps.git_tag.outputs.tag }}
+          asset_content_type: application/octet-stream
+  windows:
+    strategy:
+      matrix:
+        go: [1.16.x]
+    runs-on: windows-latest
+    needs: release
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - uses: olegtarasov/get-tag@v2.1
+        id: git_tag
+        with:
+          tagRegex: 'v(.*)'
+          tagRegexGroup: 1
+      - name: Install Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: ${{ matrix.go }}
+      - uses: actions/cache@v2
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+      - name: Test
+        run: make test RACE=1 ENVIRONMENT=production
+      - name: Build
+        run: make build VERSION=${{ steps.git_tag.outputs.tag }} RACE=0 ENVIRONMENT=production EXT=.exe
+        env:
+          CGO_ENABLED: 0
+      - name: Upload Release Asset
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.release.outputs.upload_url }}
+          asset_path: ./bin/hosts.exe
+          asset_name: hosts-windows-${{ steps.git_tag.outputs.tag }}.exe
+          asset_content_type: application/octet-stream
