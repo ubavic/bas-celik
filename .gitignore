@@ -3,3 +3,5 @@
 bas-celik.*
 *.tar.xz
 *.exe
+fyne-cross/
+main
