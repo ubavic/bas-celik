@@ -131,8 +131,8 @@ func selectFile(card *scard.Card, name []byte, ne uint) ([]byte, error) {
 
 func read(card *scard.Card, offset, length uint) ([]byte, error) {
 	readSize := length
-	if readSize >= 0xFE {
-		readSize = 0xFE
+	if readSize >= 0xFF {
+		readSize = 0xFF
 	}
 
 	apu, err := buildAPDU(0x00, 0xB0, byte((0xFF00&offset)>>8), byte(offset&0xFF), nil, readSize)

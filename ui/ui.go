@@ -23,7 +23,7 @@ var doc *document.Document
 func BuildUI(w *fyne.Window, d *document.Document) *fyne.Container {
 	doc = d
 
-	nameF = newField("Ime, Ime roditelja, prezime", 350)
+	nameF = newField("Ime, ime roditelja, prezime", 350)
 	birthDateF = newField("Datum rođenja", 100)
 	sexF = newField("Pol", 80)
 	personalNumberF = newField("JMBG", 200)

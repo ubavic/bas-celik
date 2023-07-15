@@ -15,7 +15,6 @@ type StatusBar struct {
 
 type StatusBarRenderer struct {
 	bar        *StatusBar
-	background *canvas.Rectangle
 	statusText *canvas.Text
 }
 
@@ -40,7 +39,6 @@ func (sb *StatusBar) CreateRenderer() fyne.WidgetRenderer {
 
 	return &StatusBarRenderer{
 		bar:        sb,
-		background: canvas.NewRectangle(theme.BackgroundColor()),
 		statusText: statusText,
 	}
 }
@@ -54,13 +52,11 @@ func (r *StatusBarRenderer) Refresh() {
 		r.statusText.Color = theme.ForegroundColor()
 	}
 
-	r.background.Refresh()
 	r.statusText.Refresh()
 }
 
 func (r *StatusBarRenderer) Layout(s fyne.Size) {
 	r.statusText.Move(fyne.Position{X: theme.Padding(), Y: 3 * theme.Padding()})
-	r.background.Resize(s)
 }
 
 func (r *StatusBarRenderer) MinSize() fyne.Size {
@@ -69,7 +65,7 @@ func (r *StatusBarRenderer) MinSize() fyne.Size {
 }
 
 func (r *StatusBarRenderer) Objects() []fyne.CanvasObject {
-	return []fyne.CanvasObject{r.background, r.statusText}
+	return []fyne.CanvasObject{r.statusText}
 }
 
 func (r *StatusBarRenderer) Destroy() {}
