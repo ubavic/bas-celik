@@ -36,7 +36,8 @@ jobs:
       - name: installs linux Deps
         if: ${{ matrix.os }} == 'ubuntu-latest'
         run: |
-          sudo apt install libpcsclite-dev libgl1-mesa-dev xorg-dev
+          sudo apt update && sudo apt upgrade -y
+          sudo apt install -y libpcsclite-dev libgl1-mesa-dev xorg-dev
       - uses: olegtarasov/get-tag@v2.1
         id: git_tag
         with:
