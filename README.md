@@ -12,13 +12,13 @@ Povežite čitač za računar i pokrenite aplikaciju. Ubacite ličnu kartu u či
 
 Kreirani PDF dokument izgleda maksimalno približno dokumentu koji se dobija sa zvaničnom Čelik aplikacijom.
 
-Ako u bilo kom trenutku dođe do greške, informacija o greški će se ispisati u donjem levom uglu.
+Ako u bilo kom trenutku dođe do greške, informacija o grešci će se ispisati u donjem levom uglu.
 
 ## Preuzimanje 
 
 Izvršne datoteke poslednje verzije programa možete preuzeti sa [Releases](https://github.com/ubavic/bas-celik/releases)  stranice.
 
-Nažalost, za sada neće biti ponuđenje izvršne verzije za OSX, te će korisnici tog operativnog sistema morati sami da iskompajliraju program.
+Trenutno nije ponuđena izvršna verzija za OSX, te će korisnici tog operativnog sistema morati sami da iskompajliraju program. Plan je da se uskoro ovaj nedostatak prevaziđe.
 
 ## Kompilacija 
 
@@ -28,9 +28,14 @@ Potrebno je posedovati samo `go` kompajler. Nakon preuzimanja repozitorijuma, do
 go build main.go
 ```
 
-### Kroskomilacija
+### Kroskompilacija
 
 Uz pomoć [fyne-cross](https://github.com/fyne-io/fyne-cross) programa moguće je na jednom operativnom sistemu iskompajlirati program za sva tri operativna sistema. Ovaj program zahteva Docker na vašem operativnom sistemu.
+
+## Planirane nadogradnje
+
+ + Automatsko generisanje izvršnih datoteka uz pomoć Github akcija
+ + Omogućavanje potpisivanja dokumenata sa ključem smeštenim na kartici
 
 ## Licenca 
 
