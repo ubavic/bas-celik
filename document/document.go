@@ -44,18 +44,18 @@ type Document struct {
 func NewDocument(fontFS, photoFS embed.FS) (*Document, error) {
 	font, err := fontFS.ReadFile("assets/free-sans-regular.ttf")
 	if err != nil {
-		return nil, fmt.Errorf("error reading font: %w", err)
+		return nil, fmt.Errorf("reading font: %w", err)
 	}
 
 	defaultPhotoFile, err := photoFS.Open("assets/defaultPhoto.png")
 	if err != nil {
-		return nil, fmt.Errorf("error reading default photo: %w", err)
+		return nil, fmt.Errorf("reading default photo: %w", err)
 	}
 	defer defaultPhotoFile.Close()
 
 	defaultPhoto, _, err := image.Decode(defaultPhotoFile)
 	if err != nil {
-		return nil, fmt.Errorf("error decoding default photo: %w", err)
+		return nil, fmt.Errorf("decoding default photo: %w", err)
 	}
 
 	doc := Document{
@@ -111,12 +111,12 @@ func (doc *Document) Pdf() ([]byte, string, error) {
 
 	err := pdf.AddTTFFontData("liberationsans", doc.Font)
 	if err != nil {
-		return nil, "", fmt.Errorf("error loading font: %w", err)
+		return nil, "", fmt.Errorf("loading font: %w", err)
 	}
 
 	err = pdf.SetFont("liberationsans", "", 13.5)
 	if err != nil {
-		return nil, "", fmt.Errorf("error setting font: %w", err)
+		return nil, "", fmt.Errorf("setting font: %w", err)
 	}
 
 	const leftMargin = 58.8
@@ -151,7 +151,7 @@ func (doc *Document) Pdf() ([]byte, string, error) {
 	pdf.SetFillColor(255, 255, 255)
 	err = pdf.Rectangle(leftMargin, 102.8, 179, 262, "D", 0, 0)
 	if err != nil {
-		return nil, "", fmt.Errorf("error drawing rect: %w", err)
+		return nil, "", fmt.Errorf("drawing rect: %w", err)
 	}
 	pdf.SetFillColor(0, 0, 0)
 
@@ -272,6 +272,7 @@ func (doc *Document) Pdf() ([]byte, string, error) {
 }
 
 func (doc *Document) Clear() {
+	doc.Loaded = false
 	doc.Photo = doc.DefaultPhoto
 	doc.DocumentNumber = ""
 	doc.IssuingDate = ""

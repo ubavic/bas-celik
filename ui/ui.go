@@ -20,8 +20,11 @@ var imgWidget *canvas.Image
 var ui *fyne.Container
 var doc *document.Document
 
-func BuildUI(w *fyne.Window, d *document.Document) *fyne.Container {
+var verbose bool
+
+func SetUI(w *fyne.Window, d *document.Document, ver bool) *fyne.Container {
 	doc = d
+	verbose = ver
 
 	nameF = newField("Ime, ime roditelja, prezime", 350)
 	birthDateF = newField("Datum rođenja", 100)
@@ -72,8 +75,17 @@ func UpdateUI() {
 	ui.Refresh()
 }
 
-func SetStatus(status string, err bool) {
-	statusBar.SetStatus(status, err)
+func SetStatus(status string, err error) {
+	isError := false
+	if err != nil {
+		isError = true
+	}
+
+	if verbose && isError {
+		fmt.Println(err)
+	}
+
+	statusBar.SetStatus(status, isError)
 	statusBar.Refresh()
 }
 
@@ -83,8 +95,9 @@ func savePdf(win *fyne.Window) func() {
 			pdf, fileName, err := doc.Pdf()
 
 			if err != nil {
-				fmt.Println(err)
-				SetStatus("Greška pri generisanju PDF-a", true)
+				SetStatus(
+					"Greška pri generisanju PDF-a",
+					fmt.Errorf("generating PDF: %w", err))
 				return
 			}
 
@@ -95,17 +108,21 @@ func savePdf(win *fyne.Window) func() {
 
 				_, err = w.Write(pdf)
 				if err != nil {
-					SetStatus("Greška pri zapisivanju PDF-a", true)
+					SetStatus(
+						"Greška pri zapisivanju PDF-a",
+						fmt.Errorf("writing PDF: %w", err))
 					return
 				}
 
 				err = w.Close()
 				if err != nil {
-					SetStatus("Greška pri zapisivanju PDF-a", true)
+					SetStatus(
+						"Greška pri zapisivanju PDF-a",
+						fmt.Errorf("writing PDF: %w", err))
 					return
 				}
 
-				SetStatus("PDF sačuvan", false)
+				SetStatus("PDF sačuvan", nil)
 			}, *win)
 
 			dialog.SetFilter(storage.NewExtensionFileFilter([]string{".pdf"}))

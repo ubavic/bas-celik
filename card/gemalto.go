@@ -40,12 +40,12 @@ func (card Gemalto) readFile(name []byte, trim bool) ([]byte, error) {
 
 	_, err := selectFile(card.smartCard, name, 4)
 	if err != nil {
-		return nil, fmt.Errorf("error reading file: %w", err)
+		return nil, fmt.Errorf("selecting file: %w", err)
 	}
 
 	data, err := read(card.smartCard, 0, 4)
 	if err != nil {
-		return nil, fmt.Errorf("error reading file: %w", err)
+		return nil, fmt.Errorf("reading file header: %w", err)
 	}
 
 	length := uint(binary.LittleEndian.Uint16(data[2:]))
@@ -54,7 +54,7 @@ func (card Gemalto) readFile(name []byte, trim bool) ([]byte, error) {
 	for length > 0 {
 		data, err := read(card.smartCard, offset, length)
 		if err != nil {
-			return nil, fmt.Errorf("error reading file: %w", err)
+			return nil, fmt.Errorf("reading file: %w", err)
 		}
 
 		output = append(output, data...)

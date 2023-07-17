@@ -3,7 +3,6 @@ package card
 import (
 	"bytes"
 	"encoding/binary"
-	"errors"
 	"fmt"
 	"image"
 	"reflect"
@@ -27,7 +26,7 @@ func ReadCard(sc *scard.Card, doc *doc.Document) error {
 
 	smartCardStatus, err := sc.Status()
 	if err != nil {
-		return fmt.Errorf("error reading card")
+		return fmt.Errorf("reading card %w", err)
 	}
 
 	if reflect.DeepEqual(smartCardStatus.Atr, GEMALTO_ATR_1) || reflect.DeepEqual(smartCardStatus.Atr, GEMALTO_ATR_2) {
@@ -52,7 +51,7 @@ func ReadCard(sc *scard.Card, doc *doc.Document) error {
 
 	rsp, err := card.readFile(DOCUMENT_FILE_LOC, false)
 	if err != nil {
-		return fmt.Errorf("error reading document file %w", err)
+		return fmt.Errorf("reading document file %w", err)
 	}
 
 	fields = parseResponse(rsp)
@@ -65,7 +64,7 @@ func ReadCard(sc *scard.Card, doc *doc.Document) error {
 
 	rsp, err = card.readFile(PERSONAL_FILE_LOC, false)
 	if err != nil {
-		return fmt.Errorf("error reading personal file %w", err)
+		return fmt.Errorf("reading personal file %w", err)
 	}
 
 	fields = parseResponse(rsp)
@@ -82,7 +81,7 @@ func ReadCard(sc *scard.Card, doc *doc.Document) error {
 
 	rsp, err = card.readFile(RESIDENCE_FILE_LOC, false)
 	if err != nil {
-		return fmt.Errorf("error reading residence file %w", err)
+		return fmt.Errorf("reading residence file %w", err)
 	}
 
 	fields = parseResponse(rsp)
@@ -100,16 +99,16 @@ func ReadCard(sc *scard.Card, doc *doc.Document) error {
 
 	rsp, err = card.readFile(PHOTO_FILE_LOC, true)
 	if err != nil {
-		return fmt.Errorf("error reading photo file %w", err)
+		return fmt.Errorf("reading photo file %w", err)
 	}
 
 	doc.Photo, _, err = image.Decode(bytes.NewReader(rsp))
 	if err != nil {
 		fmt.Println(err)
-		return fmt.Errorf("error decoding photo file %w", err)
+		return fmt.Errorf("decoding photo file %w", err)
 	}
 
-	sc.Disconnect(scard.LeaveCard)
+	doc.Loaded = true
 
 	return nil
 }
@@ -118,12 +117,12 @@ func selectFile(card *scard.Card, name []byte, ne uint) ([]byte, error) {
 	apu, err := buildAPDU(0x00, 0xA4, 0x08, 0x00, name, ne)
 
 	if err != nil {
-		return nil, fmt.Errorf("error selecting file: %w", err)
+		return nil, fmt.Errorf("selecting file: %w", err)
 	}
 
 	rsp, err := card.Transmit(apu)
 	if err != nil {
-		return nil, fmt.Errorf("error selecting file: %w", err)
+		return nil, fmt.Errorf("selecting file: %w", err)
 	}
 
 	return rsp, nil
@@ -137,16 +136,16 @@ func read(card *scard.Card, offset, length uint) ([]byte, error) {
 
 	apu, err := buildAPDU(0x00, 0xB0, byte((0xFF00&offset)>>8), byte(offset&0xFF), nil, readSize)
 	if err != nil {
-		return nil, fmt.Errorf("error reading binary: %w", err)
+		return nil, fmt.Errorf("reading binary: %w", err)
 	}
 
 	rsp, err := card.Transmit(apu)
 	if err != nil {
-		return nil, fmt.Errorf("error reading binary: %w", err)
+		return nil, fmt.Errorf("reading binary: %w", err)
 	}
 
 	if len(rsp) < 2 {
-		return nil, fmt.Errorf("error reading binary: bad status code")
+		return nil, fmt.Errorf("reading binary: bad status code")
 	}
 
 	return rsp[:len(rsp)-2], nil
@@ -177,7 +176,7 @@ func buildAPDU(cla, ins, p1, p2 byte, data []byte, ne uint) ([]byte, error) {
 	length := len(data)
 
 	if length > 65535 {
-		return nil, errors.New("length is too large")
+		return nil, fmt.Errorf("length too large")
 	}
 
 	apdu := make([]byte, 4)
