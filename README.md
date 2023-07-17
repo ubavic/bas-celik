@@ -16,7 +16,7 @@ Ako u bilo kom trenutku dođe do greške, informacija o grešci će se ispisati 
 
 ## Pokretanje na Linuksu
 
-Aplikacija zahteva instalirane `ccid` i `opensc` pakete. Nakon instalacije ovih paketa, neophodno je i pokrenuti `pcscd` servis:
+Aplikacija zahteva instalirane `ccid` i `opensc`/`pcscd` pakete. Nakon instalacije ovih paketa, neophodno je i pokrenuti `pcscd` servis:
 
 ```
 sudo systemctl start pcscd
