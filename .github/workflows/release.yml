@@ -1,91 +1,112 @@
-name: "Release"
+name: "Build and release"
 
 on:
   push:
     tags:
       - "v*"
+
 jobs:
+  buildLinux:
+    runs-on: ubuntu-latest
+    steps:
+        - name: Checkout
+          uses: actions/checkout@v3
+        - name: Install Linux deps
+          run: |
+            sudo apt update
+            sudo apt install -y build-essential pkg-config libpcsclite-dev libgl1-mesa-dev xorg-dev
+        - name: Install Go
+          uses: actions/setup-go@v4
+          with:
+            go-version: 'stable'
+        - name: Install Fyne
+          run: go install fyne.io/fyne/v2/cmd/fyne@latest
+        - name: Build
+          run: | 
+            fyne package -os linux
+            mv 'Baš Čelik.tar.xz' bas-celik.linux.amd64.tar.xz
+        - name: Upload executables
+          uses: actions/upload-artifact@master
+          with:
+            name: linux-build-artifact
+            path: bas-celik.linux.amd64.tar.xz
+
+  buildWindows:
+    runs-on: windows-latest
+    steps:
+        - name: Checkout
+          uses: actions/checkout@v3
+        - name: Install Go
+          uses: actions/setup-go@v4
+          with:
+            go-version: 'stable'
+        - name: Install Fyne
+          run: go install fyne.io/fyne/v2/cmd/fyne@latest
+        - name: Build
+          run: |
+            fyne package -os windows
+            ls
+            mv 'Baš Čelik.exe' bas-celik.windows.amd64.exe
+        - name: Upload executables
+          uses: actions/upload-artifact@master
+          with:
+            name: windows-build-artifact
+            path: bas-celik.windows.amd64.exe
+
+  buildMacOS:
+    runs-on: macos-latest
+    steps:
+        - name: Checkout
+          uses: actions/checkout@v3
+        - name: Install Go
+          uses: actions/setup-go@v4
+          with:
+            go-version: 'stable'
+        - name: Install Fyne
+          run: go install fyne.io/fyne/v2/cmd/fyne@latest
+        - name: Build
+          run: | 
+            fyne package -os darwin
+            mv 'Baš Čelik.app' bas-celik.macos.amd64.app
+        - name: Upload executables
+          uses: actions/upload-artifact@master
+          with:
+            name: macos-build-artifact
+            path: bas-celik.macos.amd64.app
+
   release:
     runs-on: ubuntu-latest
-    outputs:
-      upload_url: ${{ steps.create_release.outputs.upload_url }}
+    needs: [ buildLinux, buildWindows, buildMacOS ]
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - uses: olegtarasov/get-tag@v2.1
-        id: git_tag
-        with:
-          tagRegex: "v(.*)"
-          tagRegexGroup: 1
-      - uses: "marvinpinto/action-automatic-releases@latest"
-        id: create_release
-        with:
-          repo_token: "${{ secrets.RELEASE_TOKEN }}"
-          prerelease: false
-          title: "Verzija ${{ steps.git_tag.outputs.tag }}"
-  unix:
-    strategy:
-      matrix:
-        os: ["ubuntu-latest", "macos-latest", "windows-latest"]
-        go: ["1.20"]
-    runs-on: ${{ matrix.os }}
-    needs: release
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: installs linux Deps
-        if: ${{ matrix.os == 'ubuntu-latest' }}
-        run: |
-          sudo apt update
-          sudo apt install -y libpcsclite-dev libgl1-mesa-dev xorg-dev
-      - uses: olegtarasov/get-tag@v2.1
-        id: git_tag
-        with:
-          tagRegex: "v(.*)"
-          tagRegexGroup: 1
-      - name: Install Go
-        uses: actions/setup-go@v4
-        with:
-          go-version: ${{ matrix.go }}
-      - name: Build Windows
-        if: ${{ matrix.os == 'windows-latest' }}
-        run: make build VERSION=${{ steps.git_tag.outputs.tag }} RACE=0 ENVIRONMENT=production EXT=.exe
-      - name: Build
-        run: make build VERSION=${{ steps.git_tag.outputs.tag }} RACE=0 ENVIRONMENT=production
-#       - name: Build for MarOS Arm
-#         run: make build VERSION=${{ steps.git_tag.outputs.tag }} RACE=0 ENVIRONMENT=production BINARY_NAME=bas-celik-darwin-arm
-#         if: ${{ matrix.os == 'macos-latest' }}
-#         env:
-#           GOOS: darwin
-#           GOARCH: arm64
-      - name: Upload Release Asset
-        if: ${{ matrix.os != 'windows-latest' }}
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
-        with:
-          upload_url: ${{ needs.release.outputs.upload_url }}
-          asset_path: ./bin/bas-celik
-          asset_name: bas-celik-${{ matrix.os }}-${{ steps.git_tag.outputs.tag }}
-          asset_content_type: application/octet-stream
-#       - name: Upload Release Asset
-#         uses: actions/upload-release-asset@v1
-#         if: ${{ matrix.os == 'macos-latest' }}
-#         env:
-#           GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
-#         with:
-#           upload_url: ${{ needs.release.outputs.upload_url }}
-#           asset_path: ./bin/bas-celik-darwin-arm
-#           asset_name: bas-celik-${{ matrix.os }}-arm-${{ steps.git_tag.outputs.tag }}
-#           asset_content_type: application/octet-stream
+        - uses: actions/download-artifact@v3
+        - name: Move files
+          run: |
+              mv buildLinux/bas-celik.linux.amd64.tar.xz .
+              mv buildWindows/bas-celik.windows.amd64.exe .
+              mv buildMacOS/bas-celik.macos.amd64.app .
+        - name: Generate changelog
+          run: |
+            touch changelog.md
+            git tag -l --format='%(contents)' ${{github.ref_name}} >> changelog.md
+            echo '' >> changelog.md
+            echo '```' >> changelog.md
+            sha256sum bas-celik.linux.amd64.tar.xz >> changelog.md
+            echo '```' >> changelog.md
+            echo ''    >> changelog.md
+            echo '```' >> changelog.md
+            sha256sum bas-celik.windows.amd64.exe >> changelog.md
+            echo '```' >> changelog.md
+            echo ''    >> changelog.md
+            echo '```' >> changelog.md
+            sha256sum bas-celik.macos.amd64.app >> changelog.md
+            echo '```' >> changelog.md
+        - name: Release
+          uses: softprops/action-gh-release@v1
+          with:
+            files: |
+              bas-celik.linux.amd64.tar.xz
+              bas-celik.windows.amd64.exe
+              bas-celik.macos.amd64.app
+            body_path:
+            tag_name: ${{github.ref_name}}
 
-      - name: Upload Release Asset
-        uses: actions/upload-release-asset@v1
-        if: ${{ matrix.os == 'windows-latest' }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
-        with:
-          upload_url: ${{ needs.release.outputs.upload_url }}
-          asset_path: ./bin/bas-celik.exe
-          asset_name: bas-celik-windows-${{ steps.git_tag.outputs.tag }}.exe
-          asset_content_type: application/octet-stream

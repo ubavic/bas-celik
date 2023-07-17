@@ -27,9 +27,7 @@ sudo systemctl enable pcscd
 
 Izvršne datoteke poslednje verzije programa možete preuzeti sa [Releases](https://github.com/ubavic/bas-celik/releases)  stranice.
 
-Trenutno nije ponuđena izvršna verzija za OSX, te će korisnici tog operativnog sistema morati sami da iskompajliraju program. Plan je da se uskoro ovaj nedostatak prevaziđe.
-
-## Kompilacija 
+## Kompilacija
 
 Potrebno je posedovati samo `go` kompajler. Nakon preuzimanja repozitorijuma, dovoljno je pokrenuti
 
@@ -43,7 +41,7 @@ Uz pomoć [fyne-cross](https://github.com/fyne-io/fyne-cross) programa moguće j
 
 ## Planirane nadogradnje
 
- + Automatsko generisanje izvršnih datoteka uz pomoć Github akcija
+ + Očitavanje vozačke dozvole i zdravstvene knjižice
  + Omogućavanje potpisivanja dokumenata sa ključem smeštenim na kartici
 
 ## Licenca 
