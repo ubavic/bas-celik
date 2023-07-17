@@ -14,6 +14,15 @@ Kreirani PDF dokument izgleda maksimalno približno dokumentu koji se dobija sa 
 
 Ako u bilo kom trenutku dođe do greške, informacija o grešci će se ispisati u donjem levom uglu.
 
+## Pokretanje na Linuksu
+
+Aplikacija zahteva instalirane `ccid` i `opensc` pakete. Nakon instalacije ovih paketa, neophodno je i pokrenuti `pcscd` servis:
+
+```
+sudo systemctl start pcscd
+sudo systemctl enable pcscd
+```
+
 ## Preuzimanje 
 
 Izvršne datoteke poslednje verzije programa možete preuzeti sa [Releases](https://github.com/ubavic/bas-celik/releases)  stranice.
