@@ -84,7 +84,7 @@ func readAndSave(ctx *scard.Context, doc *document.Document, pdfPath string) err
 		return fmt.Errorf("generating pdf: %w", err)
 	}
 
-	err = os.WriteFile(pdfPath, pdf, 0644)
+	err = os.WriteFile(pdfPath, pdf, 0600)
 	if err != nil {
 		return fmt.Errorf("writing file %s: %w", pdfPath, err)
 	}
