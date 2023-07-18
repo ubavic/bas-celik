@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=Baš Čelik
+Comment=A program for reading ID cards issued by the government of Serbia
+Path=/usr/bin
+Exec=bas-celik
+Terminal=false
+Icon=bas-celik
+Categories=Office
