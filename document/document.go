@@ -149,10 +149,7 @@ func (doc *Document) Pdf() ([]byte, string, error) {
 	pdf.ImageFrom(doc.Photo, leftMargin, 102.8, &gopdf.Rect{W: 119.9, H: 159})
 	pdf.SetLineWidth(0.48)
 	pdf.SetFillColor(255, 255, 255)
-	err = pdf.Rectangle(leftMargin, 102.8, 179, 262, "D", 0, 0)
-	if err != nil {
-		return nil, "", fmt.Errorf("drawing rect: %w", err)
-	}
+	pdf.Rectangle(leftMargin, 102.8, 179, 262, "D", 0, 0)
 	pdf.SetFillColor(0, 0, 0)
 
 	pdf.SetLineWidth(1.08)
@@ -187,7 +184,7 @@ func (doc *Document) Pdf() ([]byte, string, error) {
 	tab()
 	pdf.Cell(nil, doc.FormatPlaceOfBirth())
 	pdf.SetXY(textLeftMargin, pdf.GetY()+12)
-	pdf.Cell(nil, "država")
+	pdf.Cell(nil, "država:")
 
 	move()
 	pdf.Cell(nil, "Prebivalište:")
