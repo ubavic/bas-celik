@@ -109,6 +109,6 @@ jobs:
               bas-celik.linux.amd64.tar.xz
               bas-celik.windows.amd64.exe
               bas-celik.macos.amd64.app.zip
-            body_path:
+            body_path: changelog.md
             tag_name: ${{github.ref_name}}
 
