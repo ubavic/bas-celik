@@ -67,23 +67,25 @@ jobs:
         - name: Build
           run: | 
             fyne package -os darwin
-            mv 'Baš Čelik.app' bas-celik.macos.amd64.app
+            zip -r bas-celik.macos.amd64.app.zip 'Baš Čelik.app'
         - name: Upload executables
           uses: actions/upload-artifact@master
           with:
             name: macos-build-artifact
-            path: bas-celik.macos.amd64.app
+            path: bas-celik.macos.amd64.app.zip
 
   release:
     runs-on: ubuntu-latest
     needs: [ buildLinux, buildWindows, buildMacOS ]
     steps:
+        - name: Checkout
+          uses: actions/checkout@v3
         - uses: actions/download-artifact@v3
         - name: Move files
           run: |
-              mv buildLinux/bas-celik.linux.amd64.tar.xz .
-              mv buildWindows/bas-celik.windows.amd64.exe .
-              mv buildMacOS/bas-celik.macos.amd64.app .
+              mv linux-build-artifact/* .
+              mv windows-build-artifact/* .
+              mv macos-build-artifact/* .
         - name: Generate changelog
           run: |
             touch changelog.md
@@ -98,7 +100,7 @@ jobs:
             echo '```' >> changelog.md
             echo ''    >> changelog.md
             echo '```' >> changelog.md
-            sha256sum bas-celik.macos.amd64.app >> changelog.md
+            sha256sum bas-celik.macos.amd64.app.zip >> changelog.md
             echo '```' >> changelog.md
         - name: Release
           uses: softprops/action-gh-release@v1
@@ -106,7 +108,7 @@ jobs:
             files: |
               bas-celik.linux.amd64.tar.xz
               bas-celik.windows.amd64.exe
-              bas-celik.macos.amd64.app
+              bas-celik.macos.amd64.app.zip
             body_path:
             tag_name: ${{github.ref_name}}
 
