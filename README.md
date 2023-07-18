@@ -1,6 +1,6 @@
 # Baš Čelik
 
-**Baš Čelik** je čitač elektronskih ličnih karata. Program je osmišljen kao zamena za zvaničnu aplikaciju *Čelik*. Nažalost, zvanična aplikacija može se pokrenuti samo na Windows operativnom sistemu, dok BašČelik funkcioniše na tri operativna sistema (Windows/Linux/OSX).
+**Baš Čelik** je čitač elektronskih ličnih karata. Program je osmišljen kao zamena za zvaničnu aplikaciju *Čelik*. Nažalost, zvanična aplikacija može se pokrenuti samo na Windows operativnom sistemu, dok Baš Čelik funkcioniše na tri operativna sistema (Windows/Linux/OSX).
 
 ![Interfejs](assets/ui.png)
 
@@ -14,7 +14,7 @@ Kreirani PDF dokument izgleda maksimalno približno dokumentu koji se dobija sa 
 
 Ako u bilo kom trenutku dođe do greške, informacija o grešci će se ispisati u donjem levom uglu.
 
-## Pokretanje na Linuksu
+### Pokretanje na Linuksu
 
 Aplikacija zahteva instalirane `ccid` i `opensc`/`pcscd` pakete. Nakon instalacije ovih paketa, neophodno je i pokrenuti `pcscd` servis:
 
@@ -23,13 +23,23 @@ sudo systemctl start pcscd
 sudo systemctl enable pcscd
 ```
 
+### Pokretanje u komandnoj liniji
+
+Aplikacija prihvata sledeće opcije:
+
+ + `-verbose`: tokom rada aplikacije detalji o greškama će biti ispisani u komandnu liniju
+ + `-pdf PATH`: grafički interfejs neće biti pokrenut, a sadržaj dokumenta će biti direktno sačuvan u PDF na `PATH` lokaciji.
+ + `-help`: informacija o opcijama će biti prikazana
+
 ## Preuzimanje 
 
 Izvršne datoteke poslednje verzije programa možete preuzeti sa [Releases](https://github.com/ubavic/bas-celik/releases)  stranice.
 
 ## Kompilacija
 
-Potrebno je posedovati samo `go` kompajler. Nakon preuzimanja repozitorijuma, dovoljno je pokrenuti
+Potrebno je posedovati `go` kompajler. Na Linuksu je potrebno instalirati i `libpcsclite-dev` i [pakete za Fyne](https://developer.fyne.io/started/#prerequisites) (možda i `pkg-config`).
+
+Nakon preuzimanja repozitorijuma, dovoljno je pokrenuti
 
 ```
 go build main.go
@@ -43,6 +53,10 @@ Uz pomoć [fyne-cross](https://github.com/fyne-io/fyne-cross) programa moguće j
 
  + Očitavanje vozačke dozvole i zdravstvene knjižice
  + Omogućavanje potpisivanja dokumenata sa ključem smeštenim na kartici
+
+## Poznati problemi
+
+Na Windowsu, aplikacija u nekim slučajevima neće pročitati karticu ako je kartica ubačena u čitač nakon pokretanja programa. U tom slučaju, dovoljno je restartovati program.
 
 ## Licenca 
 
