@@ -33,7 +33,9 @@ Aplikacija prihvata sledeće opcije:
 
 ## Preuzimanje 
 
-Izvršne datoteke poslednje verzije programa možete preuzeti sa [Releases](https://github.com/ubavic/bas-celik/releases)  stranice.
+Izvršne datoteke poslednje verzije programa možete preuzeti sa [Releases](https://github.com/ubavic/bas-celik/releases) stranice.
+
+Dostupan je i [AUR paket](https://aur.archlinux.org/packages/bas-celik) za Arch korisnike. 
 
 ## Kompilacija
 
