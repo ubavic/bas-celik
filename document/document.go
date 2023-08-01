@@ -6,22 +6,31 @@ import (
 	"strings"
 
 	"fyne.io/fyne/v2"
+	"github.com/ubavic/bas-celik/widgets"
 )
 
 type Document interface {
 	BuildPdf() ([]byte, string, error)
-	BuildUI(func()) *fyne.Container
+	BuildUI(func(), *widgets.StatusBar) *fyne.Container
 }
 
-var font []byte
+var font, rfzoLogo []byte
 
-func SetFont(fontFS embed.FS) error {
+func SetData(fontFS, rfzoLogoFS embed.FS) error {
 	fontFile, err := fontFS.ReadFile("assets/free-sans-regular.ttf")
 	if err != nil {
 		return fmt.Errorf("reading font: %w", err)
 	}
 
 	font = fontFile
+
+	rfzoLogoFile, err := rfzoLogoFS.ReadFile("assets/rfzo.png")
+	if err != nil {
+		return fmt.Errorf("reading font: %w", err)
+	}
+
+	rfzoLogo = rfzoLogoFile
+
 	return nil
 }
 
@@ -30,5 +39,5 @@ func FormatDate(in *string) {
 	if len(chars) != 8 {
 		return
 	}
-	*in = chars[0] + chars[1] + "." + chars[2] + chars[3] + "." + chars[4] + chars[5] + chars[6] + chars[7]
+	*in = chars[0] + chars[1] + "." + chars[2] + chars[3] + "." + chars[4] + chars[5] + chars[6] + chars[7] + "."
 }

@@ -35,9 +35,8 @@ func NewGroup(name string, objects ...fyne.CanvasObject) *Group {
 }
 
 func (g *Group) CreateRenderer() fyne.WidgetRenderer {
-	nameText := canvas.NewText(g.name, color.NRGBA{R: 0x50, G: 0x50, B: 0x50, A: 0xFF})
+	nameText := canvas.NewText(g.name, color.NRGBA{R: 0x90, G: 0x90, B: 0x90, A: 0xFF})
 	nameText.TextSize = 11
-	nameText.TextStyle = fyne.TextStyle{Italic: true}
 	nameText.Move(fyne.NewPos(2*theme.Padding(), 0))
 
 	textRect := canvas.NewRectangle(color.NRGBA{R: 0xFA, G: 0xFA, B: 0xFA, A: 0xFF})

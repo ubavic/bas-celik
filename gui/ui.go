@@ -9,7 +9,6 @@ import (
 	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/storage"
-	"fyne.io/fyne/v2/widget"
 	"github.com/ebfe/scard"
 	"github.com/ubavic/bas-celik/document"
 	"github.com/ubavic/bas-celik/widgets"
@@ -18,23 +17,57 @@ import (
 var statusBar *widgets.StatusBar
 var window *fyne.Window
 var verbose bool
+var startPageOn bool // possible data races
+var startPage *widgets.StartPage
 
 func StartGui(ctx *scard.Context, verbose bool) {
+	startPageOn = true
+
 	app := app.New()
 	win := app.NewWindow("Baš Čelik")
 	window = &win
 	app.Settings().SetTheme(MyTheme{})
 
+	statusBar = widgets.NewStatusBar()
+
+	startPage = widgets.NewStartPage()
+	startPage.SetStatus("", "", false)
+
 	go pooler(ctx)
 
-	win.SetContent(container.New(layout.NewPaddedLayout(), widget.NewLabel("Hello")))
+	win.SetContent(container.New(layout.NewPaddedLayout(), startPage))
 	win.ShowAndRun()
 }
 
 func setUI(doc document.Document) {
 	pdfHandler := savePdf(window, doc)
-	ui := doc.BuildUI(pdfHandler)
-	(*window).SetContent(container.New(layout.NewPaddedLayout(), ui))
+	ui := doc.BuildUI(pdfHandler, statusBar)
+	columns := container.New(layout.NewHBoxLayout(), layout.NewSpacer(), ui, layout.NewSpacer())
+	container := container.New(layout.NewPaddedLayout(), columns)
+	(*window).SetContent(container)
+
+	(*window).Resize(container.MinSize())
+	startPageOn = false
+}
+
+func setStartPage(status, explanation string, err error) {
+	isError := false
+	if err != nil {
+		isError = true
+	}
+
+	if verbose && isError {
+		fmt.Println(err)
+	}
+
+	startPage.SetStatus(status, explanation, isError)
+	startPage.Refresh()
+
+	if !startPageOn {
+		(*window).SetContent(container.New(layout.NewPaddedLayout(), startPage))
+		startPageOn = true
+	}
+
 }
 
 func setStatus(status string, err error) {
@@ -47,8 +80,8 @@ func setStatus(status string, err error) {
 		fmt.Println(err)
 	}
 
-	//statusBar.SetStatus(status, isError)
-	//statusBar.Refresh()
+	statusBar.SetStatus(status, isError)
+	statusBar.Refresh()
 }
 
 func savePdf(win *fyne.Window, doc document.Document) func() {
@@ -56,9 +89,7 @@ func savePdf(win *fyne.Window, doc document.Document) func() {
 		pdf, fileName, err := doc.BuildPdf()
 
 		if err != nil {
-			setStatus(
-				"Greška pri generisanju PDF-a",
-				fmt.Errorf("generating PDF: %w", err))
+			setStatus("Greška pri generisanju PDF-a", fmt.Errorf("generating PDF: %w", err))
 			return
 		}
 
@@ -69,17 +100,13 @@ func savePdf(win *fyne.Window, doc document.Document) func() {
 
 			_, err = w.Write(pdf)
 			if err != nil {
-				setStatus(
-					"Greška pri zapisivanju PDF-a",
-					fmt.Errorf("writing PDF: %w", err))
+				setStatus("Greška pri zapisivanju PDF-a", fmt.Errorf("writing PDF: %w", err))
 				return
 			}
 
 			err = w.Close()
 			if err != nil {
-				setStatus(
-					"Greška pri zapisivanju PDF-a",
-					fmt.Errorf("writing PDF: %w", err))
+				setStatus("Greška pri zapisivanju PDF-a", fmt.Errorf("writing PDF: %w", err))
 				return
 			}
 

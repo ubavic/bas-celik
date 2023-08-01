@@ -1,6 +1,6 @@
 # Baš Čelik
 
-**Baš Čelik** je čitač elektronskih ličnih karata. Program je osmišljen kao zamena za zvaničnu aplikaciju *Čelik*. Nažalost, zvanična aplikacija može se pokrenuti samo na Windows operativnom sistemu, dok Baš Čelik funkcioniše na tri operativna sistema (Windows/Linux/OSX).
+**Baš Čelik** je čitač elektronskih ličnih karata i zdravstvenih knjižica. Program je osmišljen kao zamena za zvanične aplikacije poput *Čelika*. Nažalost, zvanične aplikacije mogu se pokrenuti samo na Windows operativnom sistemu, dok Baš Čelik funkcioniše na tri operativna sistema (Windows/Linux/OSX).
 
 ![Interfejs](assets/ui.png)
 
@@ -8,11 +8,9 @@ Aplikacija bi trebalo da podržava očitavanje svih ličnih karata, ali za sada 
 
 ## Upotreba
 
-Povežite čitač za računar i pokrenite aplikaciju. Ubacite ličnu kartu u čitač. Aplikacija će pročitati informacije sa lične karte i prikazati ih kroz interfejs. Tada možete sačuvati PDF pritiskom na donje desno dugme.
+Povežite čitač za računar i pokrenite aplikaciju. Ubacite karticu u čitač. Aplikacija će pročitati informacije sa kartice i prikazati ih. Tada možete sačuvati PDF pritiskom na donje desno dugme.
 
-Kreirani PDF dokument izgleda maksimalno približno dokumentu koji se dobija sa zvaničnom Čelik aplikacijom.
-
-Ako u bilo kom trenutku dođe do greške, informacija o grešci će se ispisati u donjem levom uglu.
+Kreirani PDF dokument izgleda maksimalno približno dokumentu koji se dobija sa zvaničnim aplikacijama.
 
 ### Pokretanje na Linuksu
 
@@ -53,12 +51,14 @@ Uz pomoć [fyne-cross](https://github.com/fyne-io/fyne-cross) programa moguće j
 
 ## Planirane nadogradnje
 
- + Očitavanje vozačke dozvole i zdravstvene knjižice
- + Omogućavanje potpisivanja dokumenata sa ključem smeštenim na kartici
+ + Omogućavanje potpisivanja dokumenata sa LK
 
 ## Poznati problemi
 
-Na Windowsu, aplikacija u nekim slučajevima neće pročitati karticu ako je kartica ubačena u čitač nakon pokretanja programa. U tom slučaju, dovoljno je restartovati program.
+ + Na Windowsu, aplikacija u nekim slučajevima neće pročitati karticu ako je kartica ubačena u čitač nakon pokretanja programa. U tom slučaju, dovoljno je restartovati program.
+ + Podaci na zdravstvenoj kartici su kodirani sa (meni) nepoznatim kodranjem. Program dekodira uspešno većinu karaktera, ali ne sve. Zbog toga se mogu desiti greške prilikom ispisa podataka.
+
+Ni jedan od problema ne utiče na "sigurnost" vašeg dokumenta. Baš Čelik isključivo čita podatke sa kartice.
 
 ## Licenca 
 

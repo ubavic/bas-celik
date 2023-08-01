@@ -7,6 +7,7 @@ import (
 
 	"github.com/ebfe/scard"
 	"github.com/ubavic/bas-celik/card"
+	"github.com/ubavic/bas-celik/document"
 	"github.com/ubavic/bas-celik/gui"
 
 	"embed"
@@ -16,8 +17,8 @@ import (
 //go:embed assets/free-sans-regular.ttf
 var font embed.FS
 
-//go:embed assets/defaultPhoto.png
-var defaultPhoto embed.FS
+//go:embed assets/rfzo.png
+var rfzoLogo embed.FS
 
 func main() {
 	verboseFlag := flag.Bool("verbose", true, "Provide additional details in the terminal. Useful for debugging GUI")
@@ -31,6 +32,8 @@ func main() {
 	}
 
 	defer ctx.Release()
+
+	document.SetData(font, rfzoLogo)
 
 	if len(*pdfPath) == 0 {
 		gui.StartGui(ctx, *verboseFlag)

@@ -84,7 +84,7 @@ func (doc *IdDocument) formatPlaceOfBirth() string {
 	return placeOfBirth.String()
 }
 
-func (doc IdDocument) BuildUI(pdfHandler func()) *fyne.Container {
+func (doc IdDocument) BuildUI(pdfHandler func(), statusBar *widgets.StatusBar) *fyne.Container {
 	nameF := widgets.NewField("Ime, ime roditelja, prezime", doc.formatName(), 350)
 	birthDateF := widgets.NewField("Datum rođenja", doc.DateOfBirth, 100)
 	sexF := widgets.NewField("Pol", doc.Sex, 50)
@@ -93,12 +93,15 @@ func (doc IdDocument) BuildUI(pdfHandler func()) *fyne.Container {
 	birthPlaceF := widgets.NewField("Mesto rođenja, opština i država", doc.formatPlaceOfBirth(), 350)
 	addressF := widgets.NewField("Prebivalište i adresa stana", doc.formatAddress(), 350)
 	addressDateF := widgets.NewField("Datum promene adrese", doc.AddressDate, 10)
+	personInformationGroup := widgets.NewGroup("Podaci o građaninu", nameF, birthRow, birthPlaceF, addressF, addressDateF)
+
 	issuedByF := widgets.NewField("Dokument izdaje", doc.IssuingAuthority, 10)
 	documentNumberF := widgets.NewField("Broj dokumenta", doc.DocumentNumber, 100)
 	issueDateF := widgets.NewField("Datum izdavanja", doc.IssuingDate, 100)
 	expiryDateF := widgets.NewField("Važi do", doc.ExpiryDate, 100)
-	dateRow := container.New(layout.NewHBoxLayout(), documentNumberF, issueDateF, expiryDateF)
-	colRight := container.New(layout.NewVBoxLayout(), nameF, birthRow, birthPlaceF, addressF, addressDateF, issuedByF, dateRow)
+	docRow := container.New(layout.NewHBoxLayout(), documentNumberF, issueDateF, expiryDateF)
+	docGroup := widgets.NewGroup("Podaci o dokumentu", issuedByF, docRow)
+	colRight := container.New(layout.NewVBoxLayout(), personInformationGroup, docGroup)
 
 	imgWidget := canvas.NewImageFromImage(doc.Photo)
 	imgWidget.SetMinSize(fyne.Size{Width: 200, Height: 250})
@@ -107,7 +110,7 @@ func (doc IdDocument) BuildUI(pdfHandler func()) *fyne.Container {
 	cols := container.New(layout.NewHBoxLayout(), colLeft, colRight)
 
 	saveButton := widget.NewButton("Sačuvaj PDF", pdfHandler)
-	buttonBar := container.New(layout.NewHBoxLayout(), layout.NewSpacer(), saveButton)
+	buttonBar := container.New(layout.NewHBoxLayout(), statusBar, layout.NewSpacer(), saveButton)
 
 	return container.New(layout.NewVBoxLayout(), cols, buttonBar)
 }

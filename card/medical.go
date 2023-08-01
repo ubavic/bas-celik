@@ -46,7 +46,13 @@ func readMedicalCard(card MedicalCard) (*document.MedicalDocument, error) {
 	}
 
 	fields = parseResponse(rsp)
+	descramble(fields, 1570)
+	assignField(fields, 1570, &doc.SurnameCyrl)
+	descramble(fields, 1571)
 	assignField(fields, 1571, &doc.Surname)
+	descramble(fields, 1572)
+	assignField(fields, 1572, &doc.GivenNameCyrl)
+	descramble(fields, 1573)
 	assignField(fields, 1573, &doc.GivenName)
 	assignField(fields, 1574, &doc.DateOfBirth)
 	document.FormatDate(&doc.DateOfBirth)
@@ -58,9 +64,9 @@ func readMedicalCard(card MedicalCard) (*document.MedicalDocument, error) {
 	}
 
 	fields = parseResponse(rsp)
-	assignField(fields, 1589, &doc.ValidUntil)
+	assignField(fields, 1586, &doc.ValidUntil)
 	document.FormatDate(&doc.ValidUntil)
-	assignBoolField(fields, 1589, &doc.PermanentlyValid)
+	assignBoolField(fields, 1587, &doc.PermanentlyValid)
 
 	rsp, err = card.readFile([]byte{0x0D, 0x04}, false)
 	if err != nil {
@@ -72,7 +78,14 @@ func readMedicalCard(card MedicalCard) (*document.MedicalDocument, error) {
 	assignField(fields, 1601, &doc.ParentNameCyrl)
 	descramble(fields, 1602)
 	assignField(fields, 1602, &doc.ParentName)
+	if string(fields[1603]) == "01" {
+		doc.Sex = "Mушко"
+	} else {
+		doc.Sex = "Женско"
+	}
 	assignField(fields, 1604, &doc.PersonalNumber)
+	descramble(fields, 1605)
+	assignField(fields, 1605, &doc.AddressStreet)
 	descramble(fields, 1607)
 	assignField(fields, 1607, &doc.AddressMunicipality)
 	descramble(fields, 1608)
@@ -89,16 +102,26 @@ func readMedicalCard(card MedicalCard) (*document.MedicalDocument, error) {
 	assignField(fields, 1619, &doc.InsuranceHolderInsuranceNumber)
 	descramble(fields, 1620)
 	assignField(fields, 1620, &doc.InsuranceHolderSurnameCyrl)
+	descramble(fields, 1621)
 	assignField(fields, 1621, &doc.InsuranceHolderSurname)
 	descramble(fields, 1622)
 	assignField(fields, 1622, &doc.InsuranceHolderNameCyrl)
+	descramble(fields, 1623)
 	assignField(fields, 1623, &doc.InsuranceHolderName)
 	assignField(fields, 1624, &doc.InsuranceStartDate)
 	document.FormatDate(&doc.InsuranceStartDate)
+	descramble(fields, 1626)
+	assignField(fields, 1626, &doc.AddressState)
+	descramble(fields, 1628)
+	descramble(fields, 1629)
 	descramble(fields, 1630)
 	assignField(fields, 1630, &doc.ObligeeName)
+	descramble(fields, 1531)
 	assignField(fields, 1631, &doc.ObligeePlace)
 	assignField(fields, 1632, &doc.ObligeeIdNumber)
+	if len(doc.ObligeeIdNumber) == 0 {
+		assignField(fields, 1633, &doc.ObligeeIdNumber)
+	}
 	assignField(fields, 1634, &doc.ObligeeActivity)
 
 	return &doc, nil
@@ -140,6 +163,16 @@ func descramble(fields map[uint][]byte, tag uint) {
 			}
 		} else if bs[i+1] == 0x00 {
 			toAppend = []byte{bs[i]}
+		} else if bs[i+1] == 0x01 {
+			switch bs[i] {
+			case 6:
+				toAppend = []byte("Ć")
+			default:
+				toAppend = []byte{}
+			}
+
+		} else {
+			toAppend = []byte{bs[i], bs[i+1]}
 		}
 		out = append(out, toAppend...)
 	}

@@ -18,9 +18,9 @@ type StatusBarRenderer struct {
 	statusText *canvas.Text
 }
 
-func newStatusBar() *StatusBar {
+func NewStatusBar() *StatusBar {
 	statusBar := &StatusBar{
-		status: "status status",
+		status: "",
 		err:    true,
 	}
 	statusBar.ExtendBaseWidget(statusBar)
