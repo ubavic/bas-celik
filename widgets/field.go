@@ -1,4 +1,4 @@
-package ui
+package widgets
 
 import (
 	"fyne.io/fyne/v2"
@@ -19,10 +19,10 @@ type FieldRenderer struct {
 	nameText, valueText *canvas.Text
 }
 
-func newField(name string, minWidth float32) *Field {
+func NewField(name, value string, minWidth float32) *Field {
 	field := &Field{
 		name:     name,
-		value:    "",
+		value:    value,
 		minWidth: minWidth,
 	}
 	field.ExtendBaseWidget(field)

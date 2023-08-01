@@ -1,131 +1,71 @@
 package card
 
 import (
-	"bytes"
 	"encoding/binary"
 	"fmt"
-	"image"
 	"reflect"
 
 	"github.com/ebfe/scard"
-	"github.com/ubavic/bas-celik/document"
 	doc "github.com/ubavic/bas-celik/document"
 )
-
-var DOCUMENT_FILE_LOC = []byte{0x0F, 0x02}
-var PERSONAL_FILE_LOC = []byte{0x0F, 0x03}
-var RESIDENCE_FILE_LOC = []byte{0x0F, 0x04}
-var PHOTO_FILE_LOC = []byte{0x0F, 0x06}
 
 type Card interface {
 	readFile([]byte, bool) ([]byte, error)
 }
 
-func ReadCard(sc *scard.Card, doc *doc.Document) error {
+func ReadCard(sc *scard.Card) (doc.Document, error) {
 	var card Card
 
 	smartCardStatus, err := sc.Status()
 	if err != nil {
-		return fmt.Errorf("reading card %w", err)
+		return nil, fmt.Errorf("reading card %w", err)
 	}
 
 	if reflect.DeepEqual(smartCardStatus.Atr, GEMALTO_ATR_1) || reflect.DeepEqual(smartCardStatus.Atr, GEMALTO_ATR_2) {
 		card = Gemalto{smartCard: sc}
-		connectGemalto(sc)
+		card.(Gemalto).selectFiles()
 	} else if reflect.DeepEqual(smartCardStatus.Atr, APOLLO_ATR) {
 		card = Apollo{smartCard: sc}
+	} else if reflect.DeepEqual(smartCardStatus.Atr, MEDICAL_ATR) {
+		card = MedicalCard{smartCard: sc}
 	} else {
-		return fmt.Errorf("unknown card type")
+		return nil, fmt.Errorf("unknown card type")
 	}
 
-	var fields map[uint]string
+	var d doc.Document
 
-	assignField := func(tag uint, target *string) {
-		val, ok := fields[tag]
-		if ok {
-			*target = val
-		} else {
-			*target = ""
-		}
+	switch card := card.(type) {
+	case Apollo:
+		d, err = readIDCard(card)
+	case Gemalto:
+		d, err = readIDCard(card)
+	case MedicalCard:
+		d, err = readMedicalCard(card)
 	}
 
-	rsp, err := card.readFile(DOCUMENT_FILE_LOC, false)
 	if err != nil {
-		return fmt.Errorf("reading document file %w", err)
+		return nil, fmt.Errorf("reading ID card: %w", err)
 	}
 
-	fields = parseResponse(rsp)
-	assignField(1546, &doc.DocumentNumber)
-	assignField(1549, &doc.IssuingDate)
-	assignField(1550, &doc.ExpiryDate)
-	assignField(1551, &doc.IssuingAuthority)
-	doc.IssuingDate = document.FormatDate(doc.IssuingDate)
-	doc.ExpiryDate = document.FormatDate(doc.ExpiryDate)
-
-	rsp, err = card.readFile(PERSONAL_FILE_LOC, false)
-	if err != nil {
-		return fmt.Errorf("reading personal file %w", err)
-	}
-
-	fields = parseResponse(rsp)
-	assignField(1558, &doc.PersonalNumber)
-	assignField(1559, &doc.Surname)
-	assignField(1560, &doc.GivenName)
-	assignField(1561, &doc.ParentName)
-	assignField(1562, &doc.Sex)
-	assignField(1563, &doc.PlaceOfBirth)
-	assignField(1564, &doc.CommunityOfBirth)
-	assignField(1565, &doc.StateOfBirth)
-	assignField(1566, &doc.DateOfBirth)
-	doc.DateOfBirth = document.FormatDate(doc.DateOfBirth)
-
-	rsp, err = card.readFile(RESIDENCE_FILE_LOC, false)
-	if err != nil {
-		return fmt.Errorf("reading residence file %w", err)
-	}
-
-	fields = parseResponse(rsp)
-	assignField(1568, &doc.State)
-	assignField(1569, &doc.Community)
-	assignField(1570, &doc.Place)
-	assignField(1571, &doc.Street)
-	assignField(1572, &doc.AddressNumber)
-	assignField(1573, &doc.AddressLetter)
-	assignField(1574, &doc.AddressEntrance)
-	assignField(1575, &doc.AddressFloor)
-	assignField(1578, &doc.AddressApartmentNumber)
-	assignField(1580, &doc.AddressDate)
-	doc.AddressDate = document.FormatDate(doc.AddressDate)
-
-	rsp, err = card.readFile(PHOTO_FILE_LOC, true)
-	if err != nil {
-		return fmt.Errorf("reading photo file %w", err)
-	}
-
-	doc.Photo, _, err = image.Decode(bytes.NewReader(rsp))
-	if err != nil {
-		fmt.Println(err)
-		return fmt.Errorf("decoding photo file %w", err)
-	}
-
-	doc.Loaded = true
-
-	return nil
+	return d, nil
 }
 
-func selectFile(card *scard.Card, name []byte, ne uint) ([]byte, error) {
-	apu, err := buildAPDU(0x00, 0xA4, 0x08, 0x00, name, ne)
-
-	if err != nil {
-		return nil, fmt.Errorf("selecting file: %w", err)
+func assignField(fields map[uint][]byte, tag uint, target *string) {
+	val, ok := fields[tag]
+	if ok {
+		*target = string(val)
+	} else {
+		*target = ""
 	}
+}
 
-	rsp, err := card.Transmit(apu)
-	if err != nil {
-		return nil, fmt.Errorf("selecting file: %w", err)
+func assignBoolField(fields map[uint][]byte, tag uint, target *bool) {
+	val, ok := fields[tag]
+	if ok && len(val) == 1 && val[0] == 0x31 {
+		*target = true
+	} else {
+		*target = false
 	}
-
-	return rsp, nil
 }
 
 func read(card *scard.Card, offset, length uint) ([]byte, error) {
@@ -151,8 +91,8 @@ func read(card *scard.Card, offset, length uint) ([]byte, error) {
 	return rsp[:len(rsp)-2], nil
 }
 
-func parseResponse(data []byte) map[uint]string {
-	m := make(map[uint]string)
+func parseResponse(data []byte) map[uint][]byte {
+	m := make(map[uint][]byte)
 	offset := uint(0)
 
 	for {
@@ -161,7 +101,7 @@ func parseResponse(data []byte) map[uint]string {
 
 		offset += 4
 		value := data[offset : offset+length]
-		m[tag] = string(value)
+		m[tag] = value
 		offset += length
 
 		if offset >= uint(len(data)) {

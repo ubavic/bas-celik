@@ -24,10 +24,10 @@ type Gemalto struct {
 	smartCard *scard.Card
 }
 
-func connectGemalto(card *scard.Card) bool {
+func (card Gemalto) selectFiles() bool {
 	data := []byte{0xF3, 0x81, 0x00, 0x00, 0x02, 0x53, 0x45, 0x52, 0x49, 0x44, 0x01}
 	apu, _ := buildAPDU(0x00, 0xA4, 0x04, 0x00, data, 0)
-	rsp, err := card.Transmit(apu)
+	rsp, err := card.smartCard.Transmit(apu)
 	if err != nil || !responseOK(rsp) {
 		return false
 	}
@@ -38,7 +38,7 @@ func connectGemalto(card *scard.Card) bool {
 func (card Gemalto) readFile(name []byte, trim bool) ([]byte, error) {
 	output := make([]byte, 0)
 
-	_, err := selectFile(card.smartCard, name, 4)
+	_, err := card.selectFile(name, 4)
 	if err != nil {
 		return nil, fmt.Errorf("selecting file: %w", err)
 	}
@@ -68,4 +68,19 @@ func (card Gemalto) readFile(name []byte, trim bool) ([]byte, error) {
 	}
 
 	return output, nil
+}
+
+func (card Gemalto) selectFile(name []byte, ne uint) ([]byte, error) {
+	apu, err := buildAPDU(0x00, 0xA4, 0x08, 0x00, name, ne)
+
+	if err != nil {
+		return nil, fmt.Errorf("selecting file: %w", err)
+	}
+
+	rsp, err := card.smartCard.Transmit(apu)
+	if err != nil {
+		return nil, fmt.Errorf("selecting file: %w", err)
+	}
+
+	return rsp, nil
 }

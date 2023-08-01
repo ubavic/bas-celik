@@ -19,7 +19,7 @@ var APOLLO_ATR = []byte{
 func (card Apollo) readFile(name []byte, trim bool) ([]byte, error) {
 	output := make([]byte, 0)
 
-	_, err := selectFile(card.smartCard, name, 4)
+	_, err := card.selectFile(name, 4)
 	if err != nil {
 		return nil, fmt.Errorf("selecting file: %w", err)
 	}
@@ -50,4 +50,19 @@ func (card Apollo) readFile(name []byte, trim bool) ([]byte, error) {
 	}
 
 	return output, nil
+}
+
+func (card Apollo) selectFile(name []byte, ne uint) ([]byte, error) {
+	apu, err := buildAPDU(0x00, 0xA4, 0x08, 0x00, name, ne)
+
+	if err != nil {
+		return nil, fmt.Errorf("selecting file: %w", err)
+	}
+
+	rsp, err := card.smartCard.Transmit(apu)
+	if err != nil {
+		return nil, fmt.Errorf("selecting file: %w", err)
+	}
+
+	return rsp, nil
 }
