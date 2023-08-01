@@ -1,6 +1,8 @@
 package widgets
 
 import (
+	"image/color"
+
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/theme"
@@ -14,9 +16,10 @@ type Field struct {
 }
 
 type FieldRenderer struct {
-	field               *Field
-	background          *canvas.Rectangle
-	nameText, valueText *canvas.Text
+	field      *Field
+	background *canvas.Rectangle
+	nameText   *canvas.Text
+	valueLabel *widget.Label
 }
 
 func NewField(name, value string, minWidth float32) *Field {
@@ -33,36 +36,36 @@ func (f *Field) CreateRenderer() fyne.WidgetRenderer {
 	nameText := canvas.NewText(f.name, theme.ForegroundColor())
 	nameText.TextSize = 11
 
-	valueText := canvas.NewText(f.value, theme.ForegroundColor())
-	valueText.TextStyle = fyne.TextStyle{Bold: true}
+	valueText := widget.NewLabelWithStyle(f.value, fyne.TextAlignLeading, fyne.TextStyle{Bold: true})
+	valueText.Wrapping = fyne.TextWrapWord
+	valueText.Resize(fyne.NewSize(f.minWidth, valueText.MinSize().Height))
 
 	return &FieldRenderer{
 		field:      f,
-		background: canvas.NewRectangle(theme.BackgroundColor()),
+		background: canvas.NewRectangle(color.RGBA{A: 0x00}),
 		nameText:   nameText,
-		valueText:  valueText,
+		valueLabel: valueText,
 	}
 }
 
 func (r *FieldRenderer) Refresh() {
-	r.valueText.Text = r.field.value
 	r.background.Refresh()
-	r.valueText.Refresh()
+	r.valueLabel.Refresh()
 }
 
 func (r *FieldRenderer) Layout(s fyne.Size) {
 	r.nameText.Move(fyne.Position{X: theme.Padding(), Y: theme.Padding()})
-	r.valueText.Move(fyne.Position{X: theme.Padding(), Y: 15 + theme.Padding()})
+	r.valueLabel.Move(fyne.Position{X: -1, Y: 15})
 	r.background.Resize(s)
 }
 
 func (r *FieldRenderer) MinSize() fyne.Size {
 	ts1 := fyne.MeasureText(r.nameText.Text, r.nameText.TextSize, r.nameText.TextStyle)
-	return fyne.NewSize(r.field.minWidth+2*theme.Padding(), ts1.Height+ts1.Height+2*theme.Padding())
+	return fyne.NewSize(r.field.minWidth+2*theme.Padding(), ts1.Height+r.valueLabel.MinSize().Height-theme.Padding())
 }
 
 func (r *FieldRenderer) Objects() []fyne.CanvasObject {
-	return []fyne.CanvasObject{r.background, r.valueText, r.nameText}
+	return []fyne.CanvasObject{r.background, r.valueLabel, r.nameText}
 }
 
 func (r *FieldRenderer) Destroy() {}
