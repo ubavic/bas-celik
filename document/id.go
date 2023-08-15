@@ -147,6 +147,13 @@ func (doc *IdDocument) BuildPdf() ([]byte, string, error) {
 		pdf.Line(leftMargin, y, rightMargin, y)
 	}
 
+	putData := func(label, data string) {
+		pdf.Cell(nil, label)
+		tab()
+		pdf.Cell(nil, data)
+		move()
+	}
+
 	pdf.SetLineWidth(0.83)
 	pdf.SetLineType("solid")
 	line(59.041)
@@ -172,51 +179,23 @@ func (doc *IdDocument) BuildPdf() ([]byte, string, error) {
 
 	line(300)
 	pdf.SetXY(textLeftMargin, 309)
-	pdf.Cell(nil, "Prezime:")
-	tab()
-	pdf.Cell(nil, doc.Surname)
 
-	move()
-	pdf.Cell(nil, "Ime:")
-	tab()
-	pdf.Cell(nil, doc.GivenName)
+	putData("Prezime:", doc.Surname)
+	putData("Ime:", doc.GivenName)
+	putData("Ime jednog roditelja:", doc.ParentName)
+	putData("Datum rođenja:", doc.DateOfBirth)
 
-	move()
-	pdf.Cell(nil, "Ime jednog roditelja:")
-	tab()
-	pdf.Cell(nil, doc.ParentName)
-
-	move()
-	pdf.Cell(nil, "Datum rođenja:")
-	tab()
-	pdf.Cell(nil, doc.DateOfBirth)
-
-	move()
 	pdf.Cell(nil, "Mesto rođenja, opština i")
 	tab()
 	pdf.Cell(nil, doc.formatPlaceOfBirth())
 	pdf.SetXY(textLeftMargin, pdf.GetY()+12)
 	pdf.Cell(nil, "država:")
-
 	move()
-	pdf.Cell(nil, "Prebivalište:")
-	tab()
-	pdf.Cell(nil, doc.formatAddress())
 
-	move()
-	pdf.Cell(nil, "Datum promene adrese:")
-	tab()
-	pdf.Cell(nil, doc.AddressDate)
-
-	move()
-	pdf.Cell(nil, "JMBG:")
-	tab()
-	pdf.Cell(nil, doc.PersonalNumber)
-
-	move()
-	pdf.Cell(nil, "Pol:")
-	tab()
-	pdf.Cell(nil, doc.Sex)
+	putData("Prebivalište:", doc.formatAddress())
+	putData("Datum promene adrese:", doc.AddressDate)
+	putData("JMBG:", doc.PersonalNumber)
+	putData("Pol:", doc.Sex)
 
 	line(534)
 	pdf.SetXY(textLeftMargin, 543)
@@ -225,24 +204,11 @@ func (doc *IdDocument) BuildPdf() ([]byte, string, error) {
 	line(559)
 
 	pdf.SetXY(textLeftMargin, 567)
-	pdf.Cell(nil, "Dokument izdaje:")
-	tab()
-	pdf.Cell(nil, doc.IssuingAuthority)
 
-	move()
-	pdf.Cell(nil, "Broj dokumenta:")
-	tab()
-	pdf.Cell(nil, doc.DocumentNumber)
-
-	move()
-	pdf.Cell(nil, "Datum izdavanja:")
-	tab()
-	pdf.Cell(nil, doc.IssuingDate)
-
-	move()
-	pdf.Cell(nil, "Važi do:")
-	tab()
-	pdf.Cell(nil, doc.ExpiryDate)
+	putData("Dokument izdaje:", doc.IssuingAuthority)
+	putData("Broj dokumenta:", doc.DocumentNumber)
+	putData("Datum izdavanja:", doc.IssuingDate)
+	putData("Važi do:", doc.ExpiryDate)
 
 	line(657)
 	line(660)
