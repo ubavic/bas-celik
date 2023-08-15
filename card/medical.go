@@ -127,12 +127,22 @@ func readMedicalCard(card MedicalCard) (*document.MedicalDocument, error) {
 	return &doc, nil
 }
 
-// never go full retarded with encoding
 func descramble(fields map[uint][]byte, tag uint) {
+	bs, ok := fields[tag]
+
+	if ok {
+		fields[tag] = descrambleBytes(bs)
+	} else {
+		fields[tag] = []byte{}
+	}
+}
+
+// never go full retarded with encoding
+func descrambleBytes(bs []byte) []byte {
 	uperCase := []rune{
-		'J', 'Љ', 'Њ', 'Ћ', 'Д', 'ђ', 'Е', 'Ж', 'А', 'Б',
+		'Ј', 'Љ', 'Њ', 'Ћ', 'Д', 'ђ', 'Е', 'Ж', 'А', 'Б',
 		'В', 'Г', 'Д', 'Е', 'Ж', 'З', 'И', 'О', 'К', 'Л',
-		'M', 'Н', 'О', 'П', 'Р', 'С', 'T', 'У', 'Џ', 'У',
+		'M', 'Н', 'О', 'П', 'Р', 'С', 'Т', 'У', 'Џ', 'Х',
 		'Ц', 'Ч', 'Ш',
 	}
 
@@ -143,7 +153,6 @@ func descramble(fields map[uint][]byte, tag uint) {
 	}
 
 	out := make([]byte, 0)
-	bs := fields[tag]
 
 	for i := 0; i < len(bs); i += 2 {
 		var toAppend []byte
@@ -158,6 +167,8 @@ func descramble(fields map[uint][]byte, tag uint) {
 				toAppend = []byte("j")
 			} else if bs[i] == 0x5A {
 				toAppend = []byte("њ")
+			} else if bs[i] == 0x5F {
+				toAppend = []byte("џ")
 			} else {
 				println(bs[i])
 			}
@@ -177,7 +188,7 @@ func descramble(fields map[uint][]byte, tag uint) {
 		out = append(out, toAppend...)
 	}
 
-	fields[tag] = out
+	return out
 }
 
 func (card MedicalCard) readFile(name []byte, _ bool) ([]byte, error) {
