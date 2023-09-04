@@ -47,13 +47,17 @@ func (MyTheme) Color(c fyne.ThemeColorName, v fyne.ThemeVariant) color.Color {
 }
 
 func (MyTheme) Font(s fyne.TextStyle) fyne.Resource {
-	return theme.LightTheme().Font(s)
+	return theme.DefaultTheme().Font(s)
 }
 
 func (MyTheme) Icon(n fyne.ThemeIconName) fyne.Resource {
-	return theme.LightTheme().Icon(n)
+	return theme.DefaultTheme().Icon(n)
 }
 
 func (MyTheme) Size(s fyne.ThemeSizeName) float32 {
-	return theme.LightTheme().Size(s)
+	return theme.DefaultTheme().Size(s)
+}
+
+func (MyTheme) CornerRadius() float32 {
+	return 3
 }

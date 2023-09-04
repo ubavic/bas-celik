@@ -55,13 +55,12 @@ func (r *FieldRenderer) Refresh() {
 
 func (r *FieldRenderer) Layout(s fyne.Size) {
 	r.nameText.Move(fyne.Position{X: theme.Padding(), Y: theme.Padding()})
-	r.valueLabel.Move(fyne.Position{X: -1, Y: 15})
+	r.valueLabel.Move(fyne.Position{X: -theme.Padding(), Y: 2 * theme.Padding()})
 	r.background.Resize(s)
 }
 
 func (r *FieldRenderer) MinSize() fyne.Size {
-	ts1 := fyne.MeasureText(r.nameText.Text, r.nameText.TextSize, r.nameText.TextStyle)
-	return fyne.NewSize(r.field.minWidth+2*theme.Padding(), ts1.Height+r.valueLabel.MinSize().Height-theme.Padding())
+	return fyne.NewSize(r.field.minWidth+2*theme.Padding(), r.valueLabel.MinSize().Height)
 }
 
 func (r *FieldRenderer) Objects() []fyne.CanvasObject {
