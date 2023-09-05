@@ -188,7 +188,7 @@ func (doc *MedicalDocument) BuildPdf() ([]byte, string, error) {
 		pdf.Cell(nil, label)
 		pdf.SetXY(textLeftMargin+144, pdf.GetY())
 
-		texts, _ := pdf.SplitText(data, 350)
+		texts, _ := pdf.SplitTextWithWordWrap(data, 350)
 		for i, text := range texts {
 			_ = pdf.Cell(nil, text)
 			if i < len(texts)-1 {

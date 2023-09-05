@@ -3,6 +3,7 @@ package document
 import (
 	"fmt"
 	"image"
+	"math"
 	"strings"
 	"time"
 
@@ -135,35 +136,58 @@ func (doc *IdDocument) BuildPdf() ([]byte, string, error) {
 	const rightMargin = 535
 	const textLeftMargin = 67.3
 
-	move := func() {
-		pdf.SetXY(textLeftMargin, pdf.GetY()+24.67)
-	}
+	line := func(width float64) {
+		if width > 0 {
+			pdf.SetLineWidth(width)
+		}
 
-	tab := func() {
-		pdf.SetXY(textLeftMargin+128, pdf.GetY())
-	}
-
-	line := func(y float64) {
+		y := pdf.GetY()
 		pdf.Line(leftMargin, y, rightMargin, y)
 	}
 
-	putData := func(label, data string) {
-		pdf.Cell(nil, label)
-		tab()
-		pdf.Cell(nil, data)
-		move()
+	moveY := func(y float64) {
+		pdf.SetXY(pdf.GetX(), pdf.GetY()+y)
 	}
 
-	pdf.SetLineWidth(0.83)
+	putData := func(label, data string) {
+		y := pdf.GetY()
+
+		pdf.SetX(textLeftMargin)
+		texts, _ := pdf.SplitTextWithWordWrap(label, 120)
+		for i, text := range texts {
+			_ = pdf.Cell(nil, text)
+			if i < len(texts)-1 {
+				pdf.SetXY(textLeftMargin, pdf.GetY()+12)
+			}
+		}
+
+		y1 := pdf.GetY()
+
+		pdf.SetXY(textLeftMargin+128, y)
+		texts, _ = pdf.SplitTextWithWordWrap(data, 350)
+		for i, text := range texts {
+			_ = pdf.Cell(nil, text)
+			if i < len(texts)-1 {
+				pdf.SetXY(textLeftMargin+128, pdf.GetY()+12)
+			}
+		}
+
+		y2 := pdf.GetY()
+
+		pdf.SetXY(textLeftMargin, math.Max(y1, y2)+24.67)
+	}
+
 	pdf.SetLineType("solid")
-	line(59.041)
+	pdf.SetY(59.041)
+	line(0.83)
 
 	pdf.SetXY(textLeftMargin+1.0, 68.5)
 	pdf.SetCharSpacing(-0.2)
 	pdf.Cell(nil, "ČITAČ ELEKTRONSKE LIČNE KARTE: ŠTAMPA PODATAKA")
 	pdf.SetCharSpacing(-0.1)
 
-	line(88)
+	pdf.SetY(88)
+	line(0)
 
 	pdf.ImageFrom(doc.Photo, leftMargin, 102.8, &gopdf.Rect{W: 119.9, H: 159})
 	pdf.SetLineWidth(0.48)
@@ -171,53 +195,49 @@ func (doc *IdDocument) BuildPdf() ([]byte, string, error) {
 	pdf.Rectangle(leftMargin, 102.8, 179, 262, "D", 0, 0)
 	pdf.SetFillColor(0, 0, 0)
 
-	pdf.SetLineWidth(1.08)
-	line(276)
+	pdf.SetY(276)
+	line(1.08)
+	moveY(8)
 	pdf.SetXY(textLeftMargin, 284)
 	pdf.SetFontSize(11.1)
 	pdf.Cell(nil, "Podaci o građaninu")
-
-	line(300)
-	pdf.SetXY(textLeftMargin, 309)
+	moveY(16)
+	line(0)
+	moveY(9)
 
 	putData("Prezime:", doc.Surname)
 	putData("Ime:", doc.GivenName)
 	putData("Ime jednog roditelja:", doc.ParentName)
 	putData("Datum rođenja:", doc.DateOfBirth)
-
-	pdf.Cell(nil, "Mesto rođenja, opština i")
-	tab()
-	pdf.Cell(nil, doc.formatPlaceOfBirth())
-	pdf.SetXY(textLeftMargin, pdf.GetY()+12)
-	pdf.Cell(nil, "država:")
-	move()
-
+	putData("Mesto rođenja, opština i država:", doc.formatPlaceOfBirth())
 	putData("Prebivalište:", doc.formatAddress())
 	putData("Datum promene adrese:", doc.AddressDate)
 	putData("JMBG:", doc.PersonalNumber)
 	putData("Pol:", doc.Sex)
 
-	line(534)
-	pdf.SetXY(textLeftMargin, 543)
+	moveY(-8.67)
+	line(0)
+	moveY(9)
 	pdf.Cell(nil, "Podaci o dokumentu")
+	moveY(16)
 
-	line(559)
-
-	pdf.SetXY(textLeftMargin, 567)
-
+	line(0)
+	moveY(9)
 	putData("Dokument izdaje:", doc.IssuingAuthority)
 	putData("Broj dokumenta:", doc.DocumentNumber)
 	putData("Datum izdavanja:", doc.IssuingDate)
 	putData("Važi do:", doc.ExpiryDate)
 
-	line(657)
-	line(660)
+	moveY(-8.67)
+	line(0)
+	moveY(3)
+	line(0)
+	moveY(9)
 
-	pdf.SetXY(textLeftMargin, 669.2)
 	pdf.Cell(nil, "Datum štampe: "+time.Now().Format("02.01.2006."))
 
-	pdf.SetLineWidth(0.83)
-	line(730.6)
+	pdf.SetY(730.6)
+	line(0.83)
 
 	pdf.SetFontSize(9)
 
@@ -232,7 +252,8 @@ func (doc *IdDocument) BuildPdf() ([]byte, string, error) {
 	pdf.SetXY(leftMargin, 779.1)
 	pdf.Cell(nil, "skraćuje se na prva dva karaktera")
 
-	line(794.5)
+	pdf.SetY(794.5)
+	line(0)
 
 	fileName := strings.ToLower(doc.GivenName + "_" + doc.Surname + ".pdf")
 
