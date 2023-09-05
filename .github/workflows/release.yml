@@ -24,7 +24,7 @@ jobs:
         - name: Build
           run: | 
             fyne package -os linux
-            mv 'Baš Čelik.tar.xz' bas-celik.linux.amd64.tar.xz
+            mv 'Bas Celik.tar.xz' bas-celik.linux.amd64.tar.xz
         - name: Upload executables
           uses: actions/upload-artifact@master
           with:
@@ -46,7 +46,7 @@ jobs:
           run: |
             fyne package -os windows
             ls
-            mv 'Baš Čelik.exe' bas-celik.windows.amd64.exe
+            mv 'Bas Celik.exe' bas-celik.windows.amd64.exe
         - name: Upload executables
           uses: actions/upload-artifact@master
           with:
@@ -67,7 +67,7 @@ jobs:
         - name: Build
           run: | 
             fyne package -os darwin
-            zip -r bas-celik.macos.amd64.app.zip 'Baš Čelik.app'
+            zip -r bas-celik.macos.amd64.app.zip 'Bas Celik.app'
         - name: Upload executables
           uses: actions/upload-artifact@master
           with:
