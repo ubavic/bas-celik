@@ -48,8 +48,11 @@ func (card Gemalto) readFile(name []byte, trim bool) ([]byte, error) {
 		return nil, fmt.Errorf("reading file header: %w", err)
 	}
 
-	length := uint(binary.LittleEndian.Uint16(data[2:]))
 	offset := uint(len(data))
+	if offset < 3 {
+		return nil, fmt.Errorf("invalid file header: %w", err)
+	}
+	length := uint(binary.LittleEndian.Uint16(data[2:]))
 
 	for length > 0 {
 		data, err := read(card.smartCard, offset, length)
