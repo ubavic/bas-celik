@@ -29,6 +29,9 @@ func (card Apollo) readFile(name []byte, trim bool) ([]byte, error) {
 		return nil, fmt.Errorf("reading file header: %w", err)
 	}
 
+	if len(data) < 5 {
+		return nil, fmt.Errorf("invalid file header: %w", err)
+	}
 	length := uint(binary.LittleEndian.Uint16(data[4:]))
 	offset := uint(6)
 
