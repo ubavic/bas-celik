@@ -21,9 +21,18 @@ func ReadCard(sc *scard.Card) (doc.Document, error) {
 		return nil, fmt.Errorf("reading card %w", err)
 	}
 
-	if reflect.DeepEqual(smartCardStatus.Atr, GEMALTO_ATR_1) || reflect.DeepEqual(smartCardStatus.Atr, GEMALTO_ATR_2) {
+	if reflect.DeepEqual(smartCardStatus.Atr, GEMALTO_ATR_1) {
 		card = Gemalto{smartCard: sc}
 		card.(Gemalto).selectFiles()
+	} else if reflect.DeepEqual(smartCardStatus.Atr, GEMALTO_ATR_2) {
+		// It seems that medical cards issued after 2023 have GEMALTO_ATR_2 for ATR
+		tmpMedCard := MedicalCard{smartCard: sc}
+		if tmpMedCard.TestMedicalCard() {
+			card = MedicalCard{smartCard: sc}
+		} else {
+			card = Gemalto{smartCard: sc}
+			card.(Gemalto).selectFiles()
+		}
 	} else if reflect.DeepEqual(smartCardStatus.Atr, APOLLO_ATR) {
 		card = Apollo{smartCard: sc}
 	} else if reflect.DeepEqual(smartCardStatus.Atr, MEDICAL_ATR) {

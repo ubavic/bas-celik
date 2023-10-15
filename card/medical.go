@@ -3,6 +3,7 @@ package card
 import (
 	"encoding/binary"
 	"fmt"
+	"strings"
 
 	"github.com/ebfe/scard"
 	"github.com/ubavic/bas-celik/document"
@@ -237,4 +238,28 @@ func (card MedicalCard) selectFile(name []byte) ([]byte, error) {
 	}
 
 	return rsp, nil
+}
+
+func (card MedicalCard) TestMedicalCard() bool {
+	s1 := []byte{0xF3, 0x81, 0x00, 0x00, 0x02, 0x53, 0x45, 0x52, 0x56, 0x53, 0x5A, 0x4B, 0x01}
+	apu, _ := buildAPDU(0x00, 0xA4, 0x04, 0x00, s1, 0)
+
+	_, err := card.smartCard.Transmit(apu)
+	if err != nil {
+		return false
+	}
+
+	rsp, err := card.readFile([]byte{0x0D, 0x01}, false)
+	if err != nil {
+		return false
+	}
+
+	fields := parseResponse(rsp)
+	descramble(fields, 1553)
+
+	if strings.Compare(string(fields[1553]), "Републички фонд за здравствено осигурање") == 0 {
+		return true
+	}
+
+	return false
 }
