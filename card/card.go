@@ -33,6 +33,9 @@ func ReadCard(sc *scard.Card) (doc.Document, error) {
 			card = Gemalto{smartCard: sc}
 			card.(Gemalto).selectFiles()
 		}
+	} else if reflect.DeepEqual(smartCardStatus.Atr, GEMALTO_ATR_3) {
+		card = Gemalto{smartCard: sc}
+		card.(Gemalto).selectFiles()
 	} else if reflect.DeepEqual(smartCardStatus.Atr, APOLLO_ATR) {
 		card = Apollo{smartCard: sc}
 	} else if reflect.DeepEqual(smartCardStatus.Atr, MEDICAL_ATR) {
