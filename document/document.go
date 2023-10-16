@@ -39,5 +39,9 @@ func FormatDate(in *string) {
 	if len(chars) != 8 {
 		return
 	}
+	if chars[4] == "0" {
+		*in = "Nije dostupan"
+		return
+	}
 	*in = chars[0] + chars[1] + "." + chars[2] + chars[3] + "." + chars[4] + chars[5] + chars[6] + chars[7] + "."
 }
