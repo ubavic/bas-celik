@@ -14,21 +14,25 @@ type Document interface {
 	BuildUI(func(), *widgets.StatusBar) *fyne.Container
 }
 
-var font, rfzoLogo []byte
+var fontRegular, fontBold, rfzoLogo []byte
 
-func SetData(fontFS, rfzoLogoFS embed.FS) error {
-	fontFile, err := fontFS.ReadFile("assets/free-sans-regular.ttf")
+func SetData(fontRegularFS, fontBoldFS, rfzoLogoFS embed.FS) error {
+	fontFile, err := fontRegularFS.ReadFile("assets/liberationSansRegular.ttf")
 	if err != nil {
 		return fmt.Errorf("reading font: %w", err)
 	}
+	fontRegular = fontFile
 
-	font = fontFile
+	fontFile, err = fontBoldFS.ReadFile("assets/liberationSansBold.ttf")
+	if err != nil {
+		return fmt.Errorf("reading font: %w", err)
+	}
+	fontBold = fontFile
 
 	rfzoLogoFile, err := rfzoLogoFS.ReadFile("assets/rfzo.png")
 	if err != nil {
 		return fmt.Errorf("reading font: %w", err)
 	}
-
 	rfzoLogo = rfzoLogoFile
 
 	return nil

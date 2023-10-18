@@ -122,7 +122,7 @@ func (doc *IdDocument) BuildPdf() ([]byte, string, error) {
 
 	pdf.AddPage()
 
-	err := pdf.AddTTFFontData("liberationsans", font)
+	err := pdf.AddTTFFontData("liberationsans", fontRegular)
 	if err != nil {
 		return nil, "", fmt.Errorf("loading font: %w", err)
 	}

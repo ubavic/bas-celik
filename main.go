@@ -14,8 +14,11 @@ import (
 	"fmt"
 )
 
-//go:embed assets/free-sans-regular.ttf
-var font embed.FS
+//go:embed assets/liberationSansRegular.ttf
+var fontRegular embed.FS
+
+//go:embed assets/liberationSansBold.ttf
+var fontBold embed.FS
 
 //go:embed assets/rfzo.png
 var rfzoLogo embed.FS
@@ -33,7 +36,7 @@ func main() {
 
 	defer ctx.Release()
 
-	document.SetData(font, rfzoLogo)
+	document.SetData(fontRegular, fontBold, rfzoLogo)
 
 	if len(*pdfPath) == 0 {
 		gui.StartGui(ctx, *verboseFlag)

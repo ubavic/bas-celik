@@ -78,4 +78,4 @@ Postoje takođe i drugi projekti otvorenog koda koji imaju izvesne sličnosti sa
 
 Program i izvorni kôd su objavljeni pod [*MIT* licencom](LICENSE).
 
-Font `free-sans-regular` je objavljen pod [*SIL Open Font* licencom](assets/LICENSE).
+Font [*Liberation*](https://github.com/liberationfonts/liberation-fonts) je objavljen pod [*SIL Open Font* licencom](assets/LICENSE).
