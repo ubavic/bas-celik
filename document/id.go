@@ -1,8 +1,12 @@
 package document
 
 import (
+	"bytes"
+	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"image"
+	"image/jpeg"
 	"math"
 	"strings"
 	"time"
@@ -265,4 +269,21 @@ func (doc *IdDocument) BuildPdf() ([]byte, string, error) {
 	})
 
 	return pdf.GetBytesPdf(), fileName, nil
+}
+
+func (doc *IdDocument) BuildJson() ([]byte, error) {
+	var bs bytes.Buffer
+	err := jpeg.Encode(&bs, doc.Photo, &jpeg.Options{Quality: 100})
+	if err != nil {
+		return nil, fmt.Errorf("creating json: %w", err)
+	}
+
+	type Alias IdDocument
+	return json.Marshal(&struct {
+		Photo string
+		*Alias
+	}{
+		Photo: base64.StdEncoding.EncodeToString(bs.Bytes()),
+		Alias: (*Alias)(doc),
+	})
 }

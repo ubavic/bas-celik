@@ -11,6 +11,7 @@ import (
 
 type Document interface {
 	BuildPdf() ([]byte, string, error)
+	BuildJson() ([]byte, error)
 	BuildUI(func(), *widgets.StatusBar) *fyne.Container
 }
 

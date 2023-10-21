@@ -23,9 +23,12 @@ sudo systemctl enable pcscd
 
 Aplikacija prihvata sledeće opcije:
 
- + `-verbose`: tokom rada aplikacije detalji o greškama će biti ispisani u komandnu liniju
- + `-pdf PATH`: grafički interfejs neće biti pokrenut, a sadržaj dokumenta će biti direktno sačuvan u PDF na `PATH` lokaciji.
  + `-help`: informacija o opcijama će biti prikazana
+ + `-json`: grafički interfejs neće biti pokrenut, a sadržaj dokumenta biće direktno sačuvan u JSON datoteku na `PATH` lokaciji.
+ + `-pdf PATH`: grafički interfejs neće biti pokrenut, a sadržaj dokumenta biće direktno sačuvan u PDF datoteku na `PATH` lokaciji.
+ + `-verbose`: tokom rada aplikacije detalji o greškama će biti ispisani u komandnu liniju
+
+U slučaju `json` i `pdf` opcija, program ne dodaje ekstenziju na kraj lokacije koju je korisnik naveo.
 
 ## Preuzimanje 
 

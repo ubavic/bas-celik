@@ -2,6 +2,7 @@ package document
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"image"
 	"strings"
@@ -290,4 +291,8 @@ func (doc *MedicalDocument) BuildPdf() ([]byte, string, error) {
 	})
 
 	return pdf.GetBytesPdf(), fileName, nil
+}
+
+func (doc *MedicalDocument) BuildJson() ([]byte, error) {
+	return json.Marshal(doc)
 }
