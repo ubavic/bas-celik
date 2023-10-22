@@ -20,8 +20,9 @@ var verbose bool
 var startPageOn bool // possible data races
 var startPage *widgets.StartPage
 
-func StartGui(ctx *scard.Context, verbose bool) {
+func StartGui(ctx *scard.Context, verbose_ bool) {
 	startPageOn = true
+	verbose = verbose_
 
 	app := app.New()
 	win := app.NewWindow("Baš Čelik")
@@ -67,7 +68,6 @@ func setStartPage(status, explanation string, err error) {
 		(*window).SetContent(container.New(layout.NewPaddedLayout(), startPage))
 		startPageOn = true
 	}
-
 }
 
 func setStatus(status string, err error) {

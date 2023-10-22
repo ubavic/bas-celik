@@ -24,7 +24,7 @@ var fontBold embed.FS
 var rfzoLogo embed.FS
 
 func main() {
-	verboseFlag := flag.Bool("verbose", true, "Provide additional details in the terminal. Useful for debugging GUI")
+	verboseFlag := flag.Bool("verbose", false, "Provide additional details in the terminal. Useful for debugging GUI")
 	pdfPath := flag.String("pdf", "", "Set PDF export path. This command suppresses GUI")
 	jsonPath := flag.String("json", "", "Set JSON export path. This command suppresses GUI")
 	flag.Parse()

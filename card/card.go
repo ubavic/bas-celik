@@ -2,6 +2,7 @@ package card
 
 import (
 	"encoding/binary"
+	"encoding/hex"
 	"fmt"
 	"reflect"
 
@@ -41,7 +42,7 @@ func ReadCard(sc *scard.Card) (doc.Document, error) {
 	} else if reflect.DeepEqual(smartCardStatus.Atr, MEDICAL_ATR) {
 		card = MedicalCard{smartCard: sc}
 	} else {
-		return nil, fmt.Errorf("unknown card type")
+		return nil, fmt.Errorf("unknown card type: %s", hex.EncodeToString(smartCardStatus.Atr))
 	}
 
 	var d doc.Document
