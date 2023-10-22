@@ -7,6 +7,8 @@ import (
 
 	"github.com/ebfe/scard"
 	"github.com/ubavic/bas-celik/document"
+	"golang.org/x/text/encoding/unicode"
+	"golang.org/x/text/transform"
 )
 
 type MedicalCard struct {
@@ -146,58 +148,14 @@ func descramble(fields map[uint][]byte, tag uint) {
 	}
 }
 
-// never go full retarded with encoding
 func descrambleBytes(bs []byte) []byte {
-	uperCase := []rune{
-		'Ј', 'Љ', 'Њ', 'Ћ', 'Д', 'ђ', 'Е', 'Ж', 'А', 'Б',
-		'В', 'Г', 'Д', 'Е', 'Ж', 'З', 'И', 'О', 'К', 'Л',
-		'M', 'Н', 'О', 'П', 'Р', 'С', 'Т', 'У', 'Џ', 'Х',
-		'Ц', 'Ч', 'Ш',
+	utf8, _, err := transform.Bytes(unicode.UTF16(unicode.LittleEndian, unicode.UseBOM).NewDecoder(), bs)
+
+	if err != nil {
+		return []byte{}
 	}
 
-	lowerCase := []rune{
-		'а', 'б', 'в', 'г', 'д', 'е', 'ж', 'з', 'и', 'ђ',
-		'к', 'л', 'м', 'н', 'о', 'п', 'р', 'с', 'т', 'у',
-		'ф', 'љ', 'ц', 'ч', 'ш', 'х', 'ћ', 'ч', 'џ', 'ф',
-	}
-
-	out := make([]byte, 0)
-
-	for i := 0; i < len(bs); i += 2 {
-		var toAppend []byte
-		if i+1 >= len(bs) {
-			break
-		} else if bs[i+1] == 0x04 {
-			if bs[i] >= 0x08 && bs[i] <= 0x28 {
-				toAppend = []byte(string(uperCase[bs[i]-0x08]))
-			} else if bs[i] >= 0x30 && bs[i] < 0x4E {
-				toAppend = []byte(string(lowerCase[bs[i]-0x30]))
-			} else if bs[i] == 0x58 {
-				toAppend = []byte("j")
-			} else if bs[i] == 0x5A {
-				toAppend = []byte("њ")
-			} else if bs[i] == 0x5F {
-				toAppend = []byte("џ")
-			} else {
-				println(bs[i])
-			}
-		} else if bs[i+1] == 0x00 {
-			toAppend = []byte{bs[i]}
-		} else if bs[i+1] == 0x01 {
-			switch bs[i] {
-			case 6:
-				toAppend = []byte("Ć")
-			default:
-				toAppend = []byte{}
-			}
-
-		} else {
-			toAppend = []byte{bs[i], bs[i+1]}
-		}
-		out = append(out, toAppend...)
-	}
-
-	return out
+	return utf8
 }
 
 func (card MedicalCard) readFile(name []byte, _ bool) ([]byte, error) {
