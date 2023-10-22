@@ -2,17 +2,19 @@
 
 **Baš Čelik** je čitač elektronskih ličnih karata i zdravstvenih knjižica. Program je osmišljen kao zamena za zvanične aplikacije poput *Čelika*. Nažalost, zvanične aplikacije mogu se pokrenuti samo na Windows operativnom sistemu, dok Baš Čelik funkcioniše na tri operativna sistema (Windows/Linux/OSX).
 
+Baš Čelik je besplatan program, sa potpuno otvorenim kodom dostupnim na adresi [github.com/ubavic/bas-celik](https://github.com/ubavic/bas-celik). 
+
 ![Interfejs](assets/ui.png)
 
 ## Upotreba
 
-Povežite čitač za računar i pokrenite aplikaciju. Ubacite karticu u čitač. Aplikacija će pročitati informacije sa kartice i prikazati ih. Tada možete sačuvati PDF pritiskom na donje desno dugme.
+Povežite čitač za računar i pokrenite Baš Čelik. Ubacite karticu u čitač. Program će pročitati informacije sa kartice i prikazati ih. Tada možete sačuvati PDF pritiskom na donje desno dugme.
 
 Kreirani PDF dokument izgleda maksimalno približno dokumentu koji se dobija sa zvaničnim aplikacijama.
 
 ### Pokretanje na Linuksu
 
-Aplikacija zahteva instalirane `ccid` i `opensc`/`pcscd` pakete. Nakon instalacije ovih paketa, neophodno je i pokrenuti `pcscd` servis:
+Baš Čelik zahteva instalirane `ccid` i `opensc`/`pcscd` pakete. Nakon instalacije ovih paketa, neophodno je i pokrenuti `pcscd` servis:
 
 ```
 sudo systemctl start pcscd
@@ -21,14 +23,18 @@ sudo systemctl enable pcscd
 
 ### Pokretanje u komandnoj liniji
 
-Aplikacija prihvata sledeće opcije:
+Baš Čelik prihvata sledeće opcije:
 
  + `-help`: informacija o opcijama će biti prikazana
  + `-json`: grafički interfejs neće biti pokrenut, a sadržaj dokumenta biće direktno sačuvan u JSON datoteku na `PATH` lokaciji.
  + `-pdf PATH`: grafički interfejs neće biti pokrenut, a sadržaj dokumenta biće direktno sačuvan u PDF datoteku na `PATH` lokaciji.
  + `-verbose`: tokom rada aplikacije detalji o greškama će biti ispisani u komandnu liniju
 
-U slučaju `json` i `pdf` opcija, program ne dodaje ekstenziju na kraj lokacije koju je korisnik naveo.
+U slučaju `json` i `pdf` opcija, program ne dodaje ekstenziju na kraj lokacije koju je korisnik naveo. Takođe, pri pokretanju sa nekom od navedene dve opcije, program očekuje da je kartica smeštena u čitač i neće čekati na ubacivanje kartice kao što je to slučaj sa grafičkim okruženjem.
+
+### Čitači i drajveri
+
+Baš Čelik bi trebalo da funkcioniše sa svim čitačima pametnih kartica koji su trenutno dostupni u prodaji (Gemalto, Hama, Samtec...). Korisnici Windows (7, 8, 10, 11) i macOS operativnih sistema ne moraju da instaliraju ni jedan dodatni program (drajver).
 
 ## Preuzimanje 
 
@@ -46,17 +52,21 @@ Nakon preuzimanja repozitorijuma, dovoljno je pokrenuti
 go build main.go
 ```
 
+Prva kompilacija može potrajati nekoliko minuta (i do deset), jer je neophodno da se preuzmu i kompajliraju sve Golang biblioteke. Sve naredne kompilacije se izvršavaju u nekoliko sekundi.
+
 ### Kroskompilacija
 
 Uz pomoć [fyne-cross](https://github.com/fyne-io/fyne-cross) programa moguće je na jednom operativnom sistemu iskompajlirati program za sva tri operativna sistema. Ovaj program zahteva Docker na vašem operativnom sistemu.
 
 ## Planirane nadogradnje
 
- + Omogućavanje potpisivanja dokumenata sa LK
+ + Potpisivanje dokumenata sa sertifikatom smeštenim na LK
+ + Verifikacija podataka na karticama
+ + Opcija promene PIN koda na LK
 
 ## Poznati problemi
 
-Aplikacija bi trebalo da podržava očitavanje svih ličnih karata i zdravstvenih knjižica. Unapred sam zahvalan za bilo kakvu povratnu informaciju.
+Baš Čelik bi trebalo da podržava očitavanje svih ličnih karata i zdravstvenih knjižica. Unapred sam zahvalan za bilo kakvu povratnu informaciju.
 
 Za sada su registrovani naredni problemi:
 
