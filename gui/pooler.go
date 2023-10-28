@@ -48,7 +48,7 @@ func pooler(ctx *scard.Context) {
 					loaded = true
 				}
 			}
-			sCard.Disconnect(scard.LeaveCard)
+			_ = sCard.Disconnect(scard.LeaveCard)
 		} else {
 			loaded = false
 			setStartPage(

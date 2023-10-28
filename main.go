@@ -37,7 +37,11 @@ func main() {
 
 	defer ctx.Release()
 
-	document.SetData(fontRegular, fontBold, rfzoLogo)
+	err = document.SetData(fontRegular, fontBold, rfzoLogo)
+	if err != nil {
+		fmt.Printf("Setup error: %s", err)
+		return
+	}
 
 	if len(*pdfPath) == 0 && len(*jsonPath) == 0 {
 		gui.StartGui(ctx, *verboseFlag)

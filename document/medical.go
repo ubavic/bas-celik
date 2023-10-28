@@ -205,7 +205,6 @@ func (doc *MedicalDocument) BuildPdf() ([]byte, string, error) {
 
 	rfzoLogoImage, _, err := image.Decode(bytes.NewReader(rfzoLogo))
 	if err != nil {
-		fmt.Println(err)
 		return nil, "", fmt.Errorf("decoding photo file: %w", err)
 	}
 
