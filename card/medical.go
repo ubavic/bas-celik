@@ -86,7 +86,6 @@ func readMedicalCard(card MedicalCard) (*document.MedicalDocument, error) {
 	} else {
 		doc.Sex = "Женско"
 	}
-	descramble(fields, 1604)
 	assignField(fields, 1604, &doc.PersonalNumber)
 	descramble(fields, 1605)
 	assignField(fields, 1605, &doc.AddressStreet)
@@ -98,16 +97,13 @@ func readMedicalCard(card MedicalCard) (*document.MedicalDocument, error) {
 	assignField(fields, 1610, &doc.AddressNumber)
 	descramble(fields, 1612)
 	assignField(fields, 1612, &doc.AddressApartmentNumber)
-	descramble(fields, 1614)
 	assignField(fields, 1614, &doc.InsuranceReason)
 	descramble(fields, 1615)
 	assignField(fields, 1615, &doc.InsuranceDescription)
 	descramble(fields, 1616)
 	assignField(fields, 1616, &doc.InsuranceHolderRelation)
 	assignBoolField(fields, 1617, &doc.InsuranceHolderIsFamilyMember)
-	descramble(fields, 1618)
 	assignField(fields, 1618, &doc.InsuranceHolderPersonalNumber)
-	descramble(fields, 1619)
 	assignField(fields, 1619, &doc.InsuranceHolderInsuranceNumber)
 	descramble(fields, 1620)
 	assignField(fields, 1620, &doc.InsuranceHolderSurnameCyrl)
@@ -117,7 +113,6 @@ func readMedicalCard(card MedicalCard) (*document.MedicalDocument, error) {
 	assignField(fields, 1622, &doc.InsuranceHolderNameCyrl)
 	descramble(fields, 1623)
 	assignField(fields, 1623, &doc.InsuranceHolderName)
-	descramble(fields, 1624)
 	assignField(fields, 1624, &doc.InsuranceStartDate)
 	document.FormatDate(&doc.InsuranceStartDate)
 	descramble(fields, 1626)
@@ -126,10 +121,8 @@ func readMedicalCard(card MedicalCard) (*document.MedicalDocument, error) {
 	assignField(fields, 1630, &doc.ObligeeName)
 	descramble(fields, 1631)
 	assignField(fields, 1631, &doc.ObligeePlace)
-	descramble(fields, 1632)
 	assignField(fields, 1632, &doc.ObligeeIdNumber)
 	if len(doc.ObligeeIdNumber) == 0 {
-		descramble(fields, 1633)
 		assignField(fields, 1633, &doc.ObligeeIdNumber)
 	}
 	descramble(fields, 1634)
