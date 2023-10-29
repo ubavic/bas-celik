@@ -3,6 +3,7 @@ package document
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"image"
 	"strings"
@@ -156,7 +157,18 @@ func (doc MedicalDocument) BuildUI(pdfHandler func(), statusBar *widgets.StatusB
 	return container.New(layout.NewVBoxLayout(), cols, buttonBar)
 }
 
-func (doc *MedicalDocument) BuildPdf() ([]byte, string, error) {
+func (doc *MedicalDocument) BuildPdf() (data []byte, fileName string, retErr error) {
+	defer func() {
+		if r := recover(); r != nil {
+			switch x := r.(type) {
+			case error:
+				retErr = x
+			default:
+				retErr = errors.New("unknown panic")
+			}
+		}
+	}()
+
 	pdf := gopdf.GoPdf{}
 	pdf.Start(gopdf.Config{PageSize: *gopdf.PageSizeA4})
 
@@ -164,34 +176,41 @@ func (doc *MedicalDocument) BuildPdf() ([]byte, string, error) {
 
 	err := pdf.AddTTFFontData("liberationsans", fontRegular)
 	if err != nil {
-		return nil, "", fmt.Errorf("loading font: %w", err)
+		panic(fmt.Errorf("loading font: %w", err))
 	}
 
 	err = pdf.SetFont("liberationsans", "", 11)
 	if err != nil {
-		return nil, "", fmt.Errorf("setting font: %w", err)
+		panic(fmt.Errorf("setting font: %w", err))
 	}
 
 	const leftMargin = 30.464
 	const rightMargin = 535
 	const textLeftMargin = 38.243
 
+	cell := func(s string) {
+		err := pdf.Cell(nil, s)
+		if err != nil {
+			panic(fmt.Errorf("putting text: %w", err))
+		}
+	}
+
 	section := func(name string) {
 		y := pdf.GetY() + 8
 		pdf.Line(leftMargin, y, rightMargin, y)
 		pdf.SetXY(textLeftMargin, y+12)
-		pdf.Cell(nil, name)
+		cell(name)
 		pdf.Line(leftMargin, y+32, rightMargin, y+32)
 		pdf.SetXY(textLeftMargin, y+41)
 	}
 
 	putData := func(label, data string) {
-		pdf.Cell(nil, label)
+		cell(label)
 		pdf.SetXY(textLeftMargin+144, pdf.GetY())
 
 		texts, _ := pdf.SplitTextWithWordWrap(data, 350)
 		for i, text := range texts {
-			_ = pdf.Cell(nil, text)
+			cell(text)
 			if i < len(texts)-1 {
 				pdf.SetXY(textLeftMargin+144, pdf.GetY()+11)
 			}
@@ -205,13 +224,16 @@ func (doc *MedicalDocument) BuildPdf() ([]byte, string, error) {
 
 	rfzoLogoImage, _, err := image.Decode(bytes.NewReader(rfzoLogo))
 	if err != nil {
-		return nil, "", fmt.Errorf("decoding photo file: %w", err)
+		panic(fmt.Errorf("decoding photo file: %w", err))
 	}
 
-	pdf.ImageFrom(rfzoLogoImage, 36.0, 14.0, &gopdf.Rect{W: 144, H: 51})
+	err = pdf.ImageFrom(rfzoLogoImage, 36.0, 14.0, &gopdf.Rect{W: 144, H: 51})
+	if err != nil {
+		panic(fmt.Errorf("inserting logo: %w", err))
+	}
 
 	pdf.SetXY(218.6, 49.6)
-	pdf.Cell(nil, "ПРЕГЛЕД КАРТИЦЕ ЗДРАВСТВЕНОГ ОСИГУРАЊА (КЗО)")
+	cell("ПРЕГЛЕД КАРТИЦЕ ЗДРАВСТВЕНОГ ОСИГУРАЊА (КЗО)")
 
 	pdf.SetY(68)
 	section("Општи подаци о осигуранику")
@@ -280,7 +302,7 @@ func (doc *MedicalDocument) BuildPdf() ([]byte, string, error) {
 
 	putData("Делатност:", doc.ObligeeActivity)
 
-	fileName := strings.ToLower(doc.GivenName + "_" + doc.Surname + ".pdf")
+	fileName = strings.ToLower(doc.GivenName + "_" + doc.Surname + ".pdf")
 
 	pdf.SetInfo(gopdf.PdfInfo{
 		Title:        doc.GivenName + " " + doc.Surname,

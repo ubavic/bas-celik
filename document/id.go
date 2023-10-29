@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"image"
 	"image/jpeg"
@@ -120,7 +121,18 @@ func (doc IdDocument) BuildUI(pdfHandler func(), statusBar *widgets.StatusBar) *
 	return container.New(layout.NewVBoxLayout(), cols, buttonBar)
 }
 
-func (doc *IdDocument) BuildPdf() ([]byte, string, error) {
+func (doc *IdDocument) BuildPdf() (data []byte, fileName string, retErr error) {
+	defer func() {
+		if r := recover(); r != nil {
+			switch x := r.(type) {
+			case error:
+				retErr = x
+			default:
+				retErr = errors.New("unknown panic")
+			}
+		}
+	}()
+
 	pdf := gopdf.GoPdf{}
 	pdf.Start(gopdf.Config{PageSize: *gopdf.PageSizeA4})
 
@@ -128,12 +140,12 @@ func (doc *IdDocument) BuildPdf() ([]byte, string, error) {
 
 	err := pdf.AddTTFFontData("liberationsans", fontRegular)
 	if err != nil {
-		return nil, "", fmt.Errorf("loading font: %w", err)
+		panic(fmt.Errorf("loading font: %w", err))
 	}
 
 	err = pdf.SetFont("liberationsans", "", 13.5)
 	if err != nil {
-		return nil, "", fmt.Errorf("setting font: %w", err)
+		panic(fmt.Errorf("setting font: %w", err))
 	}
 
 	const leftMargin = 58.8
@@ -153,13 +165,24 @@ func (doc *IdDocument) BuildPdf() ([]byte, string, error) {
 		pdf.SetXY(pdf.GetX(), pdf.GetY()+y)
 	}
 
+	cell := func(s string) {
+		err := pdf.Cell(nil, s)
+		if err != nil {
+			panic(fmt.Errorf("putting text: %w", err))
+		}
+	}
+
 	putData := func(label, data string) {
 		y := pdf.GetY()
 
 		pdf.SetX(textLeftMargin)
-		texts, _ := pdf.SplitTextWithWordWrap(label, 120)
+		texts, err := pdf.SplitTextWithWordWrap(label, 120)
+		if err != nil {
+			panic(err)
+		}
+
 		for i, text := range texts {
-			_ = pdf.Cell(nil, text)
+			cell(text)
 			if i < len(texts)-1 {
 				pdf.SetXY(textLeftMargin, pdf.GetY()+12)
 			}
@@ -168,9 +191,13 @@ func (doc *IdDocument) BuildPdf() ([]byte, string, error) {
 		y1 := pdf.GetY()
 
 		pdf.SetXY(textLeftMargin+128, y)
-		texts, _ = pdf.SplitTextWithWordWrap(data, 350)
+		texts, err = pdf.SplitTextWithWordWrap(data, 350)
+		if err != nil {
+			panic(err)
+		}
+
 		for i, text := range texts {
-			_ = pdf.Cell(nil, text)
+			cell(text)
 			if i < len(texts)-1 {
 				pdf.SetXY(textLeftMargin+128, pdf.GetY()+12)
 			}
@@ -186,25 +213,43 @@ func (doc *IdDocument) BuildPdf() ([]byte, string, error) {
 	line(0.83)
 
 	pdf.SetXY(textLeftMargin+1.0, 68.5)
-	pdf.SetCharSpacing(-0.2)
-	pdf.Cell(nil, "ČITAČ ELEKTRONSKE LIČNE KARTE: ŠTAMPA PODATAKA")
-	pdf.SetCharSpacing(-0.1)
+	err = pdf.SetCharSpacing(-0.2)
+	if err != nil {
+		panic(err)
+	}
+	cell("ČITAČ ELEKTRONSKE LIČNE KARTE: ŠTAMPA PODATAKA")
+
+	err = pdf.SetCharSpacing(-0.1)
+	if err != nil {
+		panic(err)
+	}
 
 	pdf.SetY(88)
 	line(0)
 
-	pdf.ImageFrom(doc.Photo, leftMargin, 102.8, &gopdf.Rect{W: 119.9, H: 159})
+	err = pdf.ImageFrom(doc.Photo, leftMargin, 102.8, &gopdf.Rect{W: 119.9, H: 159})
+	if err != nil {
+		panic(err)
+	}
+
 	pdf.SetLineWidth(0.48)
 	pdf.SetFillColor(255, 255, 255)
-	pdf.Rectangle(leftMargin, 102.8, 179, 262, "D", 0, 0)
+	err = pdf.Rectangle(leftMargin, 102.8, 179, 262, "D", 0, 0)
+	if err != nil {
+		panic(err)
+	}
+
 	pdf.SetFillColor(0, 0, 0)
 
 	pdf.SetY(276)
 	line(1.08)
 	moveY(8)
 	pdf.SetXY(textLeftMargin, 284)
-	pdf.SetFontSize(11.1)
-	pdf.Cell(nil, "Podaci o građaninu")
+	err = pdf.SetFontSize(11.1)
+	if err != nil {
+		panic(err)
+	}
+	cell("Podaci o građaninu")
 	moveY(16)
 	line(0)
 	moveY(9)
@@ -222,7 +267,7 @@ func (doc *IdDocument) BuildPdf() ([]byte, string, error) {
 	moveY(-8.67)
 	line(0)
 	moveY(9)
-	pdf.Cell(nil, "Podaci o dokumentu")
+	cell("Podaci o dokumentu")
 	moveY(16)
 
 	line(0)
@@ -238,28 +283,31 @@ func (doc *IdDocument) BuildPdf() ([]byte, string, error) {
 	line(0)
 	moveY(9)
 
-	pdf.Cell(nil, "Datum štampe: "+time.Now().Format("02.01.2006."))
+	cell("Datum štampe: " + time.Now().Format("02.01.2006."))
 
 	pdf.SetY(730.6)
 	line(0.83)
 
-	pdf.SetFontSize(9)
+	err = pdf.SetFontSize(9)
+	if err != nil {
+		panic(err)
+	}
 
 	pdf.SetXY(leftMargin, 739.7)
-	pdf.Cell(nil, "1. U čipu lične karte, podaci o imenu i prezimenu imaoca lične karte ispisani su na nacionalnom pismu onako kako su")
+	cell("1. U čipu lične karte, podaci o imenu i prezimenu imaoca lične karte ispisani su na nacionalnom pismu onako kako su")
 	pdf.SetXY(leftMargin, 749.9)
-	pdf.Cell(nil, "ispisani na samom obrascu lične karte, dok su ostali podaci ispisani latiničkim pismom.")
+	cell("ispisani na samom obrascu lične karte, dok su ostali podaci ispisani latiničkim pismom.")
 	pdf.SetXY(leftMargin, 759.7)
-	pdf.Cell(nil, "2. Ako se ime lica sastoji od dve reči čija je ukupna dužina između 20 i 30 karaktera ili prezimena od dve reči čija je")
+	cell("2. Ako se ime lica sastoji od dve reči čija je ukupna dužina između 20 i 30 karaktera ili prezimena od dve reči čija je")
 	pdf.SetXY(leftMargin, 769.4)
-	pdf.Cell(nil, "ukupna dužina između 30 i 36 karaktera, u čipu lične karte izdate pre 18.08.2014. godine, druga reč u imenu ili prezimenu")
+	cell("ukupna dužina između 30 i 36 karaktera, u čipu lične karte izdate pre 18.08.2014. godine, druga reč u imenu ili prezimenu")
 	pdf.SetXY(leftMargin, 779.1)
-	pdf.Cell(nil, "skraćuje se na prva dva karaktera")
+	cell("skraćuje se na prva dva karaktera")
 
 	pdf.SetY(794.5)
 	line(0)
 
-	fileName := strings.ToLower(doc.GivenName + "_" + doc.Surname + ".pdf")
+	fileName = strings.ToLower(doc.GivenName + "_" + doc.Surname + ".pdf")
 
 	pdf.SetInfo(gopdf.PdfInfo{
 		Title:        doc.GivenName + " " + doc.Surname,
