@@ -30,15 +30,19 @@ type Gemalto struct {
 	smartCard *scard.Card
 }
 
-func (card Gemalto) selectFiles() bool {
+func (card Gemalto) initCard() error {
 	data := []byte{0xF3, 0x81, 0x00, 0x00, 0x02, 0x53, 0x45, 0x52, 0x49, 0x44, 0x01}
 	apu, _ := buildAPDU(0x00, 0xA4, 0x04, 0x00, data, 0)
 	rsp, err := card.smartCard.Transmit(apu)
-	if err != nil || !responseOK(rsp) {
-		return false
+	if err != nil {
+		return fmt.Errorf("initializing card: %w", err)
 	}
 
-	return true
+	if !responseOK(rsp) {
+		return fmt.Errorf("initializing card: response not OK")
+	}
+
+	return nil
 }
 
 func (card Gemalto) readFile(name []byte, trim bool) ([]byte, error) {
