@@ -133,22 +133,15 @@ func readMedicalCard(card MedicalCard) (*document.MedicalDocument, error) {
 
 func descramble(fields map[uint][]byte, tag uint) {
 	bs, ok := fields[tag]
-
 	if ok {
-		fields[tag] = descrambleBytes(bs)
-	} else {
-		fields[tag] = []byte{}
-	}
-}
-
-func descrambleBytes(bs []byte) []byte {
-	utf8, _, err := transform.Bytes(unicode.UTF16(unicode.LittleEndian, unicode.UseBOM).NewDecoder(), bs)
-
-	if err != nil {
-		return []byte{}
+		utf8, _, err := transform.Bytes(unicode.UTF16(unicode.LittleEndian, unicode.UseBOM).NewDecoder(), bs)
+		if err == nil {
+			fields[tag] = utf8
+			return
+		}
 	}
 
-	return utf8
+	fields[tag] = []byte{}
 }
 
 func (card MedicalCard) readFile(name []byte, _ bool) ([]byte, error) {
