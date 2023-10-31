@@ -38,6 +38,12 @@ func ReadCard(sc *scard.Card) (doc.Document, error) {
 		card = Apollo{smartCard: sc}
 	} else if reflect.DeepEqual(smartCardStatus.Atr, MEDICAL_ATR) {
 		card = MedicalCard{smartCard: sc}
+	} else if reflect.DeepEqual(smartCardStatus.Atr, VEHICLE_ATR_0) {
+		card = VehicleCard{smartCard: sc}
+	} else if reflect.DeepEqual(smartCardStatus.Atr, VEHICLE_ATR_1) {
+		card = VehicleCard{smartCard: sc}
+	} else if reflect.DeepEqual(smartCardStatus.Atr, VEHICLE_ATR_2) {
+		card = VehicleCard{smartCard: sc}
 	} else {
 		return nil, fmt.Errorf("unknown card type: %s", hex.EncodeToString(smartCardStatus.Atr))
 	}
@@ -52,6 +58,9 @@ func ReadCard(sc *scard.Card) (doc.Document, error) {
 		d, err = readIDCard(card)
 	case MedicalCard:
 		d, err = readMedicalCard(card)
+	case VehicleCard:
+		card.initCard()
+		d, err = readVehicleCard(card)
 	}
 
 	if err != nil {
@@ -61,7 +70,7 @@ func ReadCard(sc *scard.Card) (doc.Document, error) {
 	return d, nil
 }
 
-func assignField(fields map[uint][]byte, tag uint, target *string) {
+func assignField[T comparable](fields map[T][]byte, tag T, target *string) {
 	val, ok := fields[tag]
 	if ok {
 		*target = string(val)
@@ -98,7 +107,9 @@ func read(card *scard.Card, offset, length uint) ([]byte, error) {
 	return rsp[:len(rsp)-2], nil
 }
 
-func parseResponse(data []byte) map[uint][]byte {
+// Parses simple TLV encoded data, where tag and length
+// are encoded with two bytes
+func parseTLV(data []byte) map[uint][]byte {
 	m := make(map[uint][]byte)
 	offset := uint(0)
 
@@ -180,7 +191,6 @@ func buildAPDU(cla, ins, p1, p2 byte, data []byte, ne uint) []byte {
 					apdu = append(apdu, neB...)
 				}
 			}
-
 		}
 	}
 

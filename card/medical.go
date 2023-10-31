@@ -36,7 +36,7 @@ func readMedicalCard(card MedicalCard) (*document.MedicalDocument, error) {
 		return nil, fmt.Errorf("reading document file: %w", err)
 	}
 
-	fields := parseResponse(rsp)
+	fields := parseTLV(rsp)
 	assignField(fields, 1557, &doc.CardIssueDate)
 	document.FormatDate(&doc.CardIssueDate)
 	assignField(fields, 1558, &doc.CardExpiryDate)
@@ -48,7 +48,7 @@ func readMedicalCard(card MedicalCard) (*document.MedicalDocument, error) {
 		return nil, fmt.Errorf("reading document file: %w", err)
 	}
 
-	fields = parseResponse(rsp)
+	fields = parseTLV(rsp)
 	descramble(fields, 1570)
 	assignField(fields, 1570, &doc.SurnameCyrl)
 	descramble(fields, 1571)
@@ -66,7 +66,7 @@ func readMedicalCard(card MedicalCard) (*document.MedicalDocument, error) {
 		return nil, fmt.Errorf("reading document file: %w", err)
 	}
 
-	fields = parseResponse(rsp)
+	fields = parseTLV(rsp)
 	assignField(fields, 1586, &doc.ValidUntil)
 	document.FormatDate(&doc.ValidUntil)
 	assignBoolField(fields, 1587, &doc.PermanentlyValid)
@@ -76,7 +76,7 @@ func readMedicalCard(card MedicalCard) (*document.MedicalDocument, error) {
 		return nil, fmt.Errorf("reading document file: %w", err)
 	}
 
-	fields = parseResponse(rsp)
+	fields = parseTLV(rsp)
 	descramble(fields, 1601)
 	assignField(fields, 1601, &doc.ParentNameCyrl)
 	descramble(fields, 1602)
@@ -201,7 +201,7 @@ func (card MedicalCard) TestMedicalCard() bool {
 		return false
 	}
 
-	fields := parseResponse(rsp)
+	fields := parseTLV(rsp)
 	descramble(fields, 1553)
 
 	return strings.Compare(string(fields[1553]), "Републички фонд за здравствено осигурање") == 0
