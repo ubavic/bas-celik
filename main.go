@@ -24,7 +24,8 @@ var fontBold embed.FS
 var rfzoLogo embed.FS
 
 func main() {
-	verboseFlag := flag.Bool("verbose", false, "Provide additional details in the terminal. Useful for debugging GUI")
+	atrFlag := flag.Bool("atr", false, "Just load the ATR form the card and print it. Useful for debugging")
+	verboseFlag := flag.Bool("verbose", false, "Provide additional details in the terminal. Useful for debugging")
 	pdfPath := flag.String("pdf", "", "Set PDF export path. This command suppresses GUI")
 	jsonPath := flag.String("json", "", "Set JSON export path. This command suppresses GUI")
 	flag.Parse()
@@ -36,6 +37,14 @@ func main() {
 	}
 
 	defer ctx.Release()
+
+	if *atrFlag {
+		err := card.PrintATR(ctx)
+		if err != nil {
+			fmt.Println("Error: ", err)
+		}
+		return
+	}
 
 	err = document.SetData(fontRegular, fontBold, rfzoLogo)
 	if err != nil {
