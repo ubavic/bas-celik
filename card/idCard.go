@@ -72,7 +72,6 @@ func readIDCard(card Card) (*doc.IdDocument, error) {
 
 	doc.Photo, _, err = image.Decode(bytes.NewReader(rsp))
 	if err != nil {
-		fmt.Println(err)
 		return nil, fmt.Errorf("decoding photo file: %w", err)
 	}
 

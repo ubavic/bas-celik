@@ -32,7 +32,7 @@ func main() {
 
 	ctx, err := scard.EstablishContext()
 	if err != nil {
-		fmt.Printf("Error establishing context: %s", err)
+		fmt.Println("Error establishing context:", err)
 		return
 	}
 
@@ -41,14 +41,14 @@ func main() {
 	if *atrFlag {
 		err := card.PrintATR(ctx)
 		if err != nil {
-			fmt.Println("Error: ", err)
+			fmt.Println("Error reading ATR:", err)
 		}
 		return
 	}
 
 	err = document.SetData(fontRegular, fontBold, rfzoLogo)
 	if err != nil {
-		fmt.Printf("Setup error: %s", err)
+		fmt.Println("Setup error:", err)
 		return
 	}
 
@@ -57,7 +57,7 @@ func main() {
 	} else {
 		err := readAndSave(ctx, *pdfPath, *jsonPath)
 		if err != nil {
-			fmt.Println(err)
+			fmt.Println("Error saving document:", err)
 		}
 	}
 }
