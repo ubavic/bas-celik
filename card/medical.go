@@ -22,7 +22,7 @@ var MEDICAL_ATR = []byte{
 
 func readMedicalCard(card MedicalCard) (*document.MedicalDocument, error) {
 	s1 := []byte{0xF3, 0x81, 0x00, 0x00, 0x02, 0x53, 0x45, 0x52, 0x56, 0x53, 0x5A, 0x4B, 0x01}
-	apu, _ := buildAPDU(0x00, 0xA4, 0x04, 0x00, s1, 0)
+	apu := buildAPDU(0x00, 0xA4, 0x04, 0x00, s1, 0)
 
 	_, err := card.smartCard.Transmit(apu)
 	if err != nil {
@@ -179,11 +179,7 @@ func (card MedicalCard) readFile(name []byte, _ bool) ([]byte, error) {
 }
 
 func (card MedicalCard) selectFile(name []byte) ([]byte, error) {
-	apu, err := buildAPDU(0x00, 0xA4, 0x00, 0x00, name, 0)
-	if err != nil {
-		return nil, fmt.Errorf("building select apu: %w", err)
-	}
-
+	apu := buildAPDU(0x00, 0xA4, 0x00, 0x00, name, 0)
 	rsp, err := card.smartCard.Transmit(apu)
 	if err != nil {
 		return nil, fmt.Errorf("selecting file: %w", err)
@@ -194,8 +190,7 @@ func (card MedicalCard) selectFile(name []byte) ([]byte, error) {
 
 func (card MedicalCard) TestMedicalCard() bool {
 	s1 := []byte{0xF3, 0x81, 0x00, 0x00, 0x02, 0x53, 0x45, 0x52, 0x56, 0x53, 0x5A, 0x4B, 0x01}
-	apu, _ := buildAPDU(0x00, 0xA4, 0x04, 0x00, s1, 0)
-
+	apu := buildAPDU(0x00, 0xA4, 0x04, 0x00, s1, 0)
 	_, err := card.smartCard.Transmit(apu)
 	if err != nil {
 		return false

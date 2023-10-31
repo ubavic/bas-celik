@@ -85,11 +85,7 @@ func read(card *scard.Card, offset, length uint) ([]byte, error) {
 		readSize = 0xFF
 	}
 
-	apu, err := buildAPDU(0x00, 0xB0, byte((0xFF00&offset)>>8), byte(offset&0xFF), nil, readSize)
-	if err != nil {
-		return nil, fmt.Errorf("reading binary: %w", err)
-	}
-
+	apu := buildAPDU(0x00, 0xB0, byte((0xFF00&offset)>>8), byte(offset&0xFF), nil, readSize)
 	rsp, err := card.Transmit(apu)
 	if err != nil {
 		return nil, fmt.Errorf("reading binary: %w", err)
@@ -123,11 +119,11 @@ func parseResponse(data []byte) map[uint][]byte {
 	return m
 }
 
-func buildAPDU(cla, ins, p1, p2 byte, data []byte, ne uint) ([]byte, error) {
+func buildAPDU(cla, ins, p1, p2 byte, data []byte, ne uint) []byte {
 	length := len(data)
 
-	if length > 65535 {
-		return nil, fmt.Errorf("length too large")
+	if length > 0xFFFF {
+		panic(fmt.Errorf("APDU command length too large"))
 	}
 
 	apdu := make([]byte, 4)
@@ -188,7 +184,7 @@ func buildAPDU(cla, ins, p1, p2 byte, data []byte, ne uint) ([]byte, error) {
 		}
 	}
 
-	return apdu, nil
+	return apdu
 }
 
 func responseOK(rsp []byte) bool {

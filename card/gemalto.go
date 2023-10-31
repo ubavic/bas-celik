@@ -32,7 +32,7 @@ type Gemalto struct {
 
 func (card Gemalto) initCard() error {
 	data := []byte{0xF3, 0x81, 0x00, 0x00, 0x02, 0x53, 0x45, 0x52, 0x49, 0x44, 0x01}
-	apu, _ := buildAPDU(0x00, 0xA4, 0x04, 0x00, data, 0)
+	apu := buildAPDU(0x00, 0xA4, 0x04, 0x00, data, 0)
 	rsp, err := card.smartCard.Transmit(apu)
 	if err != nil {
 		return fmt.Errorf("initializing card: %w", err)
@@ -84,12 +84,7 @@ func (card Gemalto) readFile(name []byte, trim bool) ([]byte, error) {
 }
 
 func (card Gemalto) selectFile(name []byte, ne uint) ([]byte, error) {
-	apu, err := buildAPDU(0x00, 0xA4, 0x08, 0x00, name, ne)
-
-	if err != nil {
-		return nil, fmt.Errorf("selecting file: %w", err)
-	}
-
+	apu := buildAPDU(0x00, 0xA4, 0x08, 0x00, name, ne)
 	rsp, err := card.smartCard.Transmit(apu)
 	if err != nil {
 		return nil, fmt.Errorf("selecting file: %w", err)
