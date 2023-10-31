@@ -24,13 +24,16 @@ sudo systemctl enable pcscd
 ### Pokretanje u komandnoj liniji
 
 Baš Čelik prihvata sledeće opcije:
-
- + `-help`: informacija o opcijama će biti prikazana
- + `-json`: grafički interfejs neće biti pokrenut, a sadržaj dokumenta biće direktno sačuvan u JSON datoteku na `PATH` lokaciji.
+ 
+ + `-atr`: Program učitava samo ATR kôd i ispisuje ga u konzolu.
+ + `-help`: informacija o opcijama će biti prikazana.
+ + `-json PATH`: grafički interfejs neće biti pokrenut, a sadržaj dokumenta biće direktno sačuvan u JSON datoteku na `PATH` lokaciji.
  + `-pdf PATH`: grafički interfejs neće biti pokrenut, a sadržaj dokumenta biće direktno sačuvan u PDF datoteku na `PATH` lokaciji.
- + `-verbose`: tokom rada aplikacije detalji o greškama će biti ispisani u komandnu liniju
+ + `-verbose`: tokom rada aplikacije detalji o greškama će biti ispisani konzolu.
 
-U slučaju `json` i `pdf` opcija, program ne dodaje ekstenziju na kraj lokacije koju je korisnik naveo. Takođe, pri pokretanju sa nekom od navedene dve opcije, program očekuje da je kartica smeštena u čitač i neće čekati na ubacivanje kartice kao što je to slučaj sa grafičkim okruženjem.
+U slučaju `json` i `pdf` opcija, program ne dodaje ekstenziju na kraj lokacije koju je korisnik naveo.
+
+Pri pokretanju sa `atr`, `json` ili `pdf` opcijom, program očekuje da je kartica smeštena u čitač i neće čekati na ubacivanje kartice kao što je to slučaj sa grafičkim okruženjem.
 
 ### Čitači i drajveri
 
@@ -63,6 +66,8 @@ Uz pomoć [fyne-cross](https://github.com/fyne-io/fyne-cross) programa moguće j
  + Potpisivanje dokumenata sa sertifikatom smeštenim na LK
  + Verifikacija podataka na karticama
  + Opcija promene PIN koda na LK
+ + Podrška za više čitača
+ + Informacije o verziji programa (`flag` opcija), podrška za proveru dostupnosti novih verzija
 
 ## Poznati problemi
 
