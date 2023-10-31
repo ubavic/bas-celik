@@ -204,9 +204,5 @@ func (card MedicalCard) TestMedicalCard() bool {
 	fields := parseResponse(rsp)
 	descramble(fields, 1553)
 
-	if strings.Compare(string(fields[1553]), "Републички фонд за здравствено осигурање") == 0 {
-		return true
-	}
-
-	return false
+	return strings.Compare(string(fields[1553]), "Републички фонд за здравствено осигурање") == 0
 }
