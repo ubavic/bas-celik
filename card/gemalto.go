@@ -92,3 +92,13 @@ func (card Gemalto) selectFile(name []byte, ne uint) ([]byte, error) {
 
 	return rsp, nil
 }
+
+func (card Gemalto) testGemalto() bool {
+	err := card.initCard()
+	if err != nil {
+		return false
+	}
+
+	_, err = card.readFile(DOCUMENT_FILE_LOC, false)
+	return err == nil
+}
