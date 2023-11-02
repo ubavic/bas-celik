@@ -6,7 +6,6 @@ import (
 	"image"
 
 	"github.com/ubavic/bas-celik/document"
-	doc "github.com/ubavic/bas-celik/document"
 )
 
 var DOCUMENT_FILE_LOC = []byte{0x0F, 0x02}
@@ -14,13 +13,13 @@ var PERSONAL_FILE_LOC = []byte{0x0F, 0x03}
 var RESIDENCE_FILE_LOC = []byte{0x0F, 0x04}
 var PHOTO_FILE_LOC = []byte{0x0F, 0x06}
 
-func readIDCard(card Card) (*doc.IdDocument, error) {
+func readIDCard(card Card) (*document.IdDocument, error) {
 	rsp, err := card.readFile(DOCUMENT_FILE_LOC, false)
 	if err != nil {
 		return nil, fmt.Errorf("reading document file: %w", err)
 	}
 
-	doc := doc.IdDocument{}
+	doc := document.IdDocument{}
 
 	fields := parseTLV(rsp)
 	assignField(fields, 1546, &doc.DocumentNumber)
