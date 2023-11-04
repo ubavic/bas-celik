@@ -25,16 +25,20 @@ sudo systemctl enable pcscd
 
 Baš Čelik prihvata sledeće opcije:
  
- + `-atr`: ATR kôd kartice biće prikazan u konzoli. Podaci sa kartice se ne očitavaju. 
+ + `-atr`: ATR kôd kartice biće prikazan u konzoli. 
  + `-help`: informacija o opcijama biće prikazana u konzoli.
  + `-json PATH`: grafički interfejs neće biti pokrenut, a sadržaj dokumenta biće direktno sačuvan u JSON datoteku na `PATH` lokaciji.
+ + `-list`: lista raspoloživih čitača biće prikazana u konzoli.
  + `-pdf PATH`: grafički interfejs neće biti pokrenut, a sadržaj dokumenta biće direktno sačuvan u PDF datoteku na `PATH` lokaciji.
  + `-verbose`: tokom rada aplikacije detalji o greškama biće prikazani u konzoli.
  + `-version`: informacija o verziji programa biće prikazana u konzoli.
+ + `-reader INDEX`: postavlja odabrani čitač za čitanje podataka. Parametar `INDEX` označava prirodan broj koji je naveden u ispisu `list` komande. Izbor utiče samo na čitanje sa `pdf` i `json` opcijama.
 
 U slučaju `json` i `pdf` opcija, program ne dodaje ekstenziju na kraj lokacije koju je korisnik naveo.
 
 Pri pokretanju sa `atr`, `json` ili `pdf` opcijom, program očekuje da je kartica smeštena u čitač i neće čekati na ubacivanje kartice kao što je to slučaj sa grafičkim okruženjem.
+
+Pri pokretanju sa `atr`, `help`, `list` ili `version` opcijama podaci sa kartice neće biti očitani (osim eventualno ATR koda). Program će prestati izvršavanje nakon ispisa odgovarajuće informacije.  
 
 ### Čitači i drajveri
 
