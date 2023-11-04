@@ -21,6 +21,8 @@ jobs:
             go-version: 'stable'
         - name: Install Fyne
           run: go install fyne.io/fyne/v2/cmd/fyne@latest
+        - name: Generate version file
+          run: go run script/generateVersion.go 
         - name: Build
           run: | 
             fyne package -os linux
@@ -42,6 +44,8 @@ jobs:
             go-version: 'stable'
         - name: Install Fyne
           run: go install fyne.io/fyne/v2/cmd/fyne@latest
+        - name: Generate version file
+          run: go run script\generateVersion.go 
         - name: Build
           run: |
             fyne package -os windows
@@ -64,6 +68,8 @@ jobs:
             go-version: 'stable'
         - name: Install Fyne
           run: go install fyne.io/fyne/v2/cmd/fyne@latest
+        - name: Generate version file
+          run: go run script/generateVersion.go 
         - name: Build
           run: | 
             fyne package -os darwin

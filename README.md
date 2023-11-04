@@ -25,11 +25,12 @@ sudo systemctl enable pcscd
 
 Baš Čelik prihvata sledeće opcije:
  
- + `-atr`: Program učitava samo ATR kôd i ispisuje ga u konzolu.
- + `-help`: informacija o opcijama će biti prikazana.
+ + `-atr`: ATR kôd kartice biće prikazan u konzoli. Podaci sa kartice se ne očitavaju. 
+ + `-help`: informacija o opcijama biće prikazana u konzoli.
  + `-json PATH`: grafički interfejs neće biti pokrenut, a sadržaj dokumenta biće direktno sačuvan u JSON datoteku na `PATH` lokaciji.
  + `-pdf PATH`: grafički interfejs neće biti pokrenut, a sadržaj dokumenta biće direktno sačuvan u PDF datoteku na `PATH` lokaciji.
- + `-verbose`: tokom rada aplikacije detalji o greškama će biti ispisani konzolu.
+ + `-verbose`: tokom rada aplikacije detalji o greškama biće prikazani u konzoli.
+ + `-version`: informacija o verziji programa biće prikazana u konzoli.
 
 U slučaju `json` i `pdf` opcija, program ne dodaje ekstenziju na kraj lokacije koju je korisnik naveo.
 
@@ -67,7 +68,7 @@ Uz pomoć [fyne-cross](https://github.com/fyne-io/fyne-cross) programa moguće j
  + Verifikacija podataka na karticama
  + Opcija promene PIN koda na LK
  + Podrška za više čitača
- + Informacije o verziji programa (`flag` opcija), podrška za proveru dostupnosti novih verzija
+ + Podrška za proveru dostupnosti novih verzija
 
 ## Poznati problemi
 

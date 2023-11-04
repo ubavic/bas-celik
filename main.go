@@ -4,6 +4,7 @@ import (
 	"errors"
 	"flag"
 	"os"
+	"strings"
 
 	"github.com/ebfe/scard"
 	"github.com/ubavic/bas-celik/card"
@@ -13,6 +14,9 @@ import (
 	"embed"
 	"fmt"
 )
+
+//go:embed assets/version
+var version string
 
 //go:embed assets/liberationSansRegular.ttf
 var fontRegular embed.FS
@@ -26,9 +30,15 @@ var rfzoLogo embed.FS
 func main() {
 	atrFlag := flag.Bool("atr", false, "Just load the ATR form the card and print it. Useful for debugging")
 	verboseFlag := flag.Bool("verbose", false, "Provide additional details in the terminal. Useful for debugging")
+	versionFlag := flag.Bool("version", false, "Display version information and exit")
 	pdfPath := flag.String("pdf", "", "Set PDF export path. This command suppresses GUI")
 	jsonPath := flag.String("json", "", "Set JSON export path. This command suppresses GUI")
 	flag.Parse()
+
+	if *versionFlag {
+		displayVersion()
+		return
+	}
 
 	ctx, err := scard.EstablishContext()
 	if err != nil {
@@ -121,4 +131,10 @@ func readAndSave(ctx *scard.Context, pdfPath, jsonPath string) error {
 	}
 
 	return nil
+}
+
+func displayVersion() {
+	ver := strings.TrimSpace(version)
+	fmt.Println("bas-celik", ver)
+	fmt.Println("https://github.com/ubavic/bas-celik")
 }
