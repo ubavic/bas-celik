@@ -22,16 +22,17 @@ import (
 )
 
 type IdDocument struct {
-	Loaded                 bool
-	Photo                  image.Image
+	Portrait               image.Image
 	DocumentNumber         string
+	DocumentType           string
+	DocumentSerialNumber   string
 	IssuingDate            string
 	ExpiryDate             string
 	IssuingAuthority       string
 	PersonalNumber         string
 	Surname                string
 	GivenName              string
-	ParentName             string
+	ParentGivenName        string
 	Sex                    string
 	PlaceOfBirth           string
 	CommunityOfBirth       string
@@ -51,7 +52,7 @@ type IdDocument struct {
 }
 
 func (doc *IdDocument) formatName() string {
-	return doc.GivenName + ", " + doc.ParentName + ", " + doc.Surname
+	return doc.GivenName + ", " + doc.ParentGivenName + ", " + doc.Surname
 }
 
 func (doc *IdDocument) formatAddress() string {
@@ -109,7 +110,7 @@ func (doc IdDocument) BuildUI(pdfHandler func(), statusBar *widgets.StatusBar) *
 	docGroup := widgets.NewGroup("Podaci o dokumentu", issuedByF, docRow)
 	colRight := container.New(layout.NewVBoxLayout(), personInformationGroup, docGroup)
 
-	imgWidget := canvas.NewImageFromImage(doc.Photo)
+	imgWidget := canvas.NewImageFromImage(doc.Portrait)
 	imgWidget.SetMinSize(fyne.Size{Width: 200, Height: 250})
 	imgWidget.FillMode = canvas.ImageFillContain
 	colLeft := container.New(layout.NewVBoxLayout(), imgWidget)
@@ -227,7 +228,7 @@ func (doc *IdDocument) BuildPdf() (data []byte, fileName string, retErr error) {
 	pdf.SetY(88)
 	line(0)
 
-	err = pdf.ImageFrom(doc.Photo, leftMargin, 102.8, &gopdf.Rect{W: 119.9, H: 159})
+	err = pdf.ImageFrom(doc.Portrait, leftMargin, 102.8, &gopdf.Rect{W: 119.9, H: 159})
 	if err != nil {
 		panic(err)
 	}
@@ -256,7 +257,7 @@ func (doc *IdDocument) BuildPdf() (data []byte, fileName string, retErr error) {
 
 	putData("Prezime:", doc.Surname)
 	putData("Ime:", doc.GivenName)
-	putData("Ime jednog roditelja:", doc.ParentName)
+	putData("Ime jednog roditelja:", doc.ParentGivenName)
 	putData("Datum rođenja:", doc.DateOfBirth)
 	putData("Mesto rođenja, opština i država:", doc.formatPlaceOfBirth())
 	putData("Prebivalište:", doc.formatAddress())
@@ -321,17 +322,17 @@ func (doc *IdDocument) BuildPdf() (data []byte, fileName string, retErr error) {
 
 func (doc *IdDocument) BuildJson() ([]byte, error) {
 	var bs bytes.Buffer
-	err := jpeg.Encode(&bs, doc.Photo, &jpeg.Options{Quality: 100})
+	err := jpeg.Encode(&bs, doc.Portrait, &jpeg.Options{Quality: 100})
 	if err != nil {
 		return nil, fmt.Errorf("creating json: %w", err)
 	}
 
 	type Alias IdDocument
 	return json.Marshal(&struct {
-		Photo string
+		Portrait string
 		*Alias
 	}{
-		Photo: base64.StdEncoding.EncodeToString(bs.Bytes()),
-		Alias: (*Alias)(doc),
+		Portrait: base64.StdEncoding.EncodeToString(bs.Bytes()),
+		Alias:    (*Alias)(doc),
 	})
 }

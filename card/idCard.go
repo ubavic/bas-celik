@@ -23,6 +23,8 @@ func readIDCard(card Card) (*document.IdDocument, error) {
 
 	fields := parseTLV(rsp)
 	assignField(fields, 1546, &doc.DocumentNumber)
+	assignField(fields, 1547, &doc.DocumentType)
+	assignField(fields, 1548, &doc.DocumentSerialNumber)
 	assignField(fields, 1549, &doc.IssuingDate)
 	assignField(fields, 1550, &doc.ExpiryDate)
 	assignField(fields, 1551, &doc.IssuingAuthority)
@@ -38,7 +40,7 @@ func readIDCard(card Card) (*document.IdDocument, error) {
 	assignField(fields, 1558, &doc.PersonalNumber)
 	assignField(fields, 1559, &doc.Surname)
 	assignField(fields, 1560, &doc.GivenName)
-	assignField(fields, 1561, &doc.ParentName)
+	assignField(fields, 1561, &doc.ParentGivenName)
 	assignField(fields, 1562, &doc.Sex)
 	assignField(fields, 1563, &doc.PlaceOfBirth)
 	assignField(fields, 1564, &doc.CommunityOfBirth)
@@ -69,12 +71,10 @@ func readIDCard(card Card) (*document.IdDocument, error) {
 		return nil, fmt.Errorf("reading photo file: %w", err)
 	}
 
-	doc.Photo, _, err = image.Decode(bytes.NewReader(rsp))
+	doc.Portrait, _, err = image.Decode(bytes.NewReader(rsp))
 	if err != nil {
 		return nil, fmt.Errorf("decoding photo file: %w", err)
 	}
-
-	doc.Loaded = true
 
 	return &doc, nil
 }
