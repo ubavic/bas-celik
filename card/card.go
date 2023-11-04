@@ -8,6 +8,7 @@ import (
 
 	"github.com/ebfe/scard"
 	doc "github.com/ubavic/bas-celik/document"
+	"golang.org/x/exp/constraints"
 )
 
 type Card interface {
@@ -91,11 +92,7 @@ func assignBoolField(fields map[uint][]byte, tag uint, target *bool) {
 }
 
 func read(card *scard.Card, offset, length uint) ([]byte, error) {
-	readSize := length
-	if readSize >= 0xFF {
-		readSize = 0xFF
-	}
-
+	readSize := min(length, 0xFF)
 	apu := buildAPDU(0x00, 0xB0, byte((0xFF00&offset)>>8), byte(offset&0xFF), nil, readSize)
 	rsp, err := card.Transmit(apu)
 	if err != nil {
@@ -201,4 +198,26 @@ func buildAPDU(cla, ins, p1, p2 byte, data []byte, ne uint) []byte {
 
 func responseOK(rsp []byte) bool {
 	return reflect.DeepEqual(rsp, []byte{0x90, 0x00})
+}
+
+func min[O constraints.Ordered](args ...O) O {
+	if len(args) == 0 {
+		return *new(O)
+	}
+
+	if args[0] != args[0] {
+		return args[0]
+	}
+
+	min := args[0]
+	for _, arg := range args[1:] {
+		if arg != arg {
+			return arg
+		}
+
+		if arg < min {
+			min = arg
+		}
+	}
+	return min
 }

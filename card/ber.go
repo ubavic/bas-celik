@@ -161,7 +161,6 @@ func parseBERLayer(data []byte) (map[uint32][]byte, map[uint32][]byte, error) {
 		}
 
 		offset += offsetDelta
-
 		value := data[offset : offset+length]
 
 		if primitive {

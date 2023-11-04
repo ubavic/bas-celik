@@ -122,7 +122,8 @@ func (card VehicleCard) readFile(name []byte, _ bool) ([]byte, error) {
 	length := uint(len32)
 
 	for length > 0 {
-		data, err := read(card.smartCard, offset, length)
+		toRead := min(length, 0x64)
+		data, err := read(card.smartCard, offset, toRead)
 		if err != nil {
 			return nil, fmt.Errorf("reading file: %w", err)
 		}
