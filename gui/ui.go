@@ -9,9 +9,10 @@ import (
 	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/storage"
+	"fyne.io/fyne/v2/widget"
 	"github.com/ebfe/scard"
 	"github.com/ubavic/bas-celik/document"
-	"github.com/ubavic/bas-celik/widgets"
+	"github.com/ubavic/bas-celik/gui/widgets"
 )
 
 var statusBar *widgets.StatusBar
@@ -42,8 +43,21 @@ func StartGui(ctx *scard.Context, verbose_ bool) {
 
 func setUI(doc document.Document) {
 	pdfHandler := savePdf(window, doc)
-	ui := doc.BuildUI(pdfHandler, statusBar)
-	columns := container.New(layout.NewHBoxLayout(), layout.NewSpacer(), ui, layout.NewSpacer())
+	saveButton := widget.NewButton("Sačuvaj PDF", pdfHandler)
+	buttonBar := container.New(layout.NewHBoxLayout(), statusBar, layout.NewSpacer(), saveButton)
+
+	var page *fyne.Container
+	switch doc := doc.(type) {
+	case *document.IdDocument:
+		page = pageID(doc)
+	case *document.MedicalDocument:
+		page = pageMedical(doc)
+	case *document.VehicleDocument:
+		page = pageVehicle(doc)
+	}
+
+	rows := container.New(layout.NewVBoxLayout(), page, buttonBar)
+	columns := container.New(layout.NewHBoxLayout(), layout.NewSpacer(), rows, layout.NewSpacer())
 	container := container.New(layout.NewPaddedLayout(), columns)
 	(*window).SetContent(container)
 

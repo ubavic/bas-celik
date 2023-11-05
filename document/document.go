@@ -4,15 +4,11 @@ import (
 	"embed"
 	"fmt"
 	"strings"
-
-	"fyne.io/fyne/v2"
-	"github.com/ubavic/bas-celik/widgets"
 )
 
 type Document interface {
 	BuildPdf() ([]byte, string, error)
 	BuildJson() ([]byte, error)
-	BuildUI(func(), *widgets.StatusBar) *fyne.Container
 }
 
 var fontRegular, fontBold, rfzoLogo []byte

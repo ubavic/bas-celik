@@ -12,13 +12,7 @@ import (
 	"strings"
 	"time"
 
-	"fyne.io/fyne/v2"
-	"fyne.io/fyne/v2/canvas"
-	"fyne.io/fyne/v2/container"
-	"fyne.io/fyne/v2/layout"
-	"fyne.io/fyne/v2/widget"
 	"github.com/signintech/gopdf"
-	"github.com/ubavic/bas-celik/widgets"
 )
 
 type IdDocument struct {
@@ -51,11 +45,11 @@ type IdDocument struct {
 	AddressDate            string
 }
 
-func (doc *IdDocument) formatName() string {
+func (doc *IdDocument) FormatName() string {
 	return doc.GivenName + ", " + doc.ParentGivenName + ", " + doc.Surname
 }
 
-func (doc *IdDocument) formatAddress() string {
+func (doc *IdDocument) FormatAddress() string {
 	var address strings.Builder
 
 	address.WriteString(doc.Street)
@@ -79,7 +73,7 @@ func (doc *IdDocument) formatAddress() string {
 	return address.String()
 }
 
-func (doc *IdDocument) formatPlaceOfBirth() string {
+func (doc *IdDocument) FormatPlaceOfBirth() string {
 	var placeOfBirth strings.Builder
 
 	placeOfBirth.WriteString(doc.PlaceOfBirth)
@@ -89,37 +83,6 @@ func (doc *IdDocument) formatPlaceOfBirth() string {
 	placeOfBirth.WriteString(doc.StateOfBirth)
 
 	return placeOfBirth.String()
-}
-
-func (doc IdDocument) BuildUI(pdfHandler func(), statusBar *widgets.StatusBar) *fyne.Container {
-	nameF := widgets.NewField("Ime, ime roditelja, prezime", doc.formatName(), 350)
-	birthDateF := widgets.NewField("Datum rođenja", doc.DateOfBirth, 100)
-	sexF := widgets.NewField("Pol", doc.Sex, 50)
-	personalNumberF := widgets.NewField("JMBG", doc.PersonalNumber, 200)
-	birthRow := container.New(layout.NewHBoxLayout(), sexF, birthDateF, personalNumberF)
-	birthPlaceF := widgets.NewField("Mesto rođenja, opština i država", doc.formatPlaceOfBirth(), 350)
-	addressF := widgets.NewField("Prebivalište i adresa stana", doc.formatAddress(), 350)
-	addressDateF := widgets.NewField("Datum promene adrese", doc.AddressDate, 10)
-	personInformationGroup := widgets.NewGroup("Podaci o građaninu", nameF, birthRow, birthPlaceF, addressF, addressDateF)
-
-	issuedByF := widgets.NewField("Dokument izdaje", doc.IssuingAuthority, 10)
-	documentNumberF := widgets.NewField("Broj dokumenta", doc.DocumentNumber, 100)
-	issueDateF := widgets.NewField("Datum izdavanja", doc.IssuingDate, 100)
-	expiryDateF := widgets.NewField("Važi do", doc.ExpiryDate, 100)
-	docRow := container.New(layout.NewHBoxLayout(), documentNumberF, issueDateF, expiryDateF)
-	docGroup := widgets.NewGroup("Podaci o dokumentu", issuedByF, docRow)
-	colRight := container.New(layout.NewVBoxLayout(), personInformationGroup, docGroup)
-
-	imgWidget := canvas.NewImageFromImage(doc.Portrait)
-	imgWidget.SetMinSize(fyne.Size{Width: 200, Height: 250})
-	imgWidget.FillMode = canvas.ImageFillContain
-	colLeft := container.New(layout.NewVBoxLayout(), imgWidget)
-	cols := container.New(layout.NewHBoxLayout(), colLeft, colRight)
-
-	saveButton := widget.NewButton("Sačuvaj PDF", pdfHandler)
-	buttonBar := container.New(layout.NewHBoxLayout(), statusBar, layout.NewSpacer(), saveButton)
-
-	return container.New(layout.NewVBoxLayout(), cols, buttonBar)
 }
 
 func (doc *IdDocument) BuildPdf() (data []byte, fileName string, retErr error) {
@@ -259,8 +222,8 @@ func (doc *IdDocument) BuildPdf() (data []byte, fileName string, retErr error) {
 	putData("Ime:", doc.GivenName)
 	putData("Ime jednog roditelja:", doc.ParentGivenName)
 	putData("Datum rođenja:", doc.DateOfBirth)
-	putData("Mesto rođenja, opština i država:", doc.formatPlaceOfBirth())
-	putData("Prebivalište:", doc.formatAddress())
+	putData("Mesto rođenja, opština i država:", doc.FormatPlaceOfBirth())
+	putData("Prebivalište:", doc.FormatAddress())
 	putData("Datum promene adrese:", doc.AddressDate)
 	putData("JMBG:", doc.PersonalNumber)
 	putData("Pol:", doc.Sex)
