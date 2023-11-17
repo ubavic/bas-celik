@@ -138,7 +138,11 @@ func (doc *MedicalDocument) BuildPdf() (data []byte, fileName string, retErr err
 		cell(label)
 		pdf.SetXY(textLeftMargin+144, pdf.GetY())
 
-		texts, _ := pdf.SplitTextWithWordWrap(data, 350)
+		texts, err := pdf.SplitTextWithWordWrap(data, 350)
+		if err != nil && err != gopdf.ErrEmptyString {
+			panic(fmt.Errorf("splitting text: %w", err))
+		}
+
 		for i, text := range texts {
 			cell(text)
 			if i < len(texts)-1 {

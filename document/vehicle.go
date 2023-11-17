@@ -141,7 +141,7 @@ func (doc *VehicleDocument) BuildPdf() (data []byte, fileName string, retErr err
 		}
 
 		texts, err = pdf.SplitTextWithWordWrap(data, 500)
-		if err != nil {
+		if err != nil && err != gopdf.ErrEmptyString {
 			panic(fmt.Errorf("splitting text: %w", err))
 		}
 

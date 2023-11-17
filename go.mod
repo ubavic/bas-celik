@@ -5,7 +5,7 @@ go 1.20
 require (
 	fyne.io/fyne/v2 v2.4.1
 	github.com/ebfe/scard v0.0.0-20230420082256-7db3f9b7c8a7
-	github.com/signintech/gopdf v0.19.0
+	github.com/signintech/gopdf v0.20.0
 	golang.org/x/exp v0.0.0-20231006140011-7918f672742d
 	golang.org/x/text v0.14.0
 )

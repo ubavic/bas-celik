@@ -141,7 +141,7 @@ func (doc *IdDocument) BuildPdf() (data []byte, fileName string, retErr error) {
 
 		pdf.SetX(textLeftMargin)
 		texts, err := pdf.SplitTextWithWordWrap(label, 120)
-		if err != nil {
+		if err != nil && err != gopdf.ErrEmptyString {
 			panic(err)
 		}
 
@@ -155,20 +155,16 @@ func (doc *IdDocument) BuildPdf() (data []byte, fileName string, retErr error) {
 		y1 := pdf.GetY()
 
 		pdf.SetXY(textLeftMargin+128, y)
-		if data != "" {
-			texts, err = pdf.SplitTextWithWordWrap(data, 350)
-			if err != nil {
-				panic(err)
-			}
+		texts, err = pdf.SplitTextWithWordWrap(data, 350)
+		if err != nil && err != gopdf.ErrEmptyString {
+			panic(err)
+		}
 
-			for i, text := range texts {
-				cell(text)
-				if i < len(texts)-1 {
-					pdf.SetXY(textLeftMargin+128, pdf.GetY()+12)
-				}
+		for i, text := range texts {
+			cell(text)
+			if i < len(texts)-1 {
+				pdf.SetXY(textLeftMargin+128, pdf.GetY()+12)
 			}
-		} else {
-			cell("")
 		}
 
 		y2 := pdf.GetY()
