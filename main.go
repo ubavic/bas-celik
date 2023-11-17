@@ -2,9 +2,7 @@ package main
 
 import (
 	"flag"
-	"strings"
 
-	"github.com/ebfe/scard"
 	"github.com/ubavic/bas-celik/document"
 	"github.com/ubavic/bas-celik/gui"
 
@@ -35,49 +33,38 @@ func main() {
 	flag.Parse()
 
 	if *versionFlag {
-		displayVersion()
+		printVersion()
 		return
 	}
-
-	ctx, err := scard.EstablishContext()
-	if err != nil {
-		fmt.Println("Error establishing context:", err)
-		return
-	}
-
-	defer ctx.Release()
 
 	if *listFlag {
-		listReaders(ctx)
-		return
-	}
-
-	if *atrFlag {
-		err := printATR(ctx)
+		err := listReaders()
 		if err != nil {
 			fmt.Println("Error reading ATR:", err)
 		}
 		return
 	}
 
-	err = document.SetData(fontRegular, fontBold, rfzoLogo)
+	if *atrFlag {
+		err := printATR()
+		if err != nil {
+			fmt.Println("Error reading ATR:", err)
+		}
+		return
+	}
+
+	err := document.SetData(fontRegular, fontBold, rfzoLogo)
 	if err != nil {
 		fmt.Println("Setup error:", err)
 		return
 	}
 
 	if len(*pdfPath) == 0 && len(*jsonPath) == 0 {
-		gui.StartGui(ctx, *verboseFlag)
+		gui.StartGui(*verboseFlag, version)
 	} else {
-		err := readAndSave(ctx, *pdfPath, *jsonPath, *readerIndex)
+		err := readAndSave(*pdfPath, *jsonPath, *readerIndex)
 		if err != nil {
 			fmt.Println("Error saving document:", err)
 		}
 	}
-}
-
-func displayVersion() {
-	ver := strings.TrimSpace(version)
-	fmt.Println("bas-celik", ver)
-	fmt.Println("https://github.com/ubavic/bas-celik")
 }

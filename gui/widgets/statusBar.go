@@ -61,7 +61,7 @@ func (r *StatusBarRenderer) Layout(s fyne.Size) {
 
 func (r *StatusBarRenderer) MinSize() fyne.Size {
 	ts1 := fyne.MeasureText(r.statusText.Text, r.statusText.TextSize, r.statusText.TextStyle)
-	return fyne.NewSize(ts1.Width+2*theme.Padding(), ts1.Height)
+	return fyne.NewSize(ts1.Width+theme.Padding(), ts1.Height)
 }
 
 func (r *StatusBarRenderer) Objects() []fyne.CanvasObject {

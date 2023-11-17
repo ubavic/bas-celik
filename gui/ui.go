@@ -2,6 +2,8 @@ package gui
 
 import (
 	"fmt"
+	"net/url"
+	"sync"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
@@ -10,41 +12,61 @@ import (
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/storage"
 	"fyne.io/fyne/v2/widget"
-	"github.com/ebfe/scard"
 	"github.com/ubavic/bas-celik/document"
 	"github.com/ubavic/bas-celik/gui/widgets"
 )
 
-var statusBar *widgets.StatusBar
-var window *fyne.Window
-var verbose bool
-var startPageOn bool // possible data races
-var startPage *widgets.StartPage
+type State struct {
+	mu          sync.Mutex
+	startPageOn bool
+	verbose     bool
+	window      *fyne.Window
+	startPage   *widgets.StartPage
+	toolbar     *widgets.Toolbar
+	spacer      *widgets.Spacer
+	statusBar   *widgets.StatusBar
+}
 
-func StartGui(ctx *scard.Context, verbose_ bool) {
-	startPageOn = true
-	verbose = verbose_
+var state State
 
+func StartGui(verbose_ bool, version string) {
 	app := app.New()
 	win := app.NewWindow("Baš Čelik")
-	window = &win
 	app.Settings().SetTheme(MyTheme{})
 
-	statusBar = widgets.NewStatusBar()
+	showAboutBox := ShowAboutBox(win, version)
 
-	startPage = widgets.NewStartPage()
+	statusBar := widgets.NewStatusBar()
+	toolbar := widgets.NewToolbar(showAboutBox)
+	spacer := widgets.NewSpacer()
+	startPage := widgets.NewStartPage()
 	startPage.SetStatus("", "", false)
 
-	go pooler(ctx)
+	state = State{
+		startPageOn: true,
+		verbose:     verbose_,
+		toolbar:     toolbar,
+		startPage:   startPage,
+		window:      &win,
+		spacer:      spacer,
+		statusBar:   statusBar,
+	}
 
-	win.SetContent(container.New(layout.NewPaddedLayout(), startPage))
+	rows := container.New(layout.NewVBoxLayout(), toolbar, spacer, startPage)
+	win.SetContent(container.New(layout.NewPaddedLayout(), rows))
+
+	go pooler()
+
 	win.ShowAndRun()
 }
 
 func setUI(doc document.Document) {
-	pdfHandler := savePdf(window, doc)
+	state.mu.Lock()
+	defer state.mu.Unlock()
+
+	pdfHandler := savePdf(doc)
 	saveButton := widget.NewButton("Sačuvaj PDF", pdfHandler)
-	buttonBar := container.New(layout.NewHBoxLayout(), statusBar, layout.NewSpacer(), saveButton)
+	buttonBar := container.New(layout.NewHBoxLayout(), state.statusBar, layout.NewSpacer(), saveButton)
 
 	var page *fyne.Container
 	switch doc := doc.(type) {
@@ -56,31 +78,35 @@ func setUI(doc document.Document) {
 		page = pageVehicle(doc)
 	}
 
-	rows := container.New(layout.NewVBoxLayout(), page, buttonBar)
+	rows := container.New(layout.NewVBoxLayout(), state.toolbar, state.spacer, page, buttonBar)
 	columns := container.New(layout.NewHBoxLayout(), layout.NewSpacer(), rows, layout.NewSpacer())
 	container := container.New(layout.NewPaddedLayout(), columns)
-	(*window).SetContent(container)
+	(*state.window).SetContent(container)
 
-	(*window).Resize(container.MinSize())
-	startPageOn = false
+	(*state.window).Resize(container.MinSize())
+	state.startPageOn = false
 }
 
 func setStartPage(status, explanation string, err error) {
+	state.mu.Lock()
+	defer state.mu.Unlock()
+
 	isError := false
 	if err != nil {
 		isError = true
 	}
 
-	if verbose && isError {
+	if state.verbose && isError {
 		fmt.Println(err)
 	}
 
-	startPage.SetStatus(status, explanation, isError)
-	startPage.Refresh()
+	state.startPage.SetStatus(status, explanation, isError)
+	state.startPage.Refresh()
 
-	if !startPageOn {
-		(*window).SetContent(container.New(layout.NewPaddedLayout(), startPage))
-		startPageOn = true
+	if !state.startPageOn {
+		rows := container.New(layout.NewVBoxLayout(), state.toolbar, state.spacer, state.startPage, layout.NewSpacer())
+		(*state.window).SetContent(container.New(layout.NewPaddedLayout(), rows))
+		state.startPageOn = true
 	}
 }
 
@@ -90,15 +116,15 @@ func setStatus(status string, err error) {
 		isError = true
 	}
 
-	if verbose && isError {
+	if state.verbose && isError {
 		fmt.Println(err)
 	}
 
-	statusBar.SetStatus(status, isError)
-	statusBar.Refresh()
+	state.statusBar.SetStatus(status, isError)
+	state.statusBar.Refresh()
 }
 
-func savePdf(win *fyne.Window, doc document.Document) func() {
+func savePdf(doc document.Document) func() {
 	return func() {
 		pdf, fileName, err := doc.BuildPdf()
 
@@ -125,11 +151,32 @@ func savePdf(win *fyne.Window, doc document.Document) func() {
 			}
 
 			setStatus("PDF sačuvan", nil)
-		}, *win)
+		}, *state.window)
 
 		dialog.SetFilter(storage.NewExtensionFileFilter([]string{".pdf"}))
 		dialog.SetFileName(fileName)
 
 		dialog.Show()
+	}
+}
+
+func ShowAboutBox(win fyne.Window, version string) func() {
+
+	verLabel := widget.NewLabel("Trenutna verzija " + version)
+	moreLabel := widget.NewLabel("Više o programu na adresi")
+	url, _ := url.Parse("https://github.com/ubavic/bas-celik")
+	linkLabel := widget.NewHyperlink("github.com/ubavic/bas-celik", url)
+	spacer := widgets.NewSpacer()
+
+	hBox := container.NewHBox(moreLabel, linkLabel)
+	vBox := container.NewVBox(verLabel, hBox, spacer)
+
+	return func() {
+		dialog.ShowCustom(
+			"Baš Čelik - program za očitavanje elektronskih dokumenata",
+			"Zatvori",
+			vBox,
+			win,
+		)
 	}
 }

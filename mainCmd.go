@@ -5,12 +5,20 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/ebfe/scard"
 	"github.com/ubavic/bas-celik/card"
 )
 
-func readAndSave(ctx *scard.Context, pdfPath, jsonPath string, reader uint) error {
+func readAndSave(pdfPath, jsonPath string, reader uint) error {
+	ctx, err := scard.EstablishContext()
+	if err != nil {
+		return fmt.Errorf("Error establishing context: %w", err)
+	}
+
+	defer ctx.Release()
+
 	if len(pdfPath) > 0 {
 		if _, err := os.Stat(pdfPath); err != nil && !errors.Is(err, os.ErrNotExist) {
 			return fmt.Errorf("opening file %s: %w", pdfPath, err)
@@ -75,7 +83,14 @@ func readAndSave(ctx *scard.Context, pdfPath, jsonPath string, reader uint) erro
 	return nil
 }
 
-func printATR(ctx *scard.Context) error {
+func printATR() error {
+	ctx, err := scard.EstablishContext()
+	if err != nil {
+		return fmt.Errorf("Error establishing context: %w", err)
+	}
+
+	defer ctx.Release()
+
 	readersNames, err := ctx.ListReaders()
 	if err != nil {
 		return fmt.Errorf("listing readers: %w", err)
@@ -102,19 +117,32 @@ func printATR(ctx *scard.Context) error {
 	return nil
 }
 
-func listReaders(ctx *scard.Context) {
+func listReaders() error {
+	ctx, err := scard.EstablishContext()
+	if err != nil {
+		return fmt.Errorf("Error establishing context: %w", err)
+	}
+
+	defer ctx.Release()
+
 	readersNames, err := ctx.ListReaders()
 	if err != nil {
-		fmt.Println("Error listing readers:", err)
-		return
+		return fmt.Errorf("Error listing readers: %w", err)
 	}
 
 	if len(readersNames) == 0 {
-		fmt.Println("No reader found.")
-		return
+		return errors.New("No reader found.")
 	}
 
 	for i, name := range readersNames {
 		fmt.Println(i, "|", name)
 	}
+
+	return nil
+}
+
+func printVersion() {
+	ver := strings.TrimSpace(version)
+	fmt.Println("bas-celik", ver)
+	fmt.Println("https://github.com/ubavic/bas-celik")
 }

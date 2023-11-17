@@ -34,10 +34,10 @@ func NewGroup(name string, objects ...fyne.CanvasObject) *Group {
 }
 
 func (g *Group) CreateRenderer() fyne.WidgetRenderer {
-	nameText := canvas.NewText(g.name, color.NRGBA{R: 0x90, G: 0x90, B: 0x90, A: 0xFF})
+	nameText := canvas.NewText(g.name, color.NRGBA{R: 0x60, G: 0x60, B: 0x60, A: 0xFF})
 	nameText.TextSize = 11
 
-	nameText.Move(fyne.NewPos(theme.Padding(), -1.2*theme.Padding()))
+	nameText.Move(fyne.NewPos(theme.Padding(), -1.6*theme.Padding()))
 
 	column := container.New(layout.NewVBoxLayout(), g.objects...)
 	column.Move(fyne.NewPos(theme.Padding(), 0))
