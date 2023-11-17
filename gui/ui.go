@@ -161,13 +161,11 @@ func savePdf(doc document.Document) func() {
 }
 
 func ShowAboutBox(win fyne.Window, version string) func() {
-
-	verLabel := widget.NewLabel("Trenutna verzija " + version)
-	moreLabel := widget.NewLabel("Više o programu na adresi")
+	verLabel := widget.NewLabelWithStyle("Verzija: "+version, fyne.TextAlignLeading, fyne.TextStyle{Italic: true})
+	moreLabel := widget.NewLabel("Više o programu na adresi:")
 	url, _ := url.Parse("https://github.com/ubavic/bas-celik")
 	linkLabel := widget.NewHyperlink("github.com/ubavic/bas-celik", url)
 	spacer := widgets.NewSpacer()
-
 	hBox := container.NewHBox(moreLabel, linkLabel)
 	vBox := container.NewVBox(verLabel, hBox, spacer)
 
