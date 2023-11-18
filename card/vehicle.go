@@ -40,59 +40,64 @@ func readVehicleCard(card VehicleCard) (*document.VehicleDocument, error) {
 	}
 
 	doc := document.VehicleDocument{}
-	data := emptyTree()
+	data := BER{}
 
-	for i := byte(1); i <= 3; i++ {
+	for i := byte(0); i <= 3; i++ {
 		rsp, err := card.readFile([]byte{0xD0, i*0x10 + 0x01}, false)
 		if err != nil {
 			return nil, fmt.Errorf("reading document %d file: %w", i, err)
 		}
 
-		parsed, err := parseBER(rsp)
+		parsed, err := ParseBER(rsp)
 		if err != nil {
 			return nil, fmt.Errorf("parsing %d file: %w", i, err)
 		}
 
-		err = data.add(*parsed)
+		err = data.merge(*parsed)
 		if err != nil {
 			return nil, fmt.Errorf("merging %d data: %w", i, err)
 		}
 	}
 
-	data.assignToFrom(&doc.RegistrationNumberOfVehicle, 0x71, 0x81)
-	data.assignToFrom(&doc.DateOfFirstRegistration, 0x71, 0x82)
-	data.assignToFrom(&doc.VehicleIdNumber, 0x71, 0x8A)
-	data.assignToFrom(&doc.VehicleMass, 0x71, 0x8C)
-	data.assignToFrom(&doc.ExpiryDate, 0x71, 0x8D)
-	data.assignToFrom(&doc.IssuingDate, 0x71, 0x8E)
-	data.assignToFrom(&doc.TypeApprovalNumber, 0x71, 0x8F)
-	data.assignToFrom(&doc.PowerWeightRatio, 0x71, 0x93)
-	data.assignToFrom(&doc.VehicleMake, 0x71, 0xA3, 0x87)
-	data.assignToFrom(&doc.VehicleType, 0x71, 0xA3, 0x88)
-	data.assignToFrom(&doc.CommercialDescription, 0x71, 0xA3, 0x89)
-	data.assignToFrom(&doc.MaximumPermissibleLadenMass, 0x71, 0xA4, 0x8B)
-	data.assignToFrom(&doc.EngineCapacity, 0x71, 0xA5, 0x90)
-	data.assignToFrom(&doc.MaximumNetPower, 0x71, 0xA5, 0x91)
-	data.assignToFrom(&doc.TypeOfFuel, 0x71, 0xA5, 0x92)
-	data.assignToFrom(&doc.NumberOfSeats, 0x71, 0xA6, 0x94)
-	data.assignToFrom(&doc.NumberOfStandingPlaces, 0x71, 0xA6, 0x95)
-	data.assignToFrom(&doc.SerialNumber, 0x71, 0xC9)
-	data.assignToFrom(&doc.StateIssuing, 0x71, 0x9F33)
-	data.assignToFrom(&doc.CompetentAuthority, 0x71, 0x9F35)
-	data.assignToFrom(&doc.AuthorityIssuing, 0x71, 0x9F36)
-	data.assignToFrom(&doc.UnambiguousNumber, 0x71, 0x9F38)
-	data.assignToFrom(&doc.VehicleCategory, 0x72, 0x98)
-	data.assignToFrom(&doc.NumberOfAxles, 0x72, 0x99)
-	data.assignToFrom(&doc.VehicleLoad, 0x72, 0xC4)
-	data.assignToFrom(&doc.YearOfProduction, 0x72, 0xC5)
-	data.assignToFrom(&doc.EngineIdNumber, 0x72, 0xA5, 0x9E)
-	data.assignToFrom(&doc.OwnersSurnameOrBusinessName, 0x72, 0xA1, 0xA2, 0x83)
-	data.assignToFrom(&doc.OwnerName, 0x72, 0xA1, 0xA2, 0x84)
-	data.assignToFrom(&doc.OwnerAddress, 0x72, 0xA1, 0xA2, 0x85)
-	data.assignToFrom(&doc.UsersSurnameOrBusinessName, 0x72, 0xA1, 0xA9, 0x83)
-	data.assignToFrom(&doc.UsersName, 0x72, 0xA1, 0xA9, 0x84)
-	data.assignToFrom(&doc.UsersAddress, 0x72, 0xA1, 0xA9, 0x85)
-	data.assignToFrom(&doc.ColourOfVehicle, 0x72, 0x9F24)
+	data.assignFrom(&doc.RegistrationNumberOfVehicle, 0x71, 0x81)
+	data.assignFrom(&doc.DateOfFirstRegistration, 0x71, 0x82)
+	document.FormatDate2(&doc.DateOfFirstRegistration)
+	data.assignFrom(&doc.VehicleIdNumber, 0x71, 0x8A)
+	data.assignFrom(&doc.VehicleMass, 0x71, 0x8C)
+	data.assignFrom(&doc.ExpiryDate, 0x71, 0x8D)
+	document.FormatDate2(&doc.ExpiryDate)
+	data.assignFrom(&doc.IssuingDate, 0x71, 0x8E)
+	document.FormatDate2(&doc.IssuingDate)
+	data.assignFrom(&doc.TypeApprovalNumber, 0x71, 0x8F)
+	data.assignFrom(&doc.PowerWeightRatio, 0x71, 0x93)
+	data.assignFrom(&doc.VehicleMake, 0x71, 0xA3, 0x87)
+	data.assignFrom(&doc.VehicleType, 0x71, 0xA3, 0x88)
+	data.assignFrom(&doc.CommercialDescription, 0x71, 0xA3, 0x89)
+	data.assignFrom(&doc.MaximumPermissibleLadenMass, 0x71, 0xA4, 0x8B)
+	data.assignFrom(&doc.EngineCapacity, 0x71, 0xA5, 0x90)
+	data.assignFrom(&doc.MaximumNetPower, 0x71, 0xA5, 0x91)
+	data.assignFrom(&doc.TypeOfFuel, 0x71, 0xA5, 0x92)
+	data.assignFrom(&doc.NumberOfSeats, 0x71, 0xA6, 0x94)
+	data.assignFrom(&doc.NumberOfStandingPlaces, 0x71, 0xA6, 0x95)
+	data.assignFrom(&doc.StateIssuing, 0x71, 0x9F33)
+	data.assignFrom(&doc.CompetentAuthority, 0x71, 0x9F35)
+	data.assignFrom(&doc.AuthorityIssuing, 0x71, 0x9F36)
+	data.assignFrom(&doc.UnambiguousNumber, 0x71, 0x9F38)
+	data.assignFrom(&doc.VehicleCategory, 0x72, 0x98)
+	data.assignFrom(&doc.NumberOfAxles, 0x72, 0x99)
+	data.assignFrom(&doc.VehicleLoad, 0x72, 0xC4)
+	data.assignFrom(&doc.YearOfProduction, 0x72, 0xC5)
+	data.assignFrom(&doc.EngineIdNumber, 0x72, 0xA5, 0x9E)
+	data.assignFrom(&doc.OwnersSurnameOrBusinessName, 0x71, 0xA1, 0xA2, 0x83)
+	data.assignFrom(&doc.OwnerName, 0x71, 0xA1, 0xA2, 0x84)
+	data.assignFrom(&doc.OwnerAddress, 0x71, 0xA1, 0xA2, 0x85)
+	data.assignFrom(&doc.UsersSurnameOrBusinessName, 0x71, 0xA1, 0xA9, 0x83)
+	data.assignFrom(&doc.UsersName, 0x71, 0xA1, 0xA9, 0x84)
+	data.assignFrom(&doc.UsersAddress, 0x71, 0xA1, 0xA9, 0x85)
+	data.assignFrom(&doc.OwnersPersonalNo, 0x72, 0xC2)
+	data.assignFrom(&doc.UsersPersonalNo, 0x72, 0xC3)
+	data.assignFrom(&doc.SerialNumber, 0x72, 0xC9)
+	data.assignFrom(&doc.ColourOfVehicle, 0x72, 0x9F24)
 
 	return &doc, nil
 }
@@ -114,12 +119,12 @@ func (card VehicleCard) readFile(name []byte, _ bool) ([]byte, error) {
 
 	offset := uint(header[1])
 
-	len32, _, err := parseBerLength(header[offset+3:])
+	len32, delta, err := parseBerLength(header[offset+3:])
 	if err != nil {
 		return nil, fmt.Errorf("parsing size: %w", err)
 	}
 
-	length := uint(len32)
+	length := uint(len32 + delta)
 
 	for length > 0 {
 		toRead := min(length, 0x64)

@@ -98,59 +98,69 @@ func pageMedical(doc *document.MedicalDocument) *fyne.Container {
 }
 
 func pageVehicle(doc *document.VehicleDocument) *fyne.Container {
-	issuingStateF := widgets.NewField("Država izdavanja", doc.StateIssuing, 350)
-	issuedByF := widgets.NewField("Dokument izdao", doc.AuthorityIssuing, 350)
-	issuingDateF := widgets.NewField("Datum izdavanja", doc.IssuingDate, 170)
-	expiryDateF := widgets.NewField("Važi do", doc.ExpiryDate, 170)
+	issuingStateF := widgets.NewField("Država izdavanja", doc.StateIssuing, 220)
+	issuedByF := widgets.NewField("Dokument izdao", doc.AuthorityIssuing, 220)
+	issueRow := container.New(layout.NewHBoxLayout(), issuingStateF, issuedByF)
+	issuingDateF := widgets.NewField("Datum izdavanja", doc.IssuingDate, 220)
+	expiryDateF := widgets.NewField("Važi do", doc.ExpiryDate, 220)
 	dateRow := container.New(layout.NewHBoxLayout(), issuingDateF, expiryDateF)
-	denialAuthorityF := widgets.NewField("Zabrana otuđenja", doc.RestrictionToChangeOwner, 350)
-	docIdF := widgets.NewField("Broj dokumenta", doc.UnambiguousNumber, 350)
-	serialNumberF := widgets.NewField("Serijski broj", doc.SerialNumber, 350)
-	documentGroup := widgets.NewGroup("Podaci o dokumentu", issuingStateF, issuedByF, dateRow, denialAuthorityF, docIdF, serialNumberF)
+	competentAuthorityF := widgets.NewField("Zabrana otuđenja", doc.CompetentAuthority, 350)
+	docIdF := widgets.NewField("Broj saobraćajne", doc.UnambiguousNumber, 220)
+	serialNumberF := widgets.NewField("Serijski broj", doc.SerialNumber, 220)
+	idRow := container.New(layout.NewHBoxLayout(), docIdF, serialNumberF)
+	documentGroup := widgets.NewGroup("Podaci o dokumentu", issueRow, dateRow, competentAuthorityF, idRow)
 
-	ownerF := widgets.NewField("Vlasnik", doc.OwnersSurnameOrBusinessName, 350)
-	ownerNameF := widgets.NewField("Ime vlasnika", doc.OwnerName, 350)
+	ownerF := widgets.NewField("Vlasnik", doc.OwnersSurnameOrBusinessName, 220)
+	ownerNameF := widgets.NewField("Ime vlasnika", doc.OwnerName, 220)
+	ownerRow := container.New(layout.NewHBoxLayout(), ownerF, ownerNameF)
 	ownerNumberF := widgets.NewField("JMBG vlasnika", doc.OwnersPersonalNo, 350)
 	ownerAddressF := widgets.NewField("Adresa vlasnika", doc.OwnerAddress, 350)
-	userF := widgets.NewField("Korisnik", doc.UsersSurnameOrBusinessName, 350)
-	userNameF := widgets.NewField("Ime korisnika", doc.UsersName, 350)
-	userNumberF := widgets.NewField("JMBG korisnika", doc.UsersPersonalNo, 350)
-	userAddressF := widgets.NewField("Adresa korisnika", doc.UsersAddress, 350)
-	ownerGroup := widgets.NewGroup("Podaci o vlasniku", ownerF, ownerNameF, ownerNumberF, ownerAddressF, userF, userNameF, userNumberF, userAddressF)
+
+	userWidgets := []fyne.CanvasObject{ownerRow, ownerNumberF, ownerAddressF}
+	if doc.UsersSurnameOrBusinessName != "" || doc.UsersName != "" || doc.UsersAddress != "" {
+		userF := widgets.NewField("Korisnik", doc.UsersSurnameOrBusinessName, 220)
+		userNameF := widgets.NewField("Ime korisnika", doc.UsersName, 220)
+		userRow := container.New(layout.NewHBoxLayout(), userF, userNameF)
+		userNumberF := widgets.NewField("JMBG korisnika", doc.UsersPersonalNo, 350)
+		userAddressF := widgets.NewField("Adresa korisnika", doc.UsersAddress, 350)
+		userWidgets = append(userWidgets, userRow, userNumberF, userAddressF)
+	}
+
+	ownerGroup := widgets.NewGroup("Podaci o vlasniku", userWidgets...)
 
 	colLeft := container.New(layout.NewVBoxLayout(), documentGroup, ownerGroup)
 
-	registrationNumberF := widgets.NewField("Registarski broj", doc.RegistrationNumberOfVehicle, 350)
-	dateOfFirstRegistrationF := widgets.NewField("Datum prve registracije", doc.DateOfFirstRegistration, 170)
+	registrationNumberF := widgets.NewField("Registarski broj", doc.RegistrationNumberOfVehicle, 220)
+	dateOfFirstRegistrationF := widgets.NewField("Datum prve registracije", doc.DateOfFirstRegistration, 220)
+	vehicleRow0 := container.New(layout.NewHBoxLayout(), registrationNumberF, dateOfFirstRegistrationF)
 
-	brandF := widgets.NewField("Marka", doc.VehicleMake, 170)
-	modelF := widgets.NewField("Model", "", 170)
+	brandF := widgets.NewField("Marka", doc.VehicleMake, 220)
+	modelF := widgets.NewField("Model", doc.CommercialDescription, 220)
 	vehicleRow1 := container.New(layout.NewHBoxLayout(), brandF, modelF)
 
-	colorF := widgets.NewField("Boja", doc.ColourOfVehicle, 170)
-	yearOfProductionF := widgets.NewField("Godina proizvodnje", doc.YearOfProduction, 170)
+	colorF := widgets.NewField("Boja", doc.ColourOfVehicle, 220)
+	yearOfProductionF := widgets.NewField("Godina proizvodnje", doc.YearOfProduction, 220)
 	vehicleRow2 := container.New(layout.NewHBoxLayout(), colorF, yearOfProductionF)
 
-	massF := widgets.NewField("Masa", doc.VehicleMass, 170)
-	maximalAllowedMassF := widgets.NewField("Najveća dozvoljena masa", doc.MaximumPermissibleLadenMass, 170)
+	massF := widgets.NewField("Masa", doc.VehicleMass, 220)
+	maximalAllowedMassF := widgets.NewField("Najveća dozvoljena masa", doc.MaximumPermissibleLadenMass, 220)
 	vehicleRow3 := container.New(layout.NewHBoxLayout(), massF, maximalAllowedMassF)
 
-	enginePowerF := widgets.NewField("Snaga motora", doc.EnginePower, 170)
-	powerMassRatioF := widgets.NewField("Specifična snaga", doc.PowerWeightRatio, 170)
+	enginePowerF := widgets.NewField("Snaga motora", doc.MaximumNetPower, 220)
+	powerMassRatioF := widgets.NewField("Specifična snaga", doc.PowerWeightRatio, 220)
 	vehicleRow4 := container.New(layout.NewHBoxLayout(), enginePowerF, powerMassRatioF)
 
-	engineNumberF := widgets.NewField("Broj motora", doc.EngineNumber, 350)
-	engineCapacityF := widgets.NewField("Kapacitet motora", doc.EngineCapacity, 350)
+	engineNumberF := widgets.NewField("Broj motora", doc.EngineIdNumber, 220)
+	engineCapacityF := widgets.NewField("Kapacitet motora", doc.EngineCapacity, 220)
 	vehicleRow5 := container.New(layout.NewHBoxLayout(), engineNumberF, engineCapacityF)
 
-	seatsF := widgets.NewField("Broj mesta za sedenje", doc.NumberOfSeats, 170)
-	standingF := widgets.NewField("Broj mesta za stajanje", doc.NumberOfStandingPlaces, 170)
+	seatsF := widgets.NewField("Broj mesta za sedenje", doc.NumberOfSeats, 220)
+	standingF := widgets.NewField("Broj mesta za stajanje", doc.NumberOfStandingPlaces, 220)
 	vehicleRow6 := container.New(layout.NewHBoxLayout(), seatsF, standingF)
 
 	insuranceHolderGroup := widgets.NewGroup("Podaci o vozilu",
-		registrationNumberF, dateOfFirstRegistrationF,
-		vehicleRow1, vehicleRow2, vehicleRow3, vehicleRow4,
-		vehicleRow5, vehicleRow6,
+		vehicleRow0, vehicleRow1, vehicleRow2, vehicleRow3,
+		vehicleRow4, vehicleRow5, vehicleRow6,
 	)
 
 	colRight := container.New(layout.NewVBoxLayout(), insuranceHolderGroup)

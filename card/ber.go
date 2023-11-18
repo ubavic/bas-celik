@@ -3,6 +3,8 @@ package card
 import (
 	"encoding/binary"
 	"errors"
+	"fmt"
+	"strings"
 )
 
 type BER struct {
@@ -12,7 +14,7 @@ type BER struct {
 	children  []BER
 }
 
-func parseBER(data []byte) (*BER, error) {
+func ParseBER(data []byte) (*BER, error) {
 	primitive, constructed, err := parseBERLayer(data)
 
 	if err != nil {
@@ -27,27 +29,28 @@ func parseBER(data []byte) (*BER, error) {
 	}
 
 	for t, v := range primitive {
-		prim := BER{
+		val := BER{
 			tag:       t,
 			primitive: true,
 			data:      v,
 			children:  nil,
 		}
-		ber.add(prim)
+		ber.add(val)
 	}
 
 	for t, v := range constructed {
-		children, err := parseBER(v)
+		subBer, err := ParseBER(v)
 		if err != nil {
 			return nil, err
 		}
-		prim := BER{
+		val := BER{
 			tag:       t,
-			primitive: true,
+			primitive: false,
 			data:      nil,
-			children:  children.children,
+			children:  subBer.children,
 		}
-		ber.add(prim)
+
+		ber.add(val)
 	}
 
 	return &ber, nil
@@ -56,8 +59,6 @@ func parseBER(data []byte) (*BER, error) {
 
 func (tree BER) access(address ...uint32) ([]byte, error) {
 	if len(address) == 0 {
-		return nil, errors.New("bad address")
-	} else if len(address) == 1 {
 		return tree.data, nil
 	} else {
 		var found *BER = nil
@@ -83,15 +84,16 @@ func (into *BER) add(new BER) error {
 
 	var targetField *BER
 
-	alradyExists := false
-	for _, v := range into.children {
-		if v.tag == new.tag {
-			alradyExists = true
-			targetField = &v
+	alreadyExists := false
+	for i := range into.children {
+		if into.children[i].tag == new.tag {
+			alreadyExists = true
+			targetField = &into.children[i]
+			break
 		}
 	}
 
-	if !alradyExists {
+	if !alreadyExists {
 		into.children = append(into.children, new)
 		return nil
 	} else {
@@ -99,8 +101,8 @@ func (into *BER) add(new BER) error {
 			if targetField.primitive {
 				*targetField = new
 			} else {
-				for _, vv := range new.children {
-					err := targetField.add(vv)
+				for i := range new.children {
+					err := targetField.add(new.children[i])
 					if err != nil {
 						return err
 					}
@@ -114,13 +116,18 @@ func (into *BER) add(new BER) error {
 	return nil
 }
 
-func emptyTree() BER {
-	return BER{
-		tag:       0,
-		primitive: false,
-		data:      []byte{},
-		children:  []BER{},
+func (into *BER) merge(new BER) error {
+	if into.tag != new.tag {
+		return errors.New("tags don't match")
 	}
+
+	for _, c := range new.children {
+		if err := into.add(c); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 // Parses one level of BER-TLV encoded data
@@ -155,7 +162,7 @@ func parseBERLayer(data []byte) (map[uint32][]byte, map[uint32][]byte, error) {
 			}
 		}
 
-		length, offsetDelta, err := parseBerLength(data)
+		length, offsetDelta, err := parseBerLength(data[offset:])
 		if err != nil {
 			return nil, nil, errors.New("invalid length")
 		}
@@ -181,11 +188,32 @@ func parseBERLayer(data []byte) (map[uint32][]byte, map[uint32][]byte, error) {
 	return primF, consF, nil
 }
 
-func (tree *BER) assignToFrom(target *string, address ...uint32) {
-	bytes, error := tree.access(address...)
-	if error == nil {
+func (tree *BER) assignFrom(target *string, address ...uint32) {
+	bytes, err := tree.access(address...)
+	if err == nil {
 		*target = string(bytes)
 	}
+}
+
+func (tree *BER) levels() []string {
+	if tree.primitive {
+		return []string{fmt.Sprintf("%X: %s", tree.tag, string(tree.data))}
+	} else {
+		strings := []string{fmt.Sprint(tree.tag) + ":"}
+		for _, child := range tree.children {
+			childrenStrings := child.levels()
+			for i := range childrenStrings {
+				childrenStrings[i] = "  " + childrenStrings[i]
+			}
+			strings = append(strings, childrenStrings...)
+		}
+
+		return strings
+	}
+}
+
+func (tree BER) String() string {
+	return strings.Join(tree.levels(), "\n")
 }
 
 func parseBerLength(data []byte) (uint32, uint32, error) {

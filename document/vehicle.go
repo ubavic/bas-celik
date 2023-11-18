@@ -18,8 +18,6 @@ type VehicleDocument struct {
 	DateOfFirstRegistration     string
 	EngineCapacity              string
 	EngineIdNumber              string
-	EngineNumber                string
-	EnginePower                 string
 	EngineRatedSpeed            string
 	ExpiryDate                  string
 	HomologationMark            string
@@ -35,7 +33,6 @@ type VehicleDocument struct {
 	OwnersSurnameOrBusinessName string
 	PowerWeightRatio            string
 	RegistrationNumberOfVehicle string
-	RestrictionToChangeOwner    string
 	SerialNumber                string
 	StateIssuing                string
 	TypeApprovalNumber          string
@@ -181,14 +178,14 @@ func (doc *VehicleDocument) BuildPdf() (data []byte, fileName string, retErr err
 
 	putData("Datum izdavanja", doc.IssuingDate)
 	tab()
-	putUnderline("Važi do"+doc.ExpiryDate+": ", 12)
+	putUnderline("Važi do: "+doc.ExpiryDate, 12)
 	newLine()
 
-	putData("Saobraćajnu izdao", doc.AuthorityIssuing)
+	putData("Saobraćajnu izdao", doc.StateIssuing)
 	tab()
 	putData("Zabrana otuđenja", "")
 	newLine()
-	putParagraph(doc.RestrictionToChangeOwner)
+	putParagraph(doc.AuthorityIssuing + ",\n" + doc.CompetentAuthority)
 
 	putData("Broj saobraćajne", doc.UnambiguousNumber)
 	newLine()
@@ -234,8 +231,8 @@ func (doc *VehicleDocument) BuildPdf() (data []byte, fileName string, retErr err
 	newLine()
 
 	putData("Marka", doc.VehicleMake)
-	tab()
-	putData("Model", "")
+	pdf.SetXY(pdf.GetX()+10, pdf.GetY())
+	putData("Model", doc.CommercialDescription)
 	newLine()
 
 	putData("Tip", dashFormat(doc.VehicleType))
@@ -248,17 +245,17 @@ func (doc *VehicleDocument) BuildPdf() (data []byte, fileName string, retErr err
 	putData("Broj osovina", doc.NumberOfAxles)
 	newLine()
 
-	putData("Broj šasije", doc.EngineNumber)
+	putData("Broj šasije", doc.VehicleIdNumber)
 	tab()
 	putData("Zapremina motora", doc.EngineCapacity)
 	newLine()
 
-	putData("Broj motora", doc.EngineNumber)
+	putData("Broj motora", doc.EngineIdNumber)
 	tab()
 	putData("Masa", doc.VehicleMass)
 	newLine()
 
-	putData("Snaga motora", doc.EnginePower)
+	putData("Snaga motora", doc.MaximumNetPower)
 	tab()
 	putData("Nosivost", doc.VehicleLoad)
 	newLine()
