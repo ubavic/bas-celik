@@ -10,7 +10,7 @@ import (
 type MyTheme struct{}
 
 func (MyTheme) Color(c fyne.ThemeColorName, v fyne.ThemeVariant) color.Color {
-	if v == 0 {
+	if v == theme.VariantLight || v == 2 {
 		switch c {
 		case theme.ColorNameBackground:
 			return color.NRGBA{R: 0xFF, G: 0xFF, B: 0xFF, A: 0xFF}
