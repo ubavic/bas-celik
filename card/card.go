@@ -54,15 +54,24 @@ func ReadCard(sc *scard.Card) (doc.Document, error) {
 	var d doc.Document
 
 	switch card := card.(type) {
+	case Gemalto:
+		err = card.initCard()
+	case VehicleCard:
+		err = card.initCard()
+	}
+
+	if err != nil {
+		return nil, fmt.Errorf("initializing card: %w", err)
+	}
+
+	switch card := card.(type) {
 	case Apollo:
 		d, err = readIDCard(card)
 	case Gemalto:
-		card.initCard()
 		d, err = readIDCard(card)
 	case MedicalCard:
 		d, err = readMedicalCard(card)
 	case VehicleCard:
-		card.initCard()
 		d, err = readVehicleCard(card)
 	}
 

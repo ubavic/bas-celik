@@ -35,7 +35,11 @@ func ParseBER(data []byte) (*BER, error) {
 			data:      v,
 			children:  nil,
 		}
-		ber.add(val)
+
+		err = ber.add(val)
+		if err != nil {
+			return nil, fmt.Errorf("adding primitive value: %w", err)
+		}
 	}
 
 	for t, v := range constructed {
@@ -50,7 +54,10 @@ func ParseBER(data []byte) (*BER, error) {
 			children:  subBer.children,
 		}
 
-		ber.add(val)
+		err = ber.add(val)
+		if err != nil {
+			return nil, fmt.Errorf("adding primitive value: %w", err)
+		}
 	}
 
 	return &ber, nil

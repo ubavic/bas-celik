@@ -10,9 +10,12 @@ func main() {
 	cmd := exec.Command("git", "describe", "--tags", "--abbrev=0")
 	stdout, err := cmd.Output()
 	if err != nil {
-		stdout = []byte{}
+		return
 	}
 
 	version := []byte(strings.TrimSpace(string(stdout)))
-	os.WriteFile("assets/version", version, 0644)
+	err = os.WriteFile("assets/version", version, 0600)
+	if err != nil {
+		return
+	}
 }
