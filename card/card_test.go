@@ -6,7 +6,7 @@ import (
 	"github.com/ebfe/scard"
 )
 
-func TestReadCard(t *testing.T) {
+func TestReadCardInit(t *testing.T) {
 	var card scard.Card
 	_, err := ReadCard(&card)
 
