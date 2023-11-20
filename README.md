@@ -72,7 +72,7 @@ Uz pomoć [fyne-cross](https://github.com/fyne-io/fyne-cross) programa moguće j
  + Potpisivanje dokumenata sa sertifikatom smeštenim na LK
  + Verifikacija podataka na karticama
  + Opcija promene PIN koda na LK
- + Podrška za proveru dostupnosti novih verzija
+ + Podrška za dokumente iz susednih država (CG, BiH, HR...)
 
 ## Poznati problemi
 
