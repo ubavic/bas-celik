@@ -14,3 +14,18 @@ func TestReadCardInit(t *testing.T) {
 		t.Errorf("Expected error here!")
 	}
 }
+
+func Test_responseOK(t *testing.T) {
+	byteSliceTest := []struct {
+		value  []byte
+		result bool
+	}{{[]byte{0x0F, 0x0F}, false}, {[]byte{0x90, 0x00}, true}}
+
+	for _, testRes := range byteSliceTest {
+		res := responseOK(testRes.value)
+
+		if res != testRes.result {
+			t.Errorf("Expected res to be %t and it is %t", res, testRes.result)
+		}
+	}
+}
