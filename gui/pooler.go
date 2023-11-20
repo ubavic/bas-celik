@@ -26,8 +26,9 @@ func pooler() {
 			setStartPage(
 				"Greška pri upotrebi drajvera za pametne kartice",
 				"Da li program ima neophodne dozvole?",
-				fmt.Errorf("listing readers: %w", err))
-			goto RELEASE
+				fmt.Errorf("establishing context: %w", err))
+			time.Sleep(1000 * time.Millisecond)
+			continue
 		}
 
 		readersNames, err = ctx.ListReaders()
