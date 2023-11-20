@@ -14,7 +14,7 @@ import (
 func readAndSave(pdfPath, jsonPath string, reader uint) error {
 	ctx, err := scard.EstablishContext()
 	if err != nil {
-		return fmt.Errorf("Error establishing context: %w", err)
+		return fmt.Errorf("establishing context: %w", err)
 	}
 
 	defer ctx.Release()
@@ -86,7 +86,7 @@ func readAndSave(pdfPath, jsonPath string, reader uint) error {
 func printATR() error {
 	ctx, err := scard.EstablishContext()
 	if err != nil {
-		return fmt.Errorf("Error establishing context: %w", err)
+		return fmt.Errorf("establishing context: %w", err)
 	}
 
 	defer ctx.Release()
@@ -120,18 +120,18 @@ func printATR() error {
 func listReaders() error {
 	ctx, err := scard.EstablishContext()
 	if err != nil {
-		return fmt.Errorf("Error establishing context: %w", err)
+		return fmt.Errorf("establishing context: %w", err)
 	}
 
 	defer ctx.Release()
 
 	readersNames, err := ctx.ListReaders()
 	if err != nil {
-		return fmt.Errorf("Error listing readers: %w", err)
+		return fmt.Errorf("listing readers: %w", err)
 	}
 
 	if len(readersNames) == 0 {
-		return errors.New("No reader found.")
+		return errors.New("no reader found")
 	}
 
 	for i, name := range readersNames {
