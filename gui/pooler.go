@@ -13,7 +13,7 @@ func pooler() {
 	breakCardLoop := false
 	selectedReader := ""
 	selectedReaderIndex := 0
-	readersNames := []string{}
+	var readersNames []string
 
 	setStartPage("Konekcija sa čitačem...", "", nil)
 
