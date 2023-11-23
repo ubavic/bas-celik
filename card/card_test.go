@@ -80,5 +80,4 @@ func Test_parseTLV_emptyData(t *testing.T) {
 	if err == nil {
 		t.Error("Error should be raied here - data length is 0")
 	}
-
 }
