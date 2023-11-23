@@ -54,9 +54,9 @@ func Test_parseTLV(t *testing.T) {
 		{keyValue: 9, expectResult: []byte{87, 111, 114, 108, 100}},
 	}
 
-	res := parseTLV(data)
+	res, err := parseTLV(data)
 
-	if res == nil {
+	if err != nil {
 		t.Error("Result should not be null")
 	}
 
@@ -70,4 +70,15 @@ func Test_parseTLV(t *testing.T) {
 			t.Errorf("Expect first element in slice to be %v and we got %v", expectRes.expectResult, val)
 		}
 	}
+}
+
+func Test_parseTLV_emptyData(t *testing.T) {
+
+	data := []byte{}
+	_, err := parseTLV(data)
+
+	if err == nil {
+		t.Error("Error should be raied here - data length is 0")
+	}
+
 }
