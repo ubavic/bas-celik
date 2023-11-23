@@ -1,6 +1,7 @@
 package card
 
 import (
+	"bytes"
 	"testing"
 )
 
@@ -37,6 +38,37 @@ func Test_min(t *testing.T) {
 		if res != int(testVal.expected) {
 			t.Errorf("Got %v and we expect %v", res, testVal.expected)
 		}
+	}
+
+}
+
+func Test_parseTLV(t *testing.T) {
+
+	data := []byte{0x01, 0x00, 0x05, 0x00, 0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x09, 0x00, 0x05, 0x00, 0x57, 0x6F, 0x72, 0x6C, 0x64}
+	firstSliceExpected := []byte{72, 101, 108, 108, 111}
+	secondSliceExpected := []byte{87, 111, 114, 108, 100}
+
+	res := parseTLV(data)
+
+	if res == nil {
+		t.Error("Result should not be null")
+	}
+
+	val, ok := res[1]
+	if !ok {
+		t.Error("Could not get value")
+	}
+
+	if !bytes.Equal(val, firstSliceExpected) {
+		t.Errorf("Expect first element in slice to be %v and we got %v", firstSliceExpected, val)
+	}
+
+	val, ok = res[9]
+	if !ok {
+		t.Error("Could not get second slice")
+	}
+	if !bytes.Equal(val, secondSliceExpected) {
+		t.Errorf("Expect Second element in slice to be %v and we got %v", secondSliceExpected, val)
 	}
 
 }
