@@ -115,11 +115,19 @@ func read(card *scard.Card, offset, length uint) ([]byte, error) {
 	return rsp[:len(rsp)-2], nil
 }
 
+func checkTLVData(data []byte) error {
+	if len(data) == 0 {
+		return fmt.Errorf("smpty data %d", len(data))
+	}
+	return nil
+}
+
 // Parses simple TLV encoded data, where tag and length
 // are encoded with two bytes
 func parseTLV(data []byte) (map[uint][]byte, error) {
-	if len(data) == 0 {
-		return nil, fmt.Errorf("Empty data %d", len(data))
+	err := checkTLVData(data)
+	if err != nil {
+		return nil, err
 	}
 	m := make(map[uint][]byte)
 	offset := uint(0)
