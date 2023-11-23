@@ -45,8 +45,14 @@ func Test_min(t *testing.T) {
 func Test_parseTLV(t *testing.T) {
 
 	data := []byte{0x01, 0x00, 0x05, 0x00, 0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x09, 0x00, 0x05, 0x00, 0x57, 0x6F, 0x72, 0x6C, 0x64}
-	firstSliceExpected := []byte{72, 101, 108, 108, 111}
-	secondSliceExpected := []byte{87, 111, 114, 108, 100}
+
+	testExpectedResults := []struct {
+		keyValue     int
+		expectResult []byte
+	}{
+		{keyValue: 1, expectResult: []byte{72, 101, 108, 108, 111}},
+		{keyValue: 9, expectResult: []byte{87, 111, 114, 108, 100}},
+	}
 
 	res := parseTLV(data)
 
@@ -54,21 +60,14 @@ func Test_parseTLV(t *testing.T) {
 		t.Error("Result should not be null")
 	}
 
-	val, ok := res[1]
-	if !ok {
-		t.Error("Could not get value")
-	}
+	for _, expectRes := range testExpectedResults {
+		val, ok := res[uint(expectRes.keyValue)]
+		if !ok {
+			t.Error("Could not get value")
+		}
 
-	if !bytes.Equal(val, firstSliceExpected) {
-		t.Errorf("Expect first element in slice to be %v and we got %v", firstSliceExpected, val)
+		if !bytes.Equal(val, expectRes.expectResult) {
+			t.Errorf("Expect first element in slice to be %v and we got %v", expectRes.expectResult, val)
+		}
 	}
-
-	val, ok = res[9]
-	if !ok {
-		t.Error("Could not get second slice")
-	}
-	if !bytes.Equal(val, secondSliceExpected) {
-		t.Errorf("Expect Second element in slice to be %v and we got %v", secondSliceExpected, val)
-	}
-
 }
