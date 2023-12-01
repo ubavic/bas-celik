@@ -117,7 +117,7 @@ func read(card *scard.Card, offset, length uint) ([]byte, error) {
 
 func checkParseTLVData(data []byte) error {
 	if len(data) == 0 {
-		return fmt.Errorf("smpty data %d", len(data))
+		return fmt.Errorf("empty data %d", len(data))
 	}
 	return nil
 }
