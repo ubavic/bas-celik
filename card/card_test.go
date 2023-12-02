@@ -1,6 +1,7 @@
 package card
 
 import (
+	"bytes"
 	"testing"
 )
 
@@ -39,4 +40,44 @@ func Test_min(t *testing.T) {
 		}
 	}
 
+}
+
+func Test_parseTLV(t *testing.T) {
+
+	data := []byte{0x01, 0x00, 0x05, 0x00, 0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x09, 0x00, 0x05, 0x00, 0x57, 0x6F, 0x72, 0x6C, 0x64}
+
+	testExpectedResults := []struct {
+		keyValue     int
+		expectResult []byte
+	}{
+		{keyValue: 1, expectResult: []byte{72, 101, 108, 108, 111}},
+		{keyValue: 9, expectResult: []byte{87, 111, 114, 108, 100}},
+	}
+
+	res, err := parseTLV(data)
+
+	if err != nil {
+		t.Error("Result should not be null")
+	}
+
+	for _, expectRes := range testExpectedResults {
+		val, ok := res[uint(expectRes.keyValue)]
+		if !ok {
+			t.Error("Could not get value")
+		}
+
+		if !bytes.Equal(val, expectRes.expectResult) {
+			t.Errorf("Expect first element in slice to be %v and we got %v", expectRes.expectResult, val)
+		}
+	}
+}
+
+func Test_parseTLV_emptyData(t *testing.T) {
+
+	data := []byte{}
+	_, err := parseTLV(data)
+
+	if err == nil {
+		t.Error("Error should be raied here - data length is 0")
+	}
 }

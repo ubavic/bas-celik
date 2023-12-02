@@ -21,7 +21,10 @@ func readIDCard(card Card) (*document.IdDocument, error) {
 
 	doc := document.IdDocument{}
 
-	fields := parseTLV(rsp)
+	fields, err := parseTLV(rsp)
+	if err != nil {
+		return nil, err
+	}
 	assignField(fields, 1546, &doc.DocumentNumber)
 	assignField(fields, 1547, &doc.DocumentType)
 	assignField(fields, 1548, &doc.DocumentSerialNumber)
@@ -36,7 +39,10 @@ func readIDCard(card Card) (*document.IdDocument, error) {
 		return nil, fmt.Errorf("reading personal file: %w", err)
 	}
 
-	fields = parseTLV(rsp)
+	fields, err = parseTLV(rsp)
+	if err != nil {
+		return nil, err
+	}
 	assignField(fields, 1558, &doc.PersonalNumber)
 	assignField(fields, 1559, &doc.Surname)
 	assignField(fields, 1560, &doc.GivenName)
@@ -53,7 +59,10 @@ func readIDCard(card Card) (*document.IdDocument, error) {
 		return nil, fmt.Errorf("reading residence file: %w", err)
 	}
 
-	fields = parseTLV(rsp)
+	fields, err = parseTLV(rsp)
+	if err != nil {
+		return nil, err
+	}
 	assignField(fields, 1568, &doc.State)
 	assignField(fields, 1569, &doc.Community)
 	assignField(fields, 1570, &doc.Place)
