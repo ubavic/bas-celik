@@ -91,9 +91,9 @@ func Test_assignBoolField(t *testing.T) {
 		value  []byte
 		target bool
 	}{
-		{"correct valuse 0x31", []byte{0x31}, true},
-		{"wrong value 0x01", []byte{0x01}, false},
-		{"empty value", []byte{}, false},
+		{name: "correct valuse 0x31", value: []byte{0x31}, target: true},
+		{name: "wrong value 0x01", value: []byte{0x01}, target: false},
+		{name: "empty value", value: []byte{}, target: false},
 	}
 	for _, testVal := range testValues {
 		fields[0] = testVal.value
