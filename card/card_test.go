@@ -81,3 +81,25 @@ func Test_parseTLV_emptyData(t *testing.T) {
 		t.Error("Error should be raied here - data length is 0")
 	}
 }
+
+func Test_assignBoolField(t *testing.T) {
+	var fields = make(map[uint][]byte)
+	var target bool
+
+	var testValues = []struct {
+		name   string
+		value  []byte
+		target bool
+	}{
+		{"correct valuse 0x31", []byte{0x31}, true},
+		{"wrong value 0x01", []byte{0x01}, false},
+		{"empty value", []byte{}, false},
+	}
+	for _, testVal := range testValues {
+		fields[0] = testVal.value
+		assignBoolField(fields, 0, &target)
+		if target != testVal.target {
+			t.Fatalf("%s Failed: Expected target to be %v and got %v", testVal.name, testVal.target, target)
+		}
+	}
+}
