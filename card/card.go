@@ -10,12 +10,12 @@ import (
 	doc "github.com/ubavic/bas-celik/document"
 )
 
-type Card interface {
+type CardDocument interface {
 	readFile([]byte, bool) ([]byte, error)
 }
 
 func ReadCard(sc *scard.Card) (doc.Document, error) {
-	var card Card
+	var card CardDocument
 
 	smartCardStatus, err := sc.Status()
 	if err != nil {
