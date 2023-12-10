@@ -8,7 +8,6 @@ import (
 
 	"github.com/ebfe/scard"
 	doc "github.com/ubavic/bas-celik/document"
-	"golang.org/x/exp/constraints"
 )
 
 type Card interface {
@@ -218,26 +217,4 @@ func buildAPDU(cla, ins, p1, p2 byte, data []byte, ne uint) []byte {
 
 func responseOK(rsp []byte) bool {
 	return reflect.DeepEqual(rsp, []byte{0x90, 0x00})
-}
-
-func min[O constraints.Ordered](args ...O) O {
-	if len(args) == 0 {
-		return *new(O)
-	}
-
-	if args[0] != args[0] {
-		return args[0]
-	}
-
-	min := args[0]
-	for _, arg := range args[1:] {
-		if arg != arg {
-			return arg
-		}
-
-		if arg < min {
-			min = arg
-		}
-	}
-	return min
 }
