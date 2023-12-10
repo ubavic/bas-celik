@@ -65,9 +65,9 @@ func ReadCard(sc *scard.Card) (doc.Document, error) {
 
 	switch card := card.(type) {
 	case Apollo:
-		d, err = readIDCard(card)
+		d, err = readIdCard(card)
 	case Gemalto:
-		d, err = readIDCard(card)
+		d, err = readIdCard(card)
 	case MedicalCard:
 		d, err = readMedicalCard(card)
 	case VehicleCard:
