@@ -221,16 +221,10 @@ func responseOK(rsp []byte) bool {
 }
 
 func min[O constraints.Ordered](args ...O) O {
-	// Here length can't be 0 GoLang will trow empty args error
-	// it will expect at least one argument to be passed
-	// Maybe better to refactor args in order to handle empty args error
-	// I think we can remove this check
 	if len(args) == 0 {
 		return *new(O)
 	}
 
-	// This will always be false
-	// I think we can delete this too
 	if args[0] != args[0] {
 		return args[0]
 	}
