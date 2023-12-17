@@ -3,8 +3,6 @@ package card
 import (
 	"encoding/binary"
 	"fmt"
-
-	"github.com/ebfe/scard"
 )
 
 var GEMALTO_ATR_1 = []byte{
@@ -27,7 +25,7 @@ var GEMALTO_ATR_3 = []byte{
 }
 
 type Gemalto struct {
-	smartCard *scard.Card
+	smartCard Card
 }
 
 func (card Gemalto) initCard() error {

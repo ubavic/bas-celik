@@ -5,14 +5,13 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/ebfe/scard"
 	"github.com/ubavic/bas-celik/document"
 	"golang.org/x/text/encoding/unicode"
 	"golang.org/x/text/transform"
 )
 
 type MedicalCard struct {
-	smartCard *scard.Card
+	smartCard Card
 }
 
 var MEDICAL_ATR = []byte{

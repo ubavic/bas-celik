@@ -3,12 +3,10 @@ package card
 import (
 	"encoding/binary"
 	"fmt"
-
-	"github.com/ebfe/scard"
 )
 
 type Apollo struct {
-	smartCard *scard.Card
+	smartCard Card
 }
 
 var APOLLO_ATR = []byte{

@@ -3,12 +3,11 @@ package card
 import (
 	"fmt"
 
-	"github.com/ebfe/scard"
 	"github.com/ubavic/bas-celik/document"
 )
 
 type VehicleCard struct {
-	smartCard *scard.Card
+	smartCard Card
 }
 
 // possibly deprecated

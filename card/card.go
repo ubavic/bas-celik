@@ -99,7 +99,7 @@ func assignBoolField(fields map[uint][]byte, tag uint, target *bool) {
 	}
 }
 
-func read(card *scard.Card, offset, length uint) ([]byte, error) {
+func read(card Card, offset, length uint) ([]byte, error) {
 	readSize := min(length, 0xFF)
 	apu := buildAPDU(0x00, 0xB0, byte((0xFF00&offset)>>8), byte(offset&0xFF), nil, readSize)
 	rsp, err := card.Transmit(apu)
