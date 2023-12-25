@@ -6,13 +6,19 @@ import (
 	"strings"
 )
 
+// Represents any document handled by Bas Celik
 type Document interface {
-	BuildPdf() ([]byte, string, error)
-	BuildJson() ([]byte, error)
+	BuildPdf() ([]byte, string, error) // Renders document to pdf
+	BuildJson() ([]byte, error)        // Renders document to json
 }
 
-var fontRegular, fontBold, rfzoLogo []byte
+var (
+	fontRegular []byte // regular font used for PDF render
+	fontBold    []byte // bold font used for PDF render
+	rfzoLogo    []byte // logo used in PDF render of medical cards
+)
 
+// Sets fonts and graphics used for rendering PDF
 func SetData(fontRegularFS, fontBoldFS, rfzoLogoFS embed.FS) error {
 	fontFile, err := fontRegularFS.ReadFile("assets/liberationSansRegular.ttf")
 	if err != nil {
@@ -35,7 +41,8 @@ func SetData(fontRegularFS, fontBoldFS, rfzoLogoFS embed.FS) error {
 	return nil
 }
 
-// Expects date in format DDMMYYYY
+// Expects a pointer to a date in the format DDMMYYYY.
+// Modifies, in place, date to format DD.MM.YYYY.
 func FormatDate(in *string) {
 	chars := strings.Split(*in, "")
 	if len(chars) != 8 {
@@ -48,7 +55,8 @@ func FormatDate(in *string) {
 	*in = chars[0] + chars[1] + "." + chars[2] + chars[3] + "." + chars[4] + chars[5] + chars[6] + chars[7] + "."
 }
 
-// Expects date in format YYYYMMDD
+// Expects a pointer to a date in the format YYYYMMDD.
+// Modifies, in place, date to format DD.MM.YYYY.
 func FormatDate2(in *string) {
 	chars := strings.Split(*in, "")
 	if len(chars) != 8 {

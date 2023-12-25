@@ -2,11 +2,6 @@ package card
 
 import "github.com/ebfe/scard"
 
-type Card interface {
-	Status() (*scard.CardStatus, error)
-	Transmit(cmd []byte) ([]byte, error)
-}
-
 type VirtualCard struct {
 	atr   []byte
 	files map[uint32][]byte

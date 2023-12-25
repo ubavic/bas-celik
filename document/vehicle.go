@@ -10,6 +10,8 @@ import (
 	"github.com/signintech/gopdf"
 )
 
+// Represents a Vehicle card document.
+// Fields are named according to official API.
 type VehicleDocument struct {
 	AuthorityIssuing            string
 	ColourOfVehicle             string

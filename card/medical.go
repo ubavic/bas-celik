@@ -10,10 +10,12 @@ import (
 	"golang.org/x/text/transform"
 )
 
+// Represents a medical smart card document.
 type MedicalCard struct {
 	smartCard Card
 }
 
+// Possibly the first version of the medical card. Newer version has the GEMALTO_ATR_2 for the ATR.
 var MEDICAL_ATR = []byte{
 	0x3B, 0xF4, 0x13, 0x00, 0x00, 0x81, 0x31, 0xFE,
 	0x45, 0x52, 0x46, 0x5A, 0x4F, 0xED,
@@ -142,6 +144,7 @@ func readMedicalCard(card MedicalCard) (*document.MedicalDocument, error) {
 	return &doc, nil
 }
 
+// Decodes UTF16 encoded data on medical cards.
 func descramble(fields map[uint][]byte, tag uint) {
 	bs, ok := fields[tag]
 	if ok {
@@ -199,6 +202,8 @@ func (card MedicalCard) selectFile(name []byte) ([]byte, error) {
 	return rsp, nil
 }
 
+// Newer medical cards share ATR with the ID cards (GEMALTO_ATR_2)
+// Function testMedicalCard tests if s smart card is a medical card.
 func (card MedicalCard) testMedicalCard() bool {
 	s1 := []byte{0xF3, 0x81, 0x00, 0x00, 0x02, 0x53, 0x45, 0x52, 0x56, 0x53, 0x5A, 0x4B, 0x01}
 	apu := buildAPDU(0x00, 0xA4, 0x04, 0x00, s1, 0)

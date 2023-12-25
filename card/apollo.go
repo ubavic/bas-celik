@@ -5,6 +5,8 @@ import (
 	"fmt"
 )
 
+// Apollo is type of the first ID cards.
+// Apollo cards are not manufactured anymore, and this code could be removed in the future.
 type Apollo struct {
 	smartCard Card
 }

@@ -8,11 +8,19 @@ import (
 	"github.com/ubavic/bas-celik/document"
 )
 
+// Location of the file with document data.
 var DOCUMENT_FILE_LOC = []byte{0x0F, 0x02}
+
+// Location of the file with personal data.
 var PERSONAL_FILE_LOC = []byte{0x0F, 0x03}
+
+// Location of the file with residence data.
 var RESIDENCE_FILE_LOC = []byte{0x0F, 0x04}
+
+// Location of the the portrait. Portrait is encoded as JPEG.
 var PHOTO_FILE_LOC = []byte{0x0F, 0x06}
 
+// Represents a ID smart card document.
 type IdDocument interface {
 	Apollo | Gemalto
 	CardDocument

@@ -1,3 +1,6 @@
+// Package card provides functions for communication with smart cards.
+// It includes implementations for handling different types of smart cards
+// and reading associated documents.
 package card
 
 import (
@@ -10,10 +13,23 @@ import (
 	doc "github.com/ubavic/bas-celik/document"
 )
 
+// Represents a physical or virtual smart card.
+// Essentially it is just a wrapper for the scard.Card type,
+// but it also allows virtual cards which cant be useful for testing.
+type Card interface {
+	Status() (*scard.CardStatus, error)
+	Transmit(cmd []byte) ([]byte, error)
+}
+
+// Represents a smart card with a document.
+// All types of documents that Bas Celik can read should satisfy this interface
 type CardDocument interface {
 	readFile([]byte, bool) ([]byte, error)
 }
 
+// Reads a smart card and returns the associated document.
+// It determines the type of the card based on its ATR value and initializes
+// the appropriate card implementation for further reading.
 func ReadCard(sc *scard.Card) (doc.Document, error) {
 	var card CardDocument
 
@@ -81,6 +97,8 @@ func ReadCard(sc *scard.Card) (doc.Document, error) {
 	return d, nil
 }
 
+// Assigns the value from the provided fields map to the target string, based on the specified tag.
+// If the tag is not present in the map, the target is set to an empty string.
 func assignField[T comparable](fields map[T][]byte, tag T, target *string) {
 	val, ok := fields[tag]
 	if ok {
@@ -90,6 +108,8 @@ func assignField[T comparable](fields map[T][]byte, tag T, target *string) {
 	}
 }
 
+// Assigns a boolean value from the provided fields map to the target, based on the specified tag.
+// If the tag is not present in the map or the value is not 0x31, the target is set to false.
 func assignBoolField(fields map[uint][]byte, tag uint, target *bool) {
 	val, ok := fields[tag]
 	if ok && len(val) == 1 && val[0] == 0x31 {
@@ -99,6 +119,7 @@ func assignBoolField(fields map[uint][]byte, tag uint, target *bool) {
 	}
 }
 
+// Reads binary data from the card starting from the specified offset and with the specified length.
 func read(card Card, offset, length uint) ([]byte, error) {
 	readSize := min(length, 0xFF)
 	apu := buildAPDU(0x00, 0xB0, byte((0xFF00&offset)>>8), byte(offset&0xFF), nil, readSize)
@@ -121,8 +142,8 @@ func checkParseTLVData(data []byte) error {
 	return nil
 }
 
-// Parses simple TLV encoded data, where tag and length
-// are encoded with two bytes
+// Parses simple TLV-encoded data and returns a map of tags to values.
+// It assumes that tag and length are encoded with two bytes each.
 func parseTLV(data []byte) (map[uint][]byte, error) {
 	err := checkParseTLVData(data)
 	if err != nil {
@@ -148,6 +169,8 @@ func parseTLV(data []byte) (map[uint][]byte, error) {
 	return m, nil
 }
 
+// Constructs an APDU (Application Protocol Data Unit) command according
+// to the specifications from the ISO 7816-4 (5. Organization for interchange).
 func buildAPDU(cla, ins, p1, p2 byte, data []byte, ne uint) []byte {
 	length := len(data)
 
@@ -215,6 +238,7 @@ func buildAPDU(cla, ins, p1, p2 byte, data []byte, ne uint) []byte {
 	return apdu
 }
 
+// Checks if the card response indicates no error.
 func responseOK(rsp []byte) bool {
 	return reflect.DeepEqual(rsp, []byte{0x90, 0x00})
 }

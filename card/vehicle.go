@@ -6,11 +6,12 @@ import (
 	"github.com/ubavic/bas-celik/document"
 )
 
+// Represents a vehicle smart card document.
 type VehicleCard struct {
 	smartCard Card
 }
 
-// possibly deprecated
+// Possibly deprecated.
 var VEHICLE_ATR_0 = []byte{
 	0x3B, 0xDB, 0x96, 0x00, 0x80, 0xB1, 0xFE, 0x45,
 	0x1F, 0x83, 0x00, 0x31, 0xC0, 0x64, 0x1A, 0x18,
@@ -141,6 +142,8 @@ func (card VehicleCard) readFile(name []byte, _ bool) ([]byte, error) {
 	return output, nil
 }
 
+// Initializes vehicle card by trying three different sets of commands.
+// The procedure is reverse-engineered from the official binary.
 func (card VehicleCard) initCard() error {
 	tryToSelect := func(cmd1, cmd2, cmd3 []byte) error {
 		apu := buildAPDU(0x00, 0xA4, 0x04, 0x00, cmd1, 0)
