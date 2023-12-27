@@ -30,7 +30,7 @@ type CardDocument interface {
 // Reads a smart card and returns the associated document.
 // It determines the type of the card based on its ATR value and initializes
 // the appropriate card implementation for further reading.
-func ReadCard(sc *scard.Card) (doc.Document, error) {
+func ReadCard(sc Card) (doc.Document, error) {
 	var card CardDocument
 
 	smartCardStatus, err := sc.Status()
