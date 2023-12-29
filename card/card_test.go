@@ -9,7 +9,13 @@ func Test_responseOK(t *testing.T) {
 	byteSliceTest := []struct {
 		value  []byte
 		result bool
-	}{{[]byte{0x0F, 0x0F}, false}, {[]byte{0x90, 0x00}, true}}
+	}{
+		{[]byte{0x0F, 0x0F}, false},
+		{[]byte{0x90, 0x00}, true},
+		{[]byte{0x01, 0xFF, 0x90, 0x00}, true},
+		{[]byte{0x01, 0xFF, 0x00, 0x00}, false},
+		{[]byte{0xA1}, false},
+	}
 
 	for _, testRes := range byteSliceTest {
 		res := responseOK(testRes.value)
