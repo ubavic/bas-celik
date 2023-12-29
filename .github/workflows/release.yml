@@ -6,8 +6,27 @@ on:
       - "v*"
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+        - name: Checkout
+          uses: actions/checkout@v3
+        - name: Install Linux deps
+          run: |
+            sudo apt update
+            sudo apt install -y build-essential pkg-config libpcsclite-dev libgl1-mesa-dev xorg-dev
+        - name: Install Go
+          uses: actions/setup-go@v4
+          with:
+            go-version: 'stable'
+        - name: Install Fyne
+          run: go install fyne.io/fyne/v2/cmd/fyne@latest
+        - name: Test
+          run: go test ./...
+
   buildLinux:
     runs-on: ubuntu-latest
+    needs: [ test ]
     steps:
         - name: Checkout
           uses: actions/checkout@v3
@@ -35,6 +54,7 @@ jobs:
 
   buildWindows:
     runs-on: windows-latest
+    needs: [ test ]
     steps:
         - name: Checkout
           uses: actions/checkout@v3
@@ -59,6 +79,7 @@ jobs:
 
   buildMacOS:
     runs-on: macos-latest
+    needs: [ test ]
     steps:
         - name: Checkout
           uses: actions/checkout@v3
