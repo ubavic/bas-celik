@@ -7,7 +7,7 @@ import (
 	"encoding/binary"
 	"encoding/hex"
 	"fmt"
-	"reflect"
+	"slices"
 
 	"github.com/ebfe/scard"
 	doc "github.com/ubavic/bas-celik/document"
@@ -38,29 +38,29 @@ func ReadCard(sc Card) (doc.Document, error) {
 		return nil, fmt.Errorf("reading card %w", err)
 	}
 
-	if reflect.DeepEqual(smartCardStatus.Atr, GEMALTO_ATR_1) {
+	if slices.Equal(smartCardStatus.Atr, GEMALTO_ATR_1) {
 		tempIdCard := Gemalto{smartCard: sc}
 		if tempIdCard.testGemalto() {
 			card = Gemalto{smartCard: sc}
 		} else {
 			card = VehicleCard{smartCard: sc}
 		}
-	} else if reflect.DeepEqual(smartCardStatus.Atr, GEMALTO_ATR_2) {
+	} else if slices.Equal(smartCardStatus.Atr, GEMALTO_ATR_2) {
 		tmpMedCard := MedicalCard{smartCard: sc}
 		if tmpMedCard.testMedicalCard() {
 			card = MedicalCard{smartCard: sc}
 		} else {
 			card = Gemalto{smartCard: sc}
 		}
-	} else if reflect.DeepEqual(smartCardStatus.Atr, GEMALTO_ATR_3) {
+	} else if slices.Equal(smartCardStatus.Atr, GEMALTO_ATR_3) {
 		card = Gemalto{smartCard: sc}
-	} else if reflect.DeepEqual(smartCardStatus.Atr, APOLLO_ATR) {
+	} else if slices.Equal(smartCardStatus.Atr, APOLLO_ATR) {
 		card = Apollo{smartCard: sc}
-	} else if reflect.DeepEqual(smartCardStatus.Atr, MEDICAL_ATR) {
+	} else if slices.Equal(smartCardStatus.Atr, MEDICAL_ATR) {
 		card = MedicalCard{smartCard: sc}
-	} else if reflect.DeepEqual(smartCardStatus.Atr, VEHICLE_ATR_0) {
+	} else if slices.Equal(smartCardStatus.Atr, VEHICLE_ATR_0) {
 		card = VehicleCard{smartCard: sc}
-	} else if reflect.DeepEqual(smartCardStatus.Atr, VEHICLE_ATR_2) {
+	} else if slices.Equal(smartCardStatus.Atr, VEHICLE_ATR_2) {
 		card = VehicleCard{smartCard: sc}
 	} else {
 		return nil, fmt.Errorf("unknown card type: %s", hex.EncodeToString(smartCardStatus.Atr))
@@ -244,5 +244,5 @@ func responseOK(rsp []byte) bool {
 		return false
 	}
 
-	return reflect.DeepEqual(rsp[len(rsp)-2:], []byte{0x90, 0x00})
+	return slices.Equal(rsp[len(rsp)-2:], []byte{0x90, 0x00})
 }
