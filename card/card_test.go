@@ -21,13 +21,12 @@ func Test_responseOK(t *testing.T) {
 		res := responseOK(testRes.value)
 
 		if res != testRes.result {
-			t.Errorf("Expected res to be %t and it is %t", res, testRes.result)
+			t.Errorf("Expected response to be %t, but it is %t", res, testRes.result)
 		}
 	}
 }
 
 func Test_parseTLV(t *testing.T) {
-
 	data := []byte{0x01, 0x00, 0x05, 0x00, 0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x09, 0x00, 0x05, 0x00, 0x57, 0x6F, 0x72, 0x6C, 0x64}
 
 	testExpectedResults := []struct {
@@ -47,22 +46,21 @@ func Test_parseTLV(t *testing.T) {
 	for _, expectRes := range testExpectedResults {
 		val, ok := res[uint(expectRes.keyValue)]
 		if !ok {
-			t.Error("Could not get value")
+			t.Error("Could not get the value")
 		}
 
 		if !bytes.Equal(val, expectRes.expectResult) {
-			t.Errorf("Expect first element in slice to be %v and we got %v", expectRes.expectResult, val)
+			t.Errorf("Expect the first element in slice to be %v, but it is %v", expectRes.expectResult, val)
 		}
 	}
 }
 
 func Test_parseTLV_emptyData(t *testing.T) {
-
 	data := []byte{}
 	_, err := parseTLV(data)
 
 	if err == nil {
-		t.Error("Error should be raied here - data length is 0")
+		t.Error("Error should be raised here, data length is 0")
 	}
 }
 
@@ -75,7 +73,7 @@ func Test_assignBoolField(t *testing.T) {
 		value  []byte
 		target bool
 	}{
-		{name: "correct valuse 0x31", value: []byte{0x31}, target: true},
+		{name: "correct value 0x31", value: []byte{0x31}, target: true},
 		{name: "wrong value 0x01", value: []byte{0x01}, target: false},
 		{name: "empty value", value: []byte{}, target: false},
 	}
@@ -83,7 +81,7 @@ func Test_assignBoolField(t *testing.T) {
 		fields[0] = testVal.value
 		assignBoolField(fields, 0, &target)
 		if target != testVal.target {
-			t.Fatalf("%s Failed: Expected target to be %v and got %v", testVal.name, testVal.target, target)
+			t.Fatalf("%s failed: Expected target to be %v, but got %v", testVal.name, testVal.target, target)
 		}
 	}
 }
