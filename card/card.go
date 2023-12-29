@@ -244,6 +244,5 @@ func responseOK(rsp []byte) bool {
 		return false
 	}
 
-	var rspEnd = []byte{rsp[len(rsp)-2], rsp[len(rsp)-1]}
-	return reflect.DeepEqual(rspEnd, []byte{0x90, 0x00})
+	return reflect.DeepEqual(rsp[len(rsp)-2:], []byte{0x90, 0x00})
 }
