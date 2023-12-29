@@ -15,7 +15,7 @@ import (
 	"github.com/signintech/gopdf"
 )
 
-// Represents a ID card document
+// Represents a document stored on a Serbian ID card.
 type IdDocument struct {
 	Portrait               image.Image
 	DocumentNumber         string

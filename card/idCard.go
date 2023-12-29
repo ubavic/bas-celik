@@ -20,7 +20,7 @@ var RESIDENCE_FILE_LOC = []byte{0x0F, 0x04}
 // Location of the the portrait. Portrait is encoded as JPEG.
 var PHOTO_FILE_LOC = []byte{0x0F, 0x06}
 
-// Represents a ID smart card document.
+// Represents a smart card that contains a Serbian ID document.
 type IdDocument interface {
 	Apollo | Gemalto
 	CardDocument

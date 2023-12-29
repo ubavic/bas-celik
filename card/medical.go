@@ -10,7 +10,7 @@ import (
 	"golang.org/x/text/transform"
 )
 
-// Represents a medical smart card document.
+// Represents a smart card that holds a Serbian medical insurance document.
 type MedicalCard struct {
 	smartCard Card
 }

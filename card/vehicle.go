@@ -6,7 +6,7 @@ import (
 	"github.com/ubavic/bas-celik/document"
 )
 
-// Represents a vehicle smart card document.
+// Represents a smart card that contains a Serbian vehicle document.
 type VehicleCard struct {
 	smartCard Card
 }

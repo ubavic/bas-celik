@@ -13,7 +13,7 @@ import (
 	"github.com/ubavic/bas-celik/localization"
 )
 
-// Represents a medical card document
+// Represents a document stored on a Serbian public medical insurance card.
 type MedicalDocument struct {
 	PersonalNumber                 string
 	Surname                        string

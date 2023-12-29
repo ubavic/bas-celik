@@ -10,7 +10,7 @@ import (
 	"github.com/signintech/gopdf"
 )
 
-// Represents a Vehicle card document.
+// Represents a document stored on a Serbian vehicle card.
 // Fields are named according to official API.
 type VehicleDocument struct {
 	AuthorityIssuing            string
