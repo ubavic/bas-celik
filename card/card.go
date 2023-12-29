@@ -240,5 +240,10 @@ func buildAPDU(cla, ins, p1, p2 byte, data []byte, ne uint) []byte {
 
 // Checks if the card response indicates no error.
 func responseOK(rsp []byte) bool {
-	return reflect.DeepEqual(rsp, []byte{0x90, 0x00})
+	if len(rsp) < 2 {
+		return false
+	}
+
+	var rspEnd = []byte{rsp[len(rsp)-2], rsp[len(rsp)-1]}
+	return reflect.DeepEqual(rspEnd, []byte{0x90, 0x00})
 }
