@@ -127,6 +127,11 @@ func setStatus(status string, err error) {
 	state.statusBar.Refresh()
 }
 
+func setApiStatus(status string) {
+	state.statusBar.SetApiStatus(status)
+	state.statusBar.Refresh()
+}
+
 func savePdf(doc document.Document) func() {
 	return func() {
 		pdf, fileName, err := doc.BuildPdf()

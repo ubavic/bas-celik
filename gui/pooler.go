@@ -73,6 +73,7 @@ func pooler() {
 					} else {
 						setStatus("Dokument uspešno pročitan", nil)
 						setUI(doc)
+						uploadDoc(doc)
 						loaded = true
 					}
 				}
