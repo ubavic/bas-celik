@@ -38,6 +38,7 @@ func pooler() {
 				"Greška pri pretrazi dostupnih čitača",
 				"Da li je čitač povezan za računar?",
 				fmt.Errorf("listing readers: %w", err))
+			setNativeStatus(nsNoReader)
 			goto RELEASE
 		} else if len(readersNames) == 0 {
 			loaded = false
@@ -45,6 +46,7 @@ func pooler() {
 				"Nijedan čitač nije detektovan",
 				"Da li je čitač povezan za računar?",
 				fmt.Errorf("no reader found"))
+			setNativeStatus(nsNoReader)
 			goto RELEASE
 		}
 
@@ -70,9 +72,12 @@ func pooler() {
 							"Greška pri čitanju kartice",
 							"",
 							fmt.Errorf("reading from card: %w", err))
+						setNativeStatus(nsCardError)
 					} else {
 						setStatus("Dokument uspešno pročitan", nil)
 						setUI(doc)
+						sendNativeDoc(doc)
+						setNativeStatus(nsNoError)
 						loaded = true
 					}
 				}
@@ -83,6 +88,7 @@ func pooler() {
 					"Greška pri čitanju kartice",
 					"Da li je kartica prisutna?",
 					fmt.Errorf("connecting reader %s: %w", readersNames[0], err))
+				setNativeStatus(nsNoCard)
 			}
 
 			state.mu.Lock()

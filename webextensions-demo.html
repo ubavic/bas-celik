@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>WEB Demo</title>
+    </head>
+    <body data-celik=true>
+        <h1>WEB DEMO OPEN INSPECTOR AND LOOK INTO CONSOLE</h1>
+    <script>
+        // messages from page
+        window.addEventListener("message", function(event) {
+            var message = event.data;
+            if(message.source !== 'bascelik'){
+                return;
+            }
+            console.log("Content received from page", message);
+        });
+    </script>
+    </body>
+    
+</html>

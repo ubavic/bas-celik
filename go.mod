@@ -10,6 +10,8 @@ require (
 	golang.org/x/text v0.14.0
 )
 
+require github.com/hashicorp/go-version v1.6.0 // indirect
+
 require (
 	fyne.io/systray v1.10.1-0.20230722100817-88df1e0ffa9a // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
@@ -28,6 +30,7 @@ require (
 	github.com/phpdave11/gofpdi v1.0.14-0.20211212211723-1f10f9844311 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
+	github.com/rickypc/native-messaging-host v1.16.0
 	github.com/srwiley/oksvg v0.0.0-20221011165216-be6e8873101c // indirect
 	github.com/srwiley/rasterx v0.0.0-20220730225603-2ab79fcdd4ef // indirect
 	github.com/stretchr/testify v1.8.4 // indirect

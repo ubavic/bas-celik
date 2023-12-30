@@ -61,6 +61,7 @@ func main() {
 
 	if len(*pdfPath) == 0 && len(*jsonPath) == 0 {
 		gui.StartGui(*verboseFlag, version)
+		gui.StartNativeMessaging()
 	} else {
 		err := readAndSave(*pdfPath, *jsonPath, *readerIndex)
 		if err != nil {
