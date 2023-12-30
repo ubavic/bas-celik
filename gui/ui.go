@@ -29,15 +29,18 @@ type State struct {
 
 var state State
 
+var application fyne.App
+
 func StartGui(verbose_ bool, version string) {
-	app := app.New()
-	win := app.NewWindow("Baš Čelik")
-	app.Settings().SetTheme(MyTheme{})
+	application = app.NewWithID("com.github.ubavic.bas_celik")
+	win := application.NewWindow("Baš Čelik")
+	application.Settings().SetTheme(MyTheme{})
 
 	showAboutBox := ShowAboutBox(win, version)
+	showSettingsBox := ShowSettingsBox(win, version)
 
 	statusBar := widgets.NewStatusBar()
-	toolbar := widgets.NewToolbar(showAboutBox)
+	toolbar := widgets.NewToolbar(showAboutBox, showSettingsBox)
 	spacer := widgets.NewSpacer()
 	startPage := widgets.NewStartPage()
 	startPage.SetStatus("", "", false)
@@ -174,6 +177,34 @@ func ShowAboutBox(win fyne.Window, version string) func() {
 			"Baš Čelik - program za očitavanje elektronskih dokumenata",
 			"Zatvori",
 			vBox,
+			win,
+		)
+	}
+}
+
+func ShowSettingsBox(win fyne.Window, version string) func() {
+
+	apiURLLabel := widget.NewLabel("API URL:")
+	apiURL := widget.NewEntry()
+	apiURL.SetText(application.Preferences().String("apiURL"))
+	apiURL.OnChanged = func(s string) {
+		application.Preferences().SetString("apiURL", s)
+	}
+
+	apiKeyLabel := widget.NewLabel("API Key:")
+	apiKey := widget.NewEntry()
+	apiKey.SetText(application.Preferences().String("apiKey"))
+	apiKey.OnChanged = func(s string) {
+		application.Preferences().SetString("apiKey", s)
+	}
+
+	grid := container.New(layout.NewFormLayout(), apiURLLabel, apiURL, apiKeyLabel, apiKey)
+
+	return func() {
+		dialog.ShowCustom(
+			"Baš Čelik - Podešavanja                                                        ",
+			"Zatvori",
+			grid,
 			win,
 		)
 	}

@@ -11,23 +11,26 @@ import (
 type Toolbar struct {
 	widget.BaseWidget
 	readers        []string
+	onSettings     func()
 	onAbout        func()
 	selectedReader string
 	readerChanged  bool
 }
 
 type ToolbarRenderer struct {
-	toolbar       *Toolbar
-	aboutButton   *widget.Button
-	container     *fyne.Container
-	readersLabel  *widget.Label
-	readersSelect *widget.Select
+	toolbar        *Toolbar
+	settingsButton *widget.Button
+	aboutButton    *widget.Button
+	container      *fyne.Container
+	readersLabel   *widget.Label
+	readersSelect  *widget.Select
 }
 
-func NewToolbar(onAbout func()) *Toolbar {
+func NewToolbar(onAbout func(), onSettings func()) *Toolbar {
 	toolbar := &Toolbar{
-		readers: nil,
-		onAbout: onAbout,
+		readers:    nil,
+		onAbout:    onAbout,
+		onSettings: onSettings,
 	}
 	toolbar.ExtendBaseWidget(toolbar)
 	return toolbar
@@ -47,14 +50,18 @@ func (t *Toolbar) CreateRenderer() fyne.WidgetRenderer {
 	aboutButton := widget.NewButtonWithIcon("", theme.InfoIcon(), t.onAbout)
 	aboutButton.Importance = widget.LowImportance
 
-	container := container.New(layout.NewHBoxLayout(), label, readersSelect, layout.NewSpacer(), aboutButton)
+	settingsButton := widget.NewButtonWithIcon("", theme.SettingsIcon(), t.onSettings)
+	settingsButton.Importance = widget.LowImportance
+
+	container := container.New(layout.NewHBoxLayout(), label, readersSelect, layout.NewSpacer(), settingsButton, aboutButton)
 
 	return &ToolbarRenderer{
-		toolbar:       t,
-		aboutButton:   aboutButton,
-		container:     container,
-		readersLabel:  label,
-		readersSelect: readersSelect,
+		toolbar:        t,
+		aboutButton:    aboutButton,
+		settingsButton: settingsButton,
+		container:      container,
+		readersLabel:   label,
+		readersSelect:  readersSelect,
 	}
 }
 
@@ -78,6 +85,7 @@ func (r *ToolbarRenderer) Refresh() {
 	}
 
 	r.readersSelect.Refresh()
+	r.settingsButton.Refresh()
 	r.aboutButton.Refresh()
 }
 
@@ -90,7 +98,7 @@ func (r *ToolbarRenderer) MinSize() fyne.Size {
 }
 
 func (r *ToolbarRenderer) Objects() []fyne.CanvasObject {
-	return []fyne.CanvasObject{r.readersLabel, r.readersSelect, r.aboutButton, r.container}
+	return []fyne.CanvasObject{r.readersLabel, r.readersSelect, r.settingsButton, r.aboutButton, r.container}
 }
 
 func (r *ToolbarRenderer) Destroy() {}
