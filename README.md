@@ -88,6 +88,10 @@ Ni jedan od problema ne utiče na "sigurnost" vašeg dokumenta. Baš Čelik iskl
 
 Program prikazuje i eksportuje podatke onako kako su zapisani na kartici. Ako na nekom dokumentu uočite podatke na oba pisma, u pitanju nije *bug* već stanje na kartici.
 
+## Doprinos
+
+Pre kreiranja *issue*-a i *pull request*-ova, pročitati [CONTRIBUTING.md](CONTRIBUTING.md).
+
 ## Slični projekti
 
 Postoje takođe i drugi projekti otvorenog koda koji imaju izvesne sličnosti sa *Baš Čelikom*:
