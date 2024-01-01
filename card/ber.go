@@ -238,26 +238,30 @@ func (tree BER) String() string {
 // Parses length of a field according to specification given in ISO 7816-4 (5. Organization for interchange).
 // Returns parsed length, number of parsed bytes and possible error.
 func parseBerLength(data []byte) (uint32, uint32, error) {
+	if len(data) == 0 {
+		return 0, 0, ERROR_INVALID_LENGTH
+	}
 
-	length := uint32(data[0])
-	offset := uint32(0)
-	if length < 0x80 {
+	firstByte := uint32(data[0])
+	var offset, length uint32
+	if firstByte < 0x80 {
+		length = uint32(data[0])
 		offset = 1
-	} else if length == 0x81 {
+	} else if firstByte == 0x81 && len(data) >= 2 {
 		length = uint32(data[1])
 		offset = 2
-	} else if length == 0x82 {
+	} else if firstByte == 0x82 && len(data) >= 3 {
 		length = uint32(binary.BigEndian.Uint16(data[1:]))
 		offset = 3
-	} else if length == 0x83 {
+	} else if firstByte == 0x83 && len(data) >= 4 {
 		length = 0x00FFFFFF & binary.BigEndian.Uint32(data)
 		offset = 4
-	} else if length == 0x84 {
+	} else if firstByte == 0x84 && len(data) >= 5 {
 		length = binary.BigEndian.Uint32(data[1:])
 		offset = 5
 	} else {
 		return 0, 0, ERROR_INVALID_LENGTH
 	}
 
-	return length, uint32(offset), nil
+	return length, offset, nil
 }
