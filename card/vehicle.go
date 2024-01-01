@@ -32,13 +32,6 @@ var VEHICLE_ATR_2 = []byte{
 }
 
 func readVehicleCard(card VehicleCard) (*document.VehicleDocument, error) {
-	s1 := []byte{0xA0, 0x00, 0x00, 0x01, 0x51, 0x00, 0x00}
-	apu := buildAPDU(0x00, 0xA4, 0x04, 0x00, s1, 0)
-	_, err := card.smartCard.Transmit(apu)
-	if err != nil {
-		return nil, err
-	}
-
 	doc := document.VehicleDocument{}
 	data := BER{}
 
@@ -117,14 +110,26 @@ func (card VehicleCard) readFile(name []byte, _ bool) ([]byte, error) {
 		return nil, fmt.Errorf("reading file header: %w", err)
 	}
 
-	offset := uint(header[1])
+	offset := uint(header[1]) + 2
 
-	len32, delta, err := parseBerLength(header[offset+3:])
+	shift := uint(0)
+	tag := uint32(header[offset])
+	if 0x1F&tag != 0x1F {
+		shift = uint(1)
+	} else {
+		if header[offset+1]&0x80 == 0x00 {
+			shift = uint(2)
+		} else {
+			shift = uint(3)
+		}
+	}
+
+	len32, delta, err := parseBerLength(header[offset+shift:])
 	if err != nil {
 		return nil, fmt.Errorf("parsing size: %w", err)
 	}
 
-	length := uint(len32 + delta)
+	length := uint(len32+delta) + shift
 
 	for length > 0 {
 		toRead := min(length, 0x64)
