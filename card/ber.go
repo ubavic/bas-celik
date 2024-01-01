@@ -7,6 +7,8 @@ import (
 	"strings"
 )
 
+var ERROR_INVALID_LENGTH = errors.New("invalid length")
+
 // Represents a node (or a tree) of a BER structure.
 // Each leaf node contains data, and it is considered 'primitive'.
 // Non-leaf nodes don't contain any data, but they contain references to child nodes.
@@ -179,7 +181,7 @@ func parseBERLayer(data []byte) (map[uint32][]byte, map[uint32][]byte, error) {
 
 		length, offsetDelta, err := parseBerLength(data[offset:])
 		if err != nil {
-			return nil, nil, errors.New("invalid length")
+			return nil, nil, ERROR_INVALID_LENGTH
 		}
 
 		offset += offsetDelta
@@ -196,7 +198,7 @@ func parseBERLayer(data []byte) (map[uint32][]byte, map[uint32][]byte, error) {
 		if offset == uint32(len(data)) {
 			break
 		} else if offset > uint32(len(data)) {
-			return nil, nil, errors.New("invalid length")
+			return nil, nil, ERROR_INVALID_LENGTH
 		}
 	}
 
@@ -236,6 +238,7 @@ func (tree BER) String() string {
 // Parses length of a field according to specification given in ISO 7816-4 (5. Organization for interchange).
 // Returns parsed length, number of parsed bytes and possible error.
 func parseBerLength(data []byte) (uint32, uint32, error) {
+
 	length := uint32(data[0])
 	offset := uint32(0)
 	if length < 0x80 {
@@ -253,7 +256,7 @@ func parseBerLength(data []byte) (uint32, uint32, error) {
 		length = binary.BigEndian.Uint32(data[1:])
 		offset = 5
 	} else {
-		return 0, 0, errors.New("invalid length")
+		return 0, 0, ERROR_INVALID_LENGTH
 	}
 
 	return length, uint32(offset), nil
