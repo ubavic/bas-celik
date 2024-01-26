@@ -11,13 +11,13 @@ import (
 )
 
 func pageID(doc *document.IdDocument) *fyne.Container {
-	nameF := widgets.NewField("Ime, ime roditelja, prezime", doc.FormatName(), 350)
+	nameF := widgets.NewField("Ime, ime roditelja, prezime", doc.GetFullName(), 350)
 	birthDateF := widgets.NewField("Datum rođenja", doc.DateOfBirth, 100)
 	sexF := widgets.NewField("Pol", doc.Sex, 50)
 	personalNumberF := widgets.NewField("JMBG", doc.PersonalNumber, 200)
 	birthRow := container.New(layout.NewHBoxLayout(), sexF, birthDateF, personalNumberF)
-	birthPlaceF := widgets.NewField("Mesto rođenja, opština i država", doc.FormatPlaceOfBirth(), 350)
-	addressF := widgets.NewField("Prebivalište i adresa stana", doc.FormatAddress(), 350)
+	birthPlaceF := widgets.NewField("Mesto rođenja, opština i država", doc.GetFullPlaceOfBirth(), 350)
+	addressF := widgets.NewField("Prebivalište i adresa stana", doc.GetFullAddress(), 350)
 	addressDateF := widgets.NewField("Datum promene adrese", doc.AddressDate, 10)
 	personInformationGroup := widgets.NewGroup("Podaci o građaninu", nameF, birthRow, birthPlaceF, addressF, addressDateF)
 
@@ -38,7 +38,7 @@ func pageID(doc *document.IdDocument) *fyne.Container {
 }
 
 func pageMedical(doc *document.MedicalDocument) *fyne.Container {
-	nameF := widgets.NewField("Ime, ime roditelja, prezime", doc.FormatName(), 350)
+	nameF := widgets.NewField("Ime, ime roditelja, prezime", doc.GetFullName(), 350)
 	sexF := widgets.NewField("Pol", doc.Sex, 170)
 	birthDateF := widgets.NewField("Datum rođenja", doc.DateOfBirth, 170)
 	birthRow := container.New(layout.NewHBoxLayout(), sexF, birthDateF)

@@ -46,11 +46,11 @@ type IdDocument struct {
 	AddressDate            string
 }
 
-func (doc *IdDocument) FormatName() string {
+func (doc *IdDocument) GetFullName() string {
 	return doc.GivenName + ", " + doc.ParentGivenName + ", " + doc.Surname
 }
 
-func (doc *IdDocument) FormatAddress() string {
+func (doc *IdDocument) GetFullAddress() string {
 	var address strings.Builder
 
 	address.WriteString(doc.Street)
@@ -74,7 +74,7 @@ func (doc *IdDocument) FormatAddress() string {
 	return address.String()
 }
 
-func (doc *IdDocument) FormatPlaceOfBirth() string {
+func (doc *IdDocument) GetFullPlaceOfBirth() string {
 	var placeOfBirth strings.Builder
 
 	placeOfBirth.WriteString(doc.PlaceOfBirth)
@@ -223,8 +223,8 @@ func (doc *IdDocument) BuildPdf() (data []byte, fileName string, retErr error) {
 	putData("Ime:", doc.GivenName)
 	putData("Ime jednog roditelja:", doc.ParentGivenName)
 	putData("Datum rođenja:", doc.DateOfBirth)
-	putData("Mesto rođenja, opština i država:", doc.FormatPlaceOfBirth())
-	putData("Prebivalište:", doc.FormatAddress())
+	putData("Mesto rođenja, opština i država:", doc.GetFullPlaceOfBirth())
+	putData("Prebivalište:", doc.GetFullAddress())
 	putData("Datum promene adrese:", doc.AddressDate)
 	putData("JMBG:", doc.PersonalNumber)
 	putData("Pol:", doc.Sex)

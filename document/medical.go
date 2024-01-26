@@ -54,11 +54,11 @@ type MedicalDocument struct {
 	ObligeeActivity                string
 }
 
-func (doc *MedicalDocument) FormatName() string {
+func (doc *MedicalDocument) GetFullName() string {
 	return doc.GivenName + ", " + doc.ParentName + ", " + doc.Surname
 }
 
-func (doc *MedicalDocument) FormatStreetAddress() string {
+func (doc *MedicalDocument) GetFullStreetAddress() string {
 	var address strings.Builder
 
 	address.WriteString(doc.AddressStreet)
@@ -75,7 +75,7 @@ func (doc *MedicalDocument) FormatStreetAddress() string {
 	return address.String()
 }
 
-func (doc *MedicalDocument) FormatPlaceAddress() string {
+func (doc *MedicalDocument) GetFullPlaceAddress() string {
 	var address strings.Builder
 
 	address.WriteString(doc.AddressTown)
@@ -181,9 +181,9 @@ func (doc *MedicalDocument) BuildPdf() (data []byte, fileName string, retErr err
 
 	putData("Датум рођења:", doc.DateOfBirth)
 
-	putData("Место, општина и држава:", doc.FormatPlaceAddress())
+	putData("Место, општина и држава:", doc.GetFullPlaceAddress())
 
-	putData("Улица:", doc.FormatStreetAddress())
+	putData("Улица:", doc.GetFullStreetAddress())
 
 	putData("Пол:", doc.Sex)
 
