@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/ubavic/bas-celik/document"
+	"github.com/ubavic/bas-celik/localization"
 )
 
 // Represents a smart card that contains a Serbian vehicle document.
@@ -54,13 +55,13 @@ func readVehicleCard(card VehicleCard) (*document.VehicleDocument, error) {
 
 	data.assignFrom(&doc.RegistrationNumberOfVehicle, 0x71, 0x81)
 	data.assignFrom(&doc.DateOfFirstRegistration, 0x71, 0x82)
-	document.FormatDate2(&doc.DateOfFirstRegistration)
+	localization.FormatDate2(&doc.DateOfFirstRegistration)
 	data.assignFrom(&doc.VehicleIdNumber, 0x71, 0x8A)
 	data.assignFrom(&doc.VehicleMass, 0x71, 0x8C)
 	data.assignFrom(&doc.ExpiryDate, 0x71, 0x8D)
-	document.FormatDate2(&doc.ExpiryDate)
+	localization.FormatDate2(&doc.ExpiryDate)
 	data.assignFrom(&doc.IssuingDate, 0x71, 0x8E)
-	document.FormatDate2(&doc.IssuingDate)
+	localization.FormatDate2(&doc.IssuingDate)
 	data.assignFrom(&doc.TypeApprovalNumber, 0x71, 0x8F)
 	data.assignFrom(&doc.PowerWeightRatio, 0x71, 0x93)
 	data.assignFrom(&doc.VehicleMake, 0x71, 0xA3, 0x87)

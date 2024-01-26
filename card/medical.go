@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/ubavic/bas-celik/document"
+	"github.com/ubavic/bas-celik/localization"
 	"golang.org/x/text/encoding/unicode"
 	"golang.org/x/text/transform"
 )
@@ -42,9 +43,9 @@ func readMedicalCard(card MedicalCard) (*document.MedicalDocument, error) {
 		return nil, err
 	}
 	assignField(fields, 1557, &doc.CardIssueDate)
-	document.FormatDate(&doc.CardIssueDate)
+	localization.FormatDate(&doc.CardIssueDate)
 	assignField(fields, 1558, &doc.CardExpiryDate)
-	document.FormatDate(&doc.CardExpiryDate)
+	localization.FormatDate(&doc.CardExpiryDate)
 	assignField(fields, 1560, &doc.Language)
 
 	rsp, err = card.readFile([]byte{0x0D, 0x02}, false)
@@ -65,7 +66,7 @@ func readMedicalCard(card MedicalCard) (*document.MedicalDocument, error) {
 	descramble(fields, 1573)
 	assignField(fields, 1573, &doc.GivenName)
 	assignField(fields, 1574, &doc.DateOfBirth)
-	document.FormatDate(&doc.DateOfBirth)
+	localization.FormatDate(&doc.DateOfBirth)
 	assignField(fields, 1569, &doc.InsuranceNumber)
 
 	rsp, err = card.readFile([]byte{0x0D, 0x03}, false)
@@ -78,7 +79,7 @@ func readMedicalCard(card MedicalCard) (*document.MedicalDocument, error) {
 		return nil, err
 	}
 	assignField(fields, 1586, &doc.ValidUntil)
-	document.FormatDate(&doc.ValidUntil)
+	localization.FormatDate(&doc.ValidUntil)
 	assignBoolField(fields, 1587, &doc.PermanentlyValid)
 
 	rsp, err = card.readFile([]byte{0x0D, 0x04}, false)
@@ -127,7 +128,7 @@ func readMedicalCard(card MedicalCard) (*document.MedicalDocument, error) {
 	descramble(fields, 1623)
 	assignField(fields, 1623, &doc.InsuranceHolderName)
 	assignField(fields, 1624, &doc.InsuranceStartDate)
-	document.FormatDate(&doc.InsuranceStartDate)
+	localization.FormatDate(&doc.InsuranceStartDate)
 	descramble(fields, 1626)
 	assignField(fields, 1626, &doc.AddressState)
 	descramble(fields, 1630)

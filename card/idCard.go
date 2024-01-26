@@ -6,6 +6,7 @@ import (
 	"image"
 
 	"github.com/ubavic/bas-celik/document"
+	"github.com/ubavic/bas-celik/localization"
 )
 
 // Location of the file with document data.
@@ -44,8 +45,8 @@ func readIdCard[Id IdDocument](card Id) (*document.IdDocument, error) {
 	assignField(fields, 1549, &doc.IssuingDate)
 	assignField(fields, 1550, &doc.ExpiryDate)
 	assignField(fields, 1551, &doc.IssuingAuthority)
-	document.FormatDate(&doc.IssuingDate)
-	document.FormatDate(&doc.ExpiryDate)
+	localization.FormatDate(&doc.IssuingDate)
+	localization.FormatDate(&doc.ExpiryDate)
 
 	rsp, err = card.readFile(PERSONAL_FILE_LOC, false)
 	if err != nil {
@@ -65,7 +66,7 @@ func readIdCard[Id IdDocument](card Id) (*document.IdDocument, error) {
 	assignField(fields, 1564, &doc.CommunityOfBirth)
 	assignField(fields, 1565, &doc.StateOfBirth)
 	assignField(fields, 1566, &doc.DateOfBirth)
-	document.FormatDate(&doc.DateOfBirth)
+	localization.FormatDate(&doc.DateOfBirth)
 
 	rsp, err = card.readFile(RESIDENCE_FILE_LOC, false)
 	if err != nil {
@@ -86,7 +87,7 @@ func readIdCard[Id IdDocument](card Id) (*document.IdDocument, error) {
 	assignField(fields, 1575, &doc.AddressFloor)
 	assignField(fields, 1578, &doc.AddressApartmentNumber)
 	assignField(fields, 1580, &doc.AddressDate)
-	document.FormatDate(&doc.AddressDate)
+	localization.FormatDate(&doc.AddressDate)
 
 	rsp, err = card.readFile(PHOTO_FILE_LOC, true)
 	if err != nil {
