@@ -41,3 +41,17 @@ func FormatDateYMD(in *string) {
 	}
 	*in = chars[6] + chars[7] + "." + chars[4] + chars[5] + "." + chars[0] + chars[1] + chars[2] + chars[3]
 }
+
+// Joins list of strings into a single string
+// separating them with a comma and a space.
+// Empty strings are skipped.
+func JoinWithComma(strs ...string) string {
+	var nonemptyStrings []string
+	for _, str := range strs {
+		if str != "" {
+			nonemptyStrings = append(nonemptyStrings, str)
+		}
+	}
+
+	return strings.Join(nonemptyStrings, ", ")
+}

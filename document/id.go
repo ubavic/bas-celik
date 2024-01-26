@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/signintech/gopdf"
+	"github.com/ubavic/bas-celik/localization"
 )
 
 // Represents a document stored on a Serbian ID card.
@@ -47,43 +48,25 @@ type IdDocument struct {
 }
 
 func (doc *IdDocument) GetFullName() string {
-	return doc.GivenName + ", " + doc.ParentGivenName + ", " + doc.Surname
+	return localization.JoinWithComma(doc.GivenName, doc.ParentGivenName, doc.Surname)
 }
 
 func (doc *IdDocument) GetFullAddress() string {
-	var address strings.Builder
+	var streetAndNumber = doc.Street
 
-	address.WriteString(doc.Street)
-	address.WriteString(" ")
-	address.WriteString(doc.AddressNumber)
-	address.WriteString(doc.AddressLetter)
+	if doc.AddressNumber != "" || doc.AddressLetter != "" {
+		streetAndNumber += " " + doc.AddressNumber + doc.AddressLetter
 
-	if len(doc.AddressApartmentNumber) != 0 {
-		address.WriteString("/")
-		address.WriteString(doc.AddressApartmentNumber)
+		if doc.AddressApartmentNumber != "" {
+			streetAndNumber += "/" + doc.AddressApartmentNumber
+		}
 	}
 
-	if len(doc.Community) > 0 {
-		address.WriteString(", ")
-		address.WriteString(doc.Community)
-	}
-
-	address.WriteString(", ")
-	address.WriteString(doc.Place)
-
-	return address.String()
+	return localization.JoinWithComma(streetAndNumber, doc.Community, doc.Place)
 }
 
 func (doc *IdDocument) GetFullPlaceOfBirth() string {
-	var placeOfBirth strings.Builder
-
-	placeOfBirth.WriteString(doc.PlaceOfBirth)
-	placeOfBirth.WriteString(", ")
-	placeOfBirth.WriteString(doc.CommunityOfBirth)
-	placeOfBirth.WriteString(", ")
-	placeOfBirth.WriteString(doc.StateOfBirth)
-
-	return placeOfBirth.String()
+	return localization.JoinWithComma(doc.PlaceOfBirth, doc.CommunityOfBirth, doc.StateOfBirth)
 }
 
 func (doc *IdDocument) BuildPdf() (data []byte, fileName string, retErr error) {

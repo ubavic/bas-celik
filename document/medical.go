@@ -55,7 +55,7 @@ type MedicalDocument struct {
 }
 
 func (doc *MedicalDocument) GetFullName() string {
-	return doc.GivenName + ", " + doc.ParentName + ", " + doc.Surname
+	return localization.JoinWithComma(doc.GivenName, doc.ParentName, doc.Surname)
 }
 
 func (doc *MedicalDocument) GetFullStreetAddress() string {
@@ -76,16 +76,7 @@ func (doc *MedicalDocument) GetFullStreetAddress() string {
 }
 
 func (doc *MedicalDocument) GetFullPlaceAddress() string {
-	var address strings.Builder
-
-	address.WriteString(doc.AddressTown)
-
-	address.WriteString(", ")
-	address.WriteString(doc.AddressMunicipality)
-	address.WriteString(", ")
-	address.WriteString(doc.AddressState)
-
-	return address.String()
+	return localization.JoinWithComma(doc.AddressTown, doc.AddressMunicipality, doc.AddressState)
 }
 
 func (doc *MedicalDocument) BuildPdf() (data []byte, fileName string, retErr error) {

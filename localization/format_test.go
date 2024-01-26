@@ -21,7 +21,7 @@ func Test_FormatDate(t *testing.T) {
 		value := testCase.value
 		localization.FormatDate(&value)
 		if value != testCase.expected {
-			t.Errorf("Got %s but expected %s", value, testCase.expected)
+			t.Errorf("Got '%s' but expected '%s'", value, testCase.expected)
 		}
 	}
 }
@@ -40,7 +40,7 @@ func Test_FormatDateYMD(t *testing.T) {
 		value := testCase.value
 		localization.FormatDateYMD(&value)
 		if value != testCase.expected {
-			t.Errorf("Got %s but expected %s", value, testCase.expected)
+			t.Errorf("Got '%s', but expected '%s'", value, testCase.expected)
 		}
 	}
 }
@@ -62,7 +62,34 @@ func Test_FormFormatYesNo(t *testing.T) {
 	for _, testCase := range testCases {
 		result := localization.FormatYesNo(testCase.value, testCase.script)
 		if result != testCase.expected {
-			t.Errorf("Got %s for value %t and script %d, but expected %s", result, testCase.value, testCase.script, testCase.expected)
+			t.Errorf("Got '%s' for value %t and script %d, but expected '%s'", result, testCase.value, testCase.script, testCase.expected)
+		}
+	}
+}
+
+func Test_JoinWithComma(t *testing.T) {
+	testCases := []struct {
+		value    []string
+		expected string
+	}{
+		{
+			value:    []string{""},
+			expected: "",
+		},
+		{
+			value:    []string{"aaa", "", "bb"},
+			expected: "aaa, bb",
+		},
+		{
+			value:    []string{"", "", "a", "b", "c"},
+			expected: "a, b, c",
+		},
+	}
+
+	for _, testCase := range testCases {
+		result := localization.JoinWithComma(testCase.value...)
+		if result != testCase.expected {
+			t.Errorf("Got '%s', but expected '%s'", result, testCase.expected)
 		}
 	}
 }
