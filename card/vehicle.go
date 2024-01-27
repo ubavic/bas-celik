@@ -111,26 +111,10 @@ func (card VehicleCard) readFile(name []byte, _ bool) ([]byte, error) {
 		return nil, fmt.Errorf("reading file header: %w", err)
 	}
 
-	offset := uint(header[1]) + 2
-
-	shift := uint(0)
-	tag := uint32(header[offset])
-	if 0x1F&tag != 0x1F {
-		shift = uint(1)
-	} else {
-		if header[offset+1]&0x80 == 0x00 {
-			shift = uint(2)
-		} else {
-			shift = uint(3)
-		}
-	}
-
-	len32, delta, err := parseBerLength(header[offset+shift:])
+	length, offset, err := parseVehicleCardFileSize(header)
 	if err != nil {
-		return nil, fmt.Errorf("parsing size: %w", err)
+		return nil, fmt.Errorf("parsing file header: %w", err)
 	}
-
-	length := uint(len32+delta) + shift
 
 	for length > 0 {
 		toRead := min(length, 0x64)
@@ -146,6 +130,36 @@ func (card VehicleCard) readFile(name []byte, _ bool) ([]byte, error) {
 	}
 
 	return output, nil
+}
+
+func parseVehicleCardFileSize(data []byte) (uint, uint, error) {
+	if len(data) < 1 {
+		return 0, 0, ErrInvalidLength
+	}
+
+	offset := uint(data[1]) + 2
+
+	if offset >= uint(len(data)) {
+		return 0, 0, ErrInvalidLength
+	}
+
+	_, _, offsetDelta1, err := parseBerTag(data[offset:])
+	if err != nil {
+		return 0, 0, fmt.Errorf("parsing tag: %w", err)
+	}
+
+	if offset+uint(offsetDelta1) >= uint(len(data)) {
+		return 0, 0, ErrInvalidLength
+	}
+
+	dataLength, offsetDelta2, err := parseBerLength(data[offset+uint(offsetDelta1):])
+	if err != nil {
+		return 0, 0, fmt.Errorf("parsing size: %w", err)
+	}
+
+	length := uint(dataLength + offsetDelta1 + offsetDelta2)
+
+	return length, offset, nil
 }
 
 // Initializes vehicle card by trying three different sets of commands.
