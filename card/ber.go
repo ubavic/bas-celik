@@ -7,7 +7,8 @@ import (
 	"strings"
 )
 
-var ERROR_INVALID_LENGTH = errors.New("invalid length")
+var ErrInvalidLength = errors.New("invalid length")
+var ErrInvalidFormat = errors.New("invalid format")
 
 // Represents a node (or a tree) of a BER structure.
 // Each leaf node contains data, and it is considered 'primitive'.
@@ -181,7 +182,7 @@ func parseBERLayer(data []byte) (map[uint32][]byte, map[uint32][]byte, error) {
 
 		length, offsetDelta, err := parseBerLength(data[offset:])
 		if err != nil {
-			return nil, nil, ERROR_INVALID_LENGTH
+			return nil, nil, ErrInvalidLength
 		}
 
 		offset += offsetDelta
@@ -198,7 +199,7 @@ func parseBERLayer(data []byte) (map[uint32][]byte, map[uint32][]byte, error) {
 		if offset == uint32(len(data)) {
 			break
 		} else if offset > uint32(len(data)) {
-			return nil, nil, ERROR_INVALID_LENGTH
+			return nil, nil, ErrInvalidLength
 		}
 	}
 
@@ -239,7 +240,7 @@ func (tree BER) String() string {
 // Returns parsed length, number of parsed bytes and possible error.
 func parseBerLength(data []byte) (uint32, uint32, error) {
 	if len(data) == 0 {
-		return 0, 0, ERROR_INVALID_LENGTH
+		return 0, 0, ErrInvalidLength
 	}
 
 	firstByte := uint32(data[0])
@@ -247,6 +248,8 @@ func parseBerLength(data []byte) (uint32, uint32, error) {
 	if firstByte < 0x80 {
 		length = uint32(data[0])
 		offset = 1
+	} else if firstByte == 0x80 {
+		return 0, 0, ErrInvalidFormat
 	} else if firstByte == 0x81 && len(data) >= 2 {
 		length = uint32(data[1])
 		offset = 2
@@ -260,7 +263,7 @@ func parseBerLength(data []byte) (uint32, uint32, error) {
 		length = binary.BigEndian.Uint32(data[1:])
 		offset = 5
 	} else {
-		return 0, 0, ERROR_INVALID_LENGTH
+		return 0, 0, ErrInvalidLength
 	}
 
 	return length, offset, nil
