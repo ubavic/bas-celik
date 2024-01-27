@@ -154,35 +154,19 @@ func (into *BER) merge(new BER) error {
 func parseBERLayer(data []byte) (map[uint32][]byte, map[uint32][]byte, error) {
 	primF := make(map[uint32][]byte)
 	consF := make(map[uint32][]byte)
-	var primitive bool
 	offset := uint32(0)
 
 	for {
-		tag := uint32(data[offset])
-
-		if tag&0x20 != 0 {
-			primitive = false
-		} else {
-			primitive = true
+		tag, primitive, offsetDelta, err := parseBerTag(data[offset:])
+		if err != nil {
+			return nil, nil, err
 		}
 
-		if 0x1F&tag != 0x1F {
-			offset += 1
-		} else {
-			if data[offset+1]&0x80 == 0x00 {
-				tag = uint32(data[offset])<<8 + uint32(data[offset+1])
-				offset += 2
-			} else {
-				tag = uint32(data[offset])<<16 +
-					uint32(data[offset+1])<<8 +
-					uint32(data[offset+2])
-				offset += 3
-			}
-		}
+		offset += offsetDelta
 
 		length, offsetDelta, err := parseBerLength(data[offset:])
 		if err != nil {
-			return nil, nil, ErrInvalidLength
+			return nil, nil, err
 		}
 
 		offset += offsetDelta
@@ -267,4 +251,33 @@ func parseBerLength(data []byte) (uint32, uint32, error) {
 	}
 
 	return length, offset, nil
+}
+
+// Parses tag of a field according to specification given in ISO 7816-4 (5. Organization for interchange).
+// Returns parsed tag, primitive flag, number of parsed bytes and possible error.
+func parseBerTag(data []byte) (uint32, bool, uint32, error) {
+	if len(data) == 0 {
+		return 0, false, 0, ErrInvalidLength
+	}
+
+	primitive := true
+	if data[0]&0b100000 != 0 {
+		primitive = false
+	}
+
+	var tag, offset uint32
+	if 0x1F&data[0] != 0x1F {
+		tag = uint32(data[0])
+		offset = 1
+	} else if len(data) >= 2 && data[1]&0x80 == 0x00 {
+		tag = uint32(binary.BigEndian.Uint16(data))
+		offset = 2
+	} else if len(data) >= 3 {
+		tag = uint32(data[0])<<16 | uint32(data[1])<<8 | uint32(data[2])
+		offset = 3
+	} else {
+		return 0, false, 0, ErrInvalidLength
+	}
+
+	return tag, primitive, offset, nil
 }

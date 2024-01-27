@@ -1,6 +1,7 @@
 package card
 
 import (
+	"encoding/binary"
 	"testing"
 )
 
@@ -75,11 +76,80 @@ func Test_parseBerLength(t *testing.T) {
 				t.Errorf("Expected parsed length to be %d, but it is %d", testCase.expectedLength, length)
 			}
 			if parsedBytes != testCase.expectedParsedBytes {
-				t.Errorf("Expected %d bytes to be parsed, but %d bytes was parsed", testCase.expectedParsedBytes, parsedBytes)
+				t.Errorf("Expected %d bytes to be parsed, but %d bytes were parsed", testCase.expectedParsedBytes, parsedBytes)
 			}
 		} else {
 			if err != testCase.expectedError {
-				t.Errorf("Expected error '%s', but error '%s'", testCase.expectedError.Error(), err.Error())
+				t.Errorf("Expected error '%v', but error is '%v'", testCase.expectedError, err)
+			}
+		}
+	}
+}
+
+func Test_parseBerTag(t *testing.T) {
+	testCases := []struct {
+		data                []byte
+		expectedTag         uint32
+		expectedPrimitive   bool
+		expectedParsedBytes uint32
+		expectedError       error
+	}{
+		{
+			data:          []byte{},
+			expectedError: ErrInvalidLength,
+		},
+		{
+			data:                []byte{0b000001},
+			expectedTag:         0b000001,
+			expectedPrimitive:   true,
+			expectedParsedBytes: 1,
+			expectedError:       nil,
+		},
+		{
+			data:                []byte{0b00100001},
+			expectedTag:         0b00100001,
+			expectedPrimitive:   false,
+			expectedParsedBytes: 1,
+			expectedError:       nil,
+		},
+		{
+			data:                []byte{0b10111111, 0b00101111},
+			expectedTag:         uint32(binary.BigEndian.Uint16([]byte{0b10111111, 0b00101111})),
+			expectedPrimitive:   false,
+			expectedParsedBytes: 2,
+			expectedError:       nil,
+		},
+		{
+			data:                []byte{0b10111111, 0b10101111},
+			expectedTag:         uint32(binary.BigEndian.Uint16([]byte{0b10111111, 0b10101111})),
+			expectedPrimitive:   false,
+			expectedParsedBytes: 2,
+			expectedError:       ErrInvalidLength,
+		},
+		{
+			data:                []byte{0b10111111, 0b10101111, 0b011010101},
+			expectedTag:         uint32(binary.BigEndian.Uint32([]byte{0, 0b10111111, 0b10101111, 0b011010101})),
+			expectedPrimitive:   false,
+			expectedParsedBytes: 3,
+			expectedError:       nil,
+		},
+	}
+
+	for _, testCase := range testCases {
+		tag, primitive, parsedBytes, err := parseBerTag(testCase.data)
+		if err == nil && testCase.expectedError == nil {
+			if tag != testCase.expectedTag {
+				t.Errorf("Expected tag be %d, but it is %d", testCase.expectedTag, tag)
+			}
+			if primitive != testCase.expectedPrimitive {
+				t.Errorf("Expected primitive flag to be %t, but it is %t", testCase.expectedPrimitive, primitive)
+			}
+			if parsedBytes != testCase.expectedParsedBytes {
+				t.Errorf("Expected %d bytes to be parsed, but %d bytes ware parsed", testCase.expectedParsedBytes, parsedBytes)
+			}
+		} else {
+			if err != testCase.expectedError {
+				t.Errorf("Expected error '%v', but error is '%v'", testCase.expectedError, err)
 			}
 		}
 	}
