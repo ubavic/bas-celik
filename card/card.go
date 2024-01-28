@@ -4,7 +4,6 @@
 package card
 
 import (
-	"encoding/binary"
 	"encoding/hex"
 	"fmt"
 	"slices"
@@ -100,28 +99,6 @@ func ReadCard(sc Card) (doc.Document, error) {
 	return d, nil
 }
 
-// Assigns the value from the provided fields map to the target string, based on the specified tag.
-// If the tag is not present in the map, the target is set to an empty string.
-func assignField[T comparable](fields map[T][]byte, tag T, target *string) {
-	val, ok := fields[tag]
-	if ok {
-		*target = string(val)
-	} else {
-		*target = ""
-	}
-}
-
-// Assigns a boolean value from the provided fields map to the target, based on the specified tag.
-// If the tag is not present in the map or the value is not 0x31, the target is set to false.
-func assignBoolField(fields map[uint][]byte, tag uint, target *bool) {
-	val, ok := fields[tag]
-	if ok && len(val) == 1 && val[0] == 0x31 {
-		*target = true
-	} else {
-		*target = false
-	}
-}
-
 // Reads binary data from the card starting from the specified offset and with the specified length.
 func read(card Card, offset, length uint) ([]byte, error) {
 	readSize := min(length, 0xFF)
@@ -136,109 +113,6 @@ func read(card Card, offset, length uint) ([]byte, error) {
 	}
 
 	return rsp[:len(rsp)-2], nil
-}
-
-func checkParseTLVData(data []byte) error {
-	if len(data) == 0 {
-		return fmt.Errorf("empty data %d", len(data))
-	}
-	return nil
-}
-
-// Parses simple TLV-encoded data and returns a map of tags to values.
-// It assumes that tag and length are encoded with two bytes each.
-func parseTLV(data []byte) (map[uint][]byte, error) {
-	err := checkParseTLVData(data)
-	if err != nil {
-		return nil, err
-	}
-	m := make(map[uint][]byte)
-	offset := uint(0)
-
-	for {
-		tag := uint(binary.LittleEndian.Uint16(data[offset:]))
-		length := uint(binary.LittleEndian.Uint16(data[offset+2:]))
-
-		offset += 4
-		value := data[offset : offset+length]
-		m[tag] = value
-		offset += length
-
-		if offset >= uint(len(data)) {
-			break
-		}
-	}
-
-	return m, nil
-}
-
-// Constructs an APDU (Application Protocol Data Unit) command according
-// to the specifications from the ISO 7816-4 (5. Organization for interchange).
-func buildAPDU(cla, ins, p1, p2 byte, data []byte, ne uint) []byte {
-	length := len(data)
-
-	if length > 0xFFFF {
-		panic(fmt.Errorf("APDU command length too large"))
-	}
-
-	apdu := make([]byte, 4)
-	apdu[0] = cla
-	apdu[1] = ins
-	apdu[2] = p1
-	apdu[3] = p2
-
-	if length == 0 {
-		if ne != 0 {
-			if ne <= 256 {
-				l := byte(0x00)
-				if ne != 256 {
-					l = byte(ne)
-				}
-				apdu = append(apdu, l)
-			} else {
-				var l1, l2 byte
-				if ne == 65536 {
-					l1 = 0
-					l2 = 0
-				} else {
-					l1 = byte(ne >> 8)
-					l2 = byte(ne)
-				}
-				apdu = append(apdu, []byte{l1, l2}...)
-			}
-		}
-	} else {
-		if ne == 0 {
-			if length <= 255 {
-				apdu = append(apdu, byte(length))
-				apdu = append(apdu, data...)
-			} else {
-				l := []byte{0x0, byte(length >> 8), byte(length)}
-				apdu = append(apdu, l...)
-				apdu = append(apdu, data...)
-			}
-		} else {
-			if length <= 255 && ne <= 256 {
-				apdu = append(apdu, byte(length))
-				apdu = append(apdu, data...)
-				if ne != 256 {
-					apdu = append(apdu, byte(ne))
-				} else {
-					apdu = append(apdu, 0x00)
-				}
-			} else {
-				l := []byte{0x00, byte(length >> 8), byte(length)}
-				apdu = append(apdu, l...)
-				apdu = append(apdu, data...)
-				if ne != 65536 {
-					neB := []byte{byte(ne >> 8), byte(ne)}
-					apdu = append(apdu, neB...)
-				}
-			}
-		}
-	}
-
-	return apdu
 }
 
 // Checks if the card response indicates no error.
