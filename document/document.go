@@ -18,20 +18,20 @@ var (
 )
 
 // Sets fonts and graphics used for rendering PDF
-func SetData(fontRegularFS, fontBoldFS, rfzoLogoFS embed.FS) error {
-	fontFile, err := fontRegularFS.ReadFile("assets/liberationSansRegular.ttf")
+func SetData(embedFS embed.FS) error {
+	fontFile, err := embedFS.ReadFile("embed/liberationSansRegular.ttf")
 	if err != nil {
 		return fmt.Errorf("reading font: %w", err)
 	}
 	fontRegular = fontFile
 
-	fontFile, err = fontBoldFS.ReadFile("assets/liberationSansBold.ttf")
+	fontFile, err = embedFS.ReadFile("embed/liberationSansBold.ttf")
 	if err != nil {
 		return fmt.Errorf("reading font: %w", err)
 	}
 	fontBold = fontFile
 
-	rfzoLogoFile, err := rfzoLogoFS.ReadFile("assets/rfzo.png")
+	rfzoLogoFile, err := embedFS.ReadFile("embed/rfzo.png")
 	if err != nil {
 		return fmt.Errorf("reading font: %w", err)
 	}

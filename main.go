@@ -13,14 +13,8 @@ import (
 //go:embed assets/version
 var version string
 
-//go:embed assets/liberationSansRegular.ttf
-var fontRegular embed.FS
-
-//go:embed assets/liberationSansBold.ttf
-var fontBold embed.FS
-
-//go:embed assets/rfzo.png
-var rfzoLogo embed.FS
+//go:embed embed/*
+var embedFS embed.FS
 
 func main() {
 	atrFlag := flag.Bool("atr", false, "Print the ATR form the card and exit. Useful for debugging")
@@ -53,7 +47,7 @@ func main() {
 		return
 	}
 
-	err := document.SetData(fontRegular, fontBold, rfzoLogo)
+	err := document.SetData(embedFS)
 	if err != nil {
 		fmt.Println("Setup error:", err)
 		return
