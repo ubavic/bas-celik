@@ -3,15 +3,14 @@ module github.com/ubavic/bas-celik
 go 1.21
 
 require (
-	fyne.io/fyne/v2 v2.4.1
+	fyne.io/fyne/v2 v2.4.3
 	github.com/ebfe/scard v0.0.0-20230420082256-7db3f9b7c8a7
-	github.com/signintech/gopdf v0.20.0
-	golang.org/x/exp v0.0.0-20231006140011-7918f672742d
+	github.com/signintech/gopdf v0.21.1
 	golang.org/x/text v0.14.0
 )
 
 require (
-	fyne.io/systray v1.10.1-0.20230722100817-88df1e0ffa9a // indirect
+	fyne.io/systray v1.10.1-0.20231115130155-104f5ef7839e // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/fredbi/uri v1.1.0 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
