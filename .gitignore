@@ -8,3 +8,4 @@ __debug_bin*
 fyne-cross/
 bin/
 *.out
+*.cov
