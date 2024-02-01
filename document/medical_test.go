@@ -8,14 +8,22 @@ import (
 
 var documentMedical1 = document.MedicalDocument{}
 var documentMedical2 = document.MedicalDocument{
-	GivenName:              "Петар",
-	ParentName:             "Арсеније",
-	Surname:                "Петровић",
-	AddressStreet:          "Његошева",
-	AddressNumber:          "9",
-	AddressApartmentNumber: "5",
-	AddressTown:            "Подгорица",
-	AddressState:           "Црна Гора",
+	GivenName:                  "Петар",
+	ParentName:                 "Арсеније",
+	Surname:                    "Петровић",
+	AddressStreet:              "Његошева",
+	AddressNumber:              "9",
+	AddressApartmentNumber:     "5",
+	AddressTown:                "Подгорица",
+	AddressState:               "Црна Гора",
+	PersonalNumber:             "01019950900200",
+	DateOfBirth:                "01.01.1995",
+	InsuranceHolderName:        "Petar",
+	InsuranceHolderSurname:     "Petrović",
+	InsuranceHolderNameCyrl:    "Петар",
+	InsuranceHolderSurnameCyrl: "Петровић",
+	InsuranceNumber:            "12345678",
+	InsuranceStartDate:         "29.03.2014",
 }
 var documentMedical3 = document.MedicalDocument{
 	GivenName:     "Pablo Diego",
@@ -102,5 +110,19 @@ func Test_GetFullPlaceAddress_Medical(t *testing.T) {
 		if result != testCase.expected {
 			t.Errorf("Expected '%s' but got '%s'", testCase.expected, result)
 		}
+	}
+}
+
+func Test_BuildPdfMedical(t *testing.T) {
+	document.SetDataFromLocalFiles(t)
+
+	_, _, err := documentMedical1.BuildPdf()
+	if err != nil {
+		t.Errorf("Unexpected error %v", err)
+	}
+
+	_, _, err = documentMedical2.BuildPdf()
+	if err != nil {
+		t.Errorf("Unexpected error %v", err)
 	}
 }
