@@ -76,17 +76,26 @@ Uz pomoć [fyne-cross](https://github.com/fyne-io/fyne-cross) programa moguće j
 
 ## Poznati problemi
 
-Baš Čelik bi trebalo da podržava očitavanje svih ličnih karata i zdravstvenih knjižica. Unapred sam zahvalan za bilo kakvu povratnu informaciju. Čitanje saobraćajnih dozvolla je u eksperimentalnoj fazi.
+Baš Čelik bi trebalo da podržava očitavanje svih ličnih karata, zdravstvenih knjižica i saobraćajnih dozvola. Unapred sam zahvalan za bilo kakvu povratnu informaciju o problemima.
 
-Za sada su registrovani naredni problemi:
-
- + Na Windowsu, aplikacija u nekim slučajevima neće pročitati karticu ako je kartica ubačena u čitač nakon pokretanja programa. U tom slučaju, dovoljno je restartovati program.
-
-Ni jedan od problema ne utiče na "sigurnost" vašeg dokumenta. Baš Čelik isključivo čita podatke sa kartice.
+Eventualni bug u Baš Čelik aplikaciji ne utiče na "sigurnost" vašeg dokumenta. Baš Čelik isključivo čita podatke sa kartice.
 
 ### Ćirilica i latinica
 
 Program prikazuje i eksportuje podatke onako kako su zapisani na kartici. Ako na nekom dokumentu uočite podatke na oba pisma, u pitanju nije *bug* već stanje na kartici.
+
+## Arhitektura aplikacije
+
+Aplikacija je podeljena na sledeće pakete:
+
+ + `document` - paket definiše tri tipa `IdDocument`, `MedicalDocument` i `VehicleDocument` koji zadovoljavaju [`Document` interfejs](./document/document.go). Ovi tipovi se koriste kroz celu aplikaciju. Uz definicije tipova, implementirane su i metode za eksport struktura u PDF i JSON.
+ + `card` - paket definiše [funkcije za komunikaciju](./card/card.go) sa pametnim karticama i funkcije za parsiranje `Document` struktura iz [TLV](./card/tlv.go) i [BER](./card/ber.go) datoteka.
+ + `gui` - definicija grafičkog interfejsa uključujući i [*pooler* kartice](./gui/pooler.go).
+ + `localization` - skup pomoćnih funkcije da za formatiranje datuma, podršku za različita pisma, itd..
+
+Ostali direktorijumi u okviru projekta:
+ + `embed` i `assets` - dodatne datoteke. Neke se linkuju u izvršnu verziju prilikom kompilacije.
+ + `script` - dodatne skripte.
 
 ## Doprinos
 
@@ -99,6 +108,7 @@ Postoje takođe i drugi projekti otvorenog koda koji imaju izvesne sličnosti sa
  + [JFreesteel](https://github.com/grakic/jfreesteel) i [jevrc](https://github.com/grakic/jevrc) Java programi čiji kôd mi je pomogao pri implementaciji nekih delova Baš Čelika.
  + [SerbianIdReader](https://github.com/lazarbankovic/serbianIdReader) Rust program za očitavanje ličnih karata.
  + [mup-rs-api-delphi](https://github.com/obucina/mup-rs-api-delphi), [BashChelik](https://github.com/neman/BashChelik) i [Saobracajna.NET](https://github.com/clearpath/Saobracajna.NET) wraperi u različitim jezicima za svanične MUP-ove biblioteke (sličost u nazivu sa jednom od biblioteka je slučajna).
+ + [golksd](https://github.com/dkozic/golksd) stariji čitač ličnih i saobraćajnih napisan u Golanu.
 
 ## Licenca 
 
