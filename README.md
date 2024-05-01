@@ -1,5 +1,7 @@
 # Baš Čelik
 
+[![Go Reference](https://pkg.go.dev/badge/github.com/ubavic/bas-celik.svg)](https://pkg.go.dev/github.com/ubavic/bas-celik) [![Go Report Card](https://goreportcard.com/badge/github.com/ubavic/bas-celik)](https://goreportcard.com/report/github.com/ubavic/bas-celik)
+
 **Baš Čelik** je čitač elektronskih ličnih karata, zdravstvenih knjižica i saobraćajnih dozvola. Program je osmišljen kao zamena za zvanične aplikacije poput *Čelika*. Nažalost, zvanične aplikacije mogu se pokrenuti samo na Windows operativnom sistemu, dok Baš Čelik funkcioniše na tri operativna sistema (Windows/Linux/OSX).
 
 Baš Čelik je besplatan program, sa potpuno otvorenim kodom dostupnim na adresi [github.com/ubavic/bas-celik](https://github.com/ubavic/bas-celik). 
