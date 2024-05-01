@@ -42,15 +42,25 @@ jobs:
         run: go install fyne.io/fyne/v2/cmd/fyne@latest
       - name: Generate version file
         run: go run script/generateVersion.go
-      - name: Build
+      - name: Build GUI version
         run: |
           fyne package -os linux
           mv 'Bas Celik.tar.xz' bas-celik.linux.amd64.tar.xz
-      - name: Upload executables
+      - name: Upload GUI version
         uses: actions/upload-artifact@v4
         with:
           name: linux-build-artifact
           path: bas-celik.linux.amd64.tar.xz
+      - name: Build CLI version
+        run: |
+          echo -n "cli" >> assets/version
+          go build -tags "cli" -ldflags "-s -w"  .
+          mv bas-celik bas-celik-cli.linux.amd64
+      - name: Upload CLI version
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-cli-build-artifact
+          path: bas-celik-cli.linux.amd64
 
   buildWindows:
     runs-on: windows-latest
@@ -110,15 +120,20 @@ jobs:
       - name: Move files
         run: |
           mv linux-build-artifact/* .
+          mv linux-cli-build-artifact/* .
           mv windows-build-artifact/* .
           mv macos-build-artifact/* .
-      - name: Generate changelog
+      - name: Generate release body
         run: |
           touch changelog.md
           git tag -l --format='%(contents)' ${{github.ref_name}} >> changelog.md
-          echo '' >> changelog.md
+          echo ''    >> changelog.md
           echo '```' >> changelog.md
           sha256sum bas-celik.linux.amd64.tar.xz >> changelog.md
+          echo '```' >> changelog.md
+          echo ''    >> changelog.md
+          echo '```' >> changelog.md
+          sha256sum bas-celik-cli.linux.amd64 >> changelog.md
           echo '```' >> changelog.md
           echo ''    >> changelog.md
           echo '```' >> changelog.md
@@ -133,6 +148,7 @@ jobs:
         with:
           files: |
             bas-celik.linux.amd64.tar.xz
+            bas-celik-cli.linux.amd64
             bas-celik.windows.amd64.exe
             bas-celik.macos.amd64.app.zip
           body_path: changelog.md
