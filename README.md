@@ -67,10 +67,10 @@ Uz pomoć [fyne-cross](https://github.com/fyne-io/fyne-cross) programa moguće j
 
 ## Planirane nadogradnje
 
+ + Podrška za dokumente iz susednih država (CG, BiH, HR...)
  + Potpisivanje dokumenata sa sertifikatom smeštenim na LK
  + Verifikacija podataka na karticama
  + Opcija promene PIN koda na LK
- + Podrška za dokumente iz susednih država (CG, BiH, HR...)
 
 ## Poznati problemi
 
@@ -101,12 +101,12 @@ Pre kreiranja *issue*-a i *pull request*-ova, pročitati [CONTRIBUTING.md](CONTR
 
 ## Slični projekti
 
-Postoje takođe i drugi projekti otvorenog koda koji imaju izvesne sličnosti sa *Baš Čelikom*:
+Postoje i drugi projekti otvorenog koda koji imaju izvesne sličnosti sa *Baš Čelikom*:
 
- + [JFreesteel](https://github.com/grakic/jfreesteel) i [jevrc](https://github.com/grakic/jevrc) Java programi čiji kôd mi je pomogao pri implementaciji nekih delova Baš Čelika.
+ + [JFreesteel](https://github.com/grakic/jfreesteel) i [jevrc](https://github.com/grakic/jevrc) Java programi za čitanje podata sa lične karte i saobraćajne dozvole.
  + [SerbianIdReader](https://github.com/lazarbankovic/serbianIdReader) Rust program za očitavanje ličnih karata.
- + [mup-rs-api-delphi](https://github.com/obucina/mup-rs-api-delphi), [BashChelik](https://github.com/neman/BashChelik) i [Saobracajna.NET](https://github.com/clearpath/Saobracajna.NET) wraperi u različitim jezicima za svanične MUP-ove biblioteke (sličost u nazivu sa jednom od biblioteka je slučajna).
- + [golksd](https://github.com/dkozic/golksd) stariji čitač ličnih i saobraćajnih napisan u Golanu.
+ + [mup-rs-api-delphi](https://github.com/obucina/mup-rs-api-delphi), [BashChelik](https://github.com/neman/BashChelik) i [Saobracajna.NET](https://github.com/clearpath/Saobracajna.NET) wraperi u različitim jezicima za zvanične MUP-ove biblioteke (sličnost u nazivu sa jednom od biblioteka je slučajna).
+ + [golksd](https://github.com/dkozic/golksd) stariji čitač ličnih i saobraćajnih napisan u Golangu.
 
 ## Licenca 
 
