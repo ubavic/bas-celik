@@ -69,7 +69,6 @@ jobs:
         - name: Build
           run: |
             fyne package -os windows
-            ls
             mv 'Bas Celik.exe' bas-celik.windows.amd64.exe
         - name: Upload executables
           uses: actions/upload-artifact@v4
