@@ -9,132 +9,131 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-        - name: Checkout
-          uses: actions/checkout@v3
-        - name: Install Linux deps
-          run: |
-            sudo apt update
-            sudo apt install -y build-essential pkg-config libpcsclite-dev libgl1-mesa-dev xorg-dev
-        - name: Install Go
-          uses: actions/setup-go@v4
-          with:
-            go-version: 'stable'
-        - name: Install Fyne
-          run: go install fyne.io/fyne/v2/cmd/fyne@latest
-        - name: Test
-          run: go test ./...
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Install Linux deps
+        run: |
+          sudo apt update
+          sudo apt install -y build-essential pkg-config libpcsclite-dev libgl1-mesa-dev xorg-dev
+      - name: Install Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: "stable"
+      - name: Install Fyne
+        run: go install fyne.io/fyne/v2/cmd/fyne@latest
+      - name: Test
+        run: go test ./...
 
   buildLinux:
     runs-on: ubuntu-latest
-    needs: [ test ]
+    needs: [test]
     steps:
-        - name: Checkout
-          uses: actions/checkout@v3
-        - name: Install Linux deps
-          run: |
-            sudo apt update
-            sudo apt install -y build-essential pkg-config libpcsclite-dev libgl1-mesa-dev xorg-dev
-        - name: Install Go
-          uses: actions/setup-go@v4
-          with:
-            go-version: 'stable'
-        - name: Install Fyne
-          run: go install fyne.io/fyne/v2/cmd/fyne@latest
-        - name: Generate version file
-          run: go run script/generateVersion.go 
-        - name: Build
-          run: | 
-            fyne package -os linux
-            mv 'Bas Celik.tar.xz' bas-celik.linux.amd64.tar.xz
-        - name: Upload executables
-          uses: actions/upload-artifact@v4
-          with:
-            name: linux-build-artifact
-            path: bas-celik.linux.amd64.tar.xz
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Install Linux deps
+        run: |
+          sudo apt update
+          sudo apt install -y build-essential pkg-config libpcsclite-dev libgl1-mesa-dev xorg-dev
+      - name: Install Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: "stable"
+      - name: Install Fyne
+        run: go install fyne.io/fyne/v2/cmd/fyne@latest
+      - name: Generate version file
+        run: go run script/generateVersion.go
+      - name: Build
+        run: |
+          fyne package -os linux
+          mv 'Bas Celik.tar.xz' bas-celik.linux.amd64.tar.xz
+      - name: Upload executables
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-build-artifact
+          path: bas-celik.linux.amd64.tar.xz
 
   buildWindows:
     runs-on: windows-latest
-    needs: [ test ]
+    needs: [test]
     steps:
-        - name: Checkout
-          uses: actions/checkout@v3
-        - name: Install Go
-          uses: actions/setup-go@v4
-          with:
-            go-version: 'stable'
-        - name: Install Fyne
-          run: go install fyne.io/fyne/v2/cmd/fyne@latest
-        - name: Generate version file
-          run: go run script\generateVersion.go 
-        - name: Build
-          run: |
-            fyne package -os windows
-            mv 'Bas Celik.exe' bas-celik.windows.amd64.exe
-        - name: Upload executables
-          uses: actions/upload-artifact@v4
-          with:
-            name: windows-build-artifact
-            path: bas-celik.windows.amd64.exe
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Install Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: "stable"
+      - name: Install Fyne
+        run: go install fyne.io/fyne/v2/cmd/fyne@latest
+      - name: Generate version file
+        run: go run script\generateVersion.go
+      - name: Build
+        run: |
+          fyne package -os windows
+          mv 'Bas Celik.exe' bas-celik.windows.amd64.exe
+      - name: Upload executables
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-build-artifact
+          path: bas-celik.windows.amd64.exe
 
   buildMacOS:
     runs-on: macos-latest
-    needs: [ test ]
+    needs: [test]
     steps:
-        - name: Checkout
-          uses: actions/checkout@v3
-        - name: Install Go
-          uses: actions/setup-go@v4
-          with:
-            go-version: 'stable'
-        - name: Install Fyne
-          run: go install fyne.io/fyne/v2/cmd/fyne@latest
-        - name: Generate version file
-          run: go run script/generateVersion.go 
-        - name: Build
-          run: | 
-            fyne package -os darwin
-            zip -r bas-celik.macos.amd64.app.zip 'Bas Celik.app'
-        - name: Upload executables
-          uses: actions/upload-artifact@v4
-          with:
-            name: macos-build-artifact
-            path: bas-celik.macos.amd64.app.zip
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Install Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: "stable"
+      - name: Install Fyne
+        run: go install fyne.io/fyne/v2/cmd/fyne@latest
+      - name: Generate version file
+        run: go run script/generateVersion.go
+      - name: Build
+        run: |
+          fyne package -os darwin
+          zip -r bas-celik.macos.amd64.app.zip 'Bas Celik.app'
+      - name: Upload executables
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-build-artifact
+          path: bas-celik.macos.amd64.app.zip
 
   release:
     runs-on: ubuntu-latest
-    needs: [ buildLinux, buildWindows, buildMacOS ]
+    needs: [buildLinux, buildWindows, buildMacOS]
     steps:
-        - name: Checkout
-          uses: actions/checkout@v3
-        - uses: actions/download-artifact@v4
-        - name: Move files
-          run: |
-              mv linux-build-artifact/* .
-              mv windows-build-artifact/* .
-              mv macos-build-artifact/* .
-        - name: Generate changelog
-          run: |
-            touch changelog.md
-            git tag -l --format='%(contents)' ${{github.ref_name}} >> changelog.md
-            echo '' >> changelog.md
-            echo '```' >> changelog.md
-            sha256sum bas-celik.linux.amd64.tar.xz >> changelog.md
-            echo '```' >> changelog.md
-            echo ''    >> changelog.md
-            echo '```' >> changelog.md
-            sha256sum bas-celik.windows.amd64.exe >> changelog.md
-            echo '```' >> changelog.md
-            echo ''    >> changelog.md
-            echo '```' >> changelog.md
-            sha256sum bas-celik.macos.amd64.app.zip >> changelog.md
-            echo '```' >> changelog.md
-        - name: Release
-          uses: softprops/action-gh-release@v1
-          with:
-            files: |
-              bas-celik.linux.amd64.tar.xz
-              bas-celik.windows.amd64.exe
-              bas-celik.macos.amd64.app.zip
-            body_path: changelog.md
-            tag_name: ${{github.ref_name}}
-
+      - name: Checkout
+        uses: actions/checkout@v3
+      - uses: actions/download-artifact@v4
+      - name: Move files
+        run: |
+          mv linux-build-artifact/* .
+          mv windows-build-artifact/* .
+          mv macos-build-artifact/* .
+      - name: Generate changelog
+        run: |
+          touch changelog.md
+          git tag -l --format='%(contents)' ${{github.ref_name}} >> changelog.md
+          echo '' >> changelog.md
+          echo '```' >> changelog.md
+          sha256sum bas-celik.linux.amd64.tar.xz >> changelog.md
+          echo '```' >> changelog.md
+          echo ''    >> changelog.md
+          echo '```' >> changelog.md
+          sha256sum bas-celik.windows.amd64.exe >> changelog.md
+          echo '```' >> changelog.md
+          echo ''    >> changelog.md
+          echo '```' >> changelog.md
+          sha256sum bas-celik.macos.amd64.app.zip >> changelog.md
+          echo '```' >> changelog.md
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            bas-celik.linux.amd64.tar.xz
+            bas-celik.windows.amd64.exe
+            bas-celik.macos.amd64.app.zip
+          body_path: changelog.md
+          tag_name: ${{github.ref_name}}
