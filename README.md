@@ -40,7 +40,7 @@ U slučaju `json` i `pdf` opcija, program ne dodaje ekstenziju na kraj lokacije 
 
 Pri pokretanju sa `atr`, `json` ili `pdf` opcijom, program očekuje da je kartica smeštena u čitač i neće čekati na ubacivanje kartice kao što je to slučaj sa grafičkim okruženjem.
 
-Pri pokretanju sa `atr`, `help`, `list` ili `version` opcijama podaci sa kartice neće biti očitani (osim eventualno ATR koda). Program će prestati izvršavanje nakon ispisa odgovarajuće informacije.  
+Pri pokretanju sa `atr`, `help`, `list` ili `version` opcijama podaci sa kartice neće biti očitani (osim eventualno ATR koda). Program će prestati izvršavanje nakon ispisa odgovarajuće informacije.
 
 ### Čitači i drajveri
 
@@ -49,6 +49,8 @@ Baš Čelik bi trebalo da funkcioniše sa svim čitačima pametnih kartica koji 
 ## Preuzimanje 
 
 Izvršne datoteke poslednje verzije programa možete preuzeti sa [Releases](https://github.com/ubavic/bas-celik/releases) stranice.
+
+Za Linux operativni sistem su dostupne verzije sa i bez grafičkog interfejsa. Verzija sa grafičkim interfejsom je dostupna u okviru datoteke `bas-celik.linux.amd64.tar.xz`. Verzija bez grafičkog interfejsa je dostupna kao izvršna datoteka `bas-celik-cli.linux.amd64`. Obe verzije prihvataju gore navedene opcije komandne linije.
 
 ## Kompilacija
 
@@ -92,6 +94,7 @@ Aplikacija je podeljena na sledeće pakete:
  + `card` - paket definiše [funkcije za komunikaciju](./card/card.go) sa pametnim karticama i funkcije za parsiranje `Document` struktura iz [TLV](./card/tlv.go) i [BER](./card/ber.go) datoteka.
  + `gui` - definicija grafičkog interfejsa uključujući i [*pooler* kartice](./gui/pooler.go).
  + `localization` - skup pomoćnih funkcije da za formatiranje datuma, podršku za različita pisma, itd..
+ + `internal` - skup funkcija koje (za sada) služe samo za pokretanje programa (parsiranje opcija komandne linije, pokretanje grafičkog interfejsa, itd...)
 
 Ostali direktorijumi u okviru projekta:
  + `embed` i `assets` - dodatne datoteke. Neke se linkuju u izvršnu verziju prilikom kompilacije.
