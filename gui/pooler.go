@@ -82,7 +82,7 @@ func pooler() {
 				setStartPage(
 					"Greška pri čitanju kartice",
 					"Da li je kartica prisutna?",
-					fmt.Errorf("connecting reader %s: %w", readersNames[0], err))
+					fmt.Errorf("connecting reader %s: %w", readersNames[selectedReaderIndex], err))
 			}
 
 			state.mu.Lock()

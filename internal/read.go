@@ -44,7 +44,7 @@ func readAndSave(pdfPath, jsonPath string, reader uint) error {
 
 	sCard, err := ctx.Connect(readersNames[reader], scard.ShareShared, scard.ProtocolAny)
 	if err != nil {
-		return fmt.Errorf("connecting reader %s: %w", readersNames[0], err)
+		return fmt.Errorf("connecting reader %s: %w", readersNames[reader], err)
 	}
 
 	defer sCard.Disconnect(scard.LeaveCard)

@@ -36,7 +36,7 @@ func ProcessFlags(_jsonPath, _pdfPath *string, _verbose *bool, _readerIndex *uin
 	}
 
 	if *atrFlag {
-		err := printATR()
+		err := printATR(*readerIndex)
 		if err != nil {
 			fmt.Println("Error reading ATR:", err)
 		}
@@ -51,7 +51,7 @@ func ProcessFlags(_jsonPath, _pdfPath *string, _verbose *bool, _readerIndex *uin
 	return false
 }
 
-func printATR() error {
+func printATR(reader uint) error {
 	ctx, err := scard.EstablishContext()
 	if err != nil {
 		return fmt.Errorf("establishing context: %w", err)
@@ -68,9 +68,13 @@ func printATR() error {
 		return fmt.Errorf("no reader found")
 	}
 
-	sCard, err := ctx.Connect(readersNames[0], scard.ShareShared, scard.ProtocolAny)
+	if reader >= uint(len(readersNames)) {
+		return fmt.Errorf("only %d readers found", len(readersNames))
+	}
+
+	sCard, err := ctx.Connect(readersNames[reader], scard.ShareShared, scard.ProtocolAny)
 	if err != nil {
-		return fmt.Errorf("connecting reader %s: %w", readersNames[0], err)
+		return fmt.Errorf("connecting reader %s: %w", readersNames[reader], err)
 	}
 
 	defer sCard.Disconnect(scard.LeaveCard)
