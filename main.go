@@ -18,9 +18,9 @@ func main() {
 	internal.SetVersion(version)
 
 	var jsonPath, pdfPath string
-	var verboseFlag bool
+	var verboseFlag, getMedicalExpiryDateFromRfzo bool
 	var readerIndex uint
-	exit := internal.ProcessFlags(&jsonPath, &pdfPath, &verboseFlag, &readerIndex)
+	exit := internal.ProcessFlags(&jsonPath, &pdfPath, &verboseFlag, &getMedicalExpiryDateFromRfzo, &readerIndex)
 	if exit {
 		return
 	}
@@ -31,7 +31,7 @@ func main() {
 		return
 	}
 
-	err = internal.Run(pdfPath, jsonPath, verboseFlag, readerIndex)
+	err = internal.Run(pdfPath, jsonPath, verboseFlag, getMedicalExpiryDateFromRfzo, readerIndex)
 	if err != nil {
 		fmt.Println("Error saving document:", err)
 	}

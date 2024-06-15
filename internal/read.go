@@ -7,9 +7,10 @@ import (
 
 	"github.com/ebfe/scard"
 	"github.com/ubavic/bas-celik/card"
+	"github.com/ubavic/bas-celik/document"
 )
 
-func readAndSave(pdfPath, jsonPath string, reader uint) error {
+func readAndSave(pdfPath, jsonPath string, reader uint, getMedicalExpiryDateFromRfzo bool) error {
 	ctx, err := scard.EstablishContext()
 	if err != nil {
 		return fmt.Errorf("establishing context: %w", err)
@@ -52,6 +53,16 @@ func readAndSave(pdfPath, jsonPath string, reader uint) error {
 	doc, err := card.ReadCard(sCard)
 	if err != nil {
 		return fmt.Errorf("reading card: %w", err)
+	}
+
+	switch doc := doc.(type) {
+	case *document.MedicalDocument:
+		if getMedicalExpiryDateFromRfzo {
+			err := doc.UpdateValidUntilDateFromRfzo()
+			if err != nil {
+				return fmt.Errorf("updating `ValidUntil` date: %w", err)
+			}
+		}
 	}
 
 	if len(pdfPath) > 0 {

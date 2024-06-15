@@ -24,6 +24,7 @@ var documentMedical2 = document.MedicalDocument{
 	InsuranceHolderSurnameCyrl: "Петровић",
 	InsuranceNumber:            "12345678",
 	InsuranceStartDate:         "29.03.2014",
+	CardId:                     "12345678901",
 }
 var documentMedical3 = document.MedicalDocument{
 	GivenName:     "Pablo Diego",
@@ -124,5 +125,43 @@ func Test_BuildPdfMedical(t *testing.T) {
 	_, _, err = documentMedical2.BuildPdf()
 	if err != nil {
 		t.Errorf("Unexpected error %v", err)
+	}
+}
+
+func Test_GetExpiryDateFromRfzo(t *testing.T) {
+	err := documentMedical1.UpdateValidUntilDateFromRfzo()
+	if err != document.ErrInvalidCardNo {
+		t.Errorf("Expected the InvalidCardNo error but got %v", err)
+	}
+
+	err = documentMedical2.UpdateValidUntilDateFromRfzo()
+	if err != document.ErrInvalidInsuranceNo {
+		t.Errorf("Expected the InvalidInsuranceNo error but got %v", err)
+	}
+
+}
+
+func Test_parseDateFromRfzoResponse(t *testing.T) {
+	_, err := document.ParseValidUntilDateFromRfzoResponse("")
+	if err != document.ErrNoSubmatchFound {
+		t.Errorf("Expected the NoSubmatchFound error but got %v", err)
+	}
+
+	date, err := document.ParseValidUntilDateFromRfzoResponse("Ваши иницијали су <strong>Н.Н.</strong> (ЛБО: 123456789)<br />Матична филијала: <strong>Београд</strong>.<br/>Ваша здравствена књижица је оверена до: <strong>3.4.2025.</strong>")
+	if err != nil {
+		t.Errorf("Expected no error but got %v", err)
+	}
+
+	if date != "3.4.2025." {
+		t.Errorf("Expected date `3.4.2025.` but got `%s`", date)
+	}
+
+	date, err = document.ParseValidUntilDateFromRfzoResponse("Ваша здравствена књижица је оверена до: <strong>31.12.2023.</strong>")
+	if err != nil {
+		t.Errorf("Expected no error but got %v", err)
+	}
+
+	if date != "31.12.2023." {
+		t.Errorf("Expected date `31.12.2023.` but got `%s`", date)
 	}
 }

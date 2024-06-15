@@ -5,6 +5,7 @@ import (
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/layout"
+	"fyne.io/fyne/v2/widget"
 	"github.com/ubavic/bas-celik/document"
 	"github.com/ubavic/bas-celik/gui/widgets"
 	"github.com/ubavic/bas-celik/localization"
@@ -78,7 +79,7 @@ func pageMedical(doc *document.MedicalDocument) *fyne.Container {
 	issueDateF := widgets.NewField("Datum izdavanja", doc.CardIssueDate, 170)
 	expiryDateF := widgets.NewField("Datum važenja", doc.CardExpiryDate, 170)
 	cardRow1 := container.New(layout.NewHBoxLayout(), issueDateF, expiryDateF)
-	validUntilF := widgets.NewField("Overena do", doc.ValidUntil, 170)
+	validUntilF := widgets.NewField("Overena do*", doc.ValidUntil, 170)
 	permanentlyValidF := widgets.NewField("Trajna overa", localization.FormatYesNo(doc.PermanentlyValid, localization.Latin), 170)
 	cardRow2 := container.New(layout.NewHBoxLayout(), validUntilF, permanentlyValidF)
 	cardGroup := widgets.NewGroup("Podaci o kartici", cardRow1, cardRow2)
@@ -94,7 +95,12 @@ func pageMedical(doc *document.MedicalDocument) *fyne.Container {
 
 	colRight := container.New(layout.NewVBoxLayout(), insuranceHolderGroup, cardGroup, obligeeGroup)
 
-	return container.New(layout.NewHBoxLayout(), colLeft, colRight)
+	note := widget.NewLabel("* Datum isteka overe ne mora da bude ažuran na kartici. " +
+		"Pritiskom na dugme Ažuriraj, ovaj podatak će se ažurirati sa podatkom dostupnim na web servisu RFZO-a. " +
+		"Ova akcija zahteva konekciju sa internetom.")
+	note.Wrapping = fyne.TextWrapWord
+
+	return container.New(layout.NewVBoxLayout(), container.New(layout.NewHBoxLayout(), colLeft, colRight), note)
 }
 
 func pageVehicle(doc *document.VehicleDocument) *fyne.Container {

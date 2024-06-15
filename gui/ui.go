@@ -17,14 +17,15 @@ import (
 )
 
 type State struct {
-	mu          sync.Mutex
-	startPageOn bool
-	verbose     bool
-	window      *fyne.Window
-	startPage   *widgets.StartPage
-	toolbar     *widgets.Toolbar
-	spacer      *widgets.Spacer
-	statusBar   *widgets.StatusBar
+	mu                  sync.Mutex
+	startPageOn         bool
+	verbose             bool
+	window              *fyne.Window
+	startPage           *widgets.StartPage
+	toolbar             *widgets.Toolbar
+	spacer              *widgets.Spacer
+	statusBar           *widgets.StatusBar
+	medicalUpdateButton *widget.Button
 }
 
 var state State
@@ -64,19 +65,25 @@ func setUI(doc document.Document) {
 	state.mu.Lock()
 	defer state.mu.Unlock()
 
-	pdfHandler := savePdf(doc)
-	saveButton := widget.NewButton("Sačuvaj PDF", pdfHandler)
-	buttonBar := container.New(layout.NewHBoxLayout(), state.statusBar, layout.NewSpacer(), saveButton)
-
 	var page *fyne.Container
+	buttonBarObjects := []fyne.CanvasObject{state.statusBar, layout.NewSpacer()}
+
 	switch doc := doc.(type) {
 	case *document.IdDocument:
 		page = pageID(doc)
 	case *document.MedicalDocument:
+		updateButton := widget.NewButton("Ažuriraj", updateMedicalDocHandler(doc))
+		buttonBarObjects = append(buttonBarObjects, updateButton)
 		page = pageMedical(doc)
 	case *document.VehicleDocument:
 		page = pageVehicle(doc)
 	}
+
+	pdfHandler := savePdf(doc)
+	saveButton := widget.NewButton("Sačuvaj PDF", pdfHandler)
+	buttonBarObjects = append(buttonBarObjects, saveButton)
+
+	buttonBar := container.New(layout.NewHBoxLayout(), buttonBarObjects...)
 
 	rows := container.New(layout.NewVBoxLayout(), state.toolbar, state.spacer, page, buttonBar)
 	columns := container.New(layout.NewHBoxLayout(), layout.NewSpacer(), rows, layout.NewSpacer())
@@ -176,5 +183,18 @@ func ShowAboutBox(win fyne.Window, version string) func() {
 			vBox,
 			win,
 		)
+	}
+}
+
+func updateMedicalDocHandler(doc *document.MedicalDocument) func() {
+	return func() {
+		err := doc.UpdateValidUntilDateFromRfzo()
+		if err != nil {
+			dialog.ShowInformation("Greška", "Greška prilikom ažuriranja podataka", *state.window)
+			return
+		}
+
+		dialog.ShowInformation("Ažuriranje", "Ažuriranje podataka je uspešno izvršeno", *state.window)
+		setUI(doc)
 	}
 }

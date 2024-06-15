@@ -6,12 +6,27 @@ import (
 	"errors"
 	"fmt"
 	"image"
+	"io"
+	"net/http"
+	"net/url"
+	"regexp"
 	"strings"
 	"time"
 
 	"github.com/signintech/gopdf"
 	"github.com/ubavic/bas-celik/localization"
 )
+
+const rfzoServiceUrl = "https://www.rfzo.rs/proveraUplateDoprinosa2.php"
+
+// Card number doesn't have exactly 11 digits.
+var ErrInvalidCardNo = errors.New("invalid card number length")
+
+// Insurance number doesn't have exactly 11 digits.
+var ErrInvalidInsuranceNo = errors.New("invalid insurance number length")
+
+// Date `ValidUntil` could not be extracted from RFZO response.
+var ErrNoSubmatchFound = errors.New("no submatch found")
 
 // Represents a document stored on a Serbian public medical insurance card.
 type MedicalDocument struct {
@@ -246,4 +261,49 @@ func (doc *MedicalDocument) BuildPdf() (data []byte, fileName string, retErr err
 
 func (doc *MedicalDocument) BuildJson() ([]byte, error) {
 	return json.Marshal(doc)
+}
+
+func (doc *MedicalDocument) UpdateValidUntilDateFromRfzo() error {
+	if len([]rune(doc.CardId)) != 11 {
+		return ErrInvalidCardNo
+	}
+
+	if len([]rune(doc.InsuranceNumber)) != 11 {
+		return ErrInvalidInsuranceNo
+	}
+
+	resp, err := http.PostForm(rfzoServiceUrl, url.Values{"zk": {doc.CardId}, "lbo": {doc.InsuranceNumber}})
+	if err != nil {
+		return fmt.Errorf("posting: %w", err)
+	}
+
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return fmt.Errorf("reading response body: %w", err)
+	}
+
+	date, err := ParseValidUntilDateFromRfzoResponse(string(body))
+	if err != nil {
+		return fmt.Errorf("parsing response: %w", err)
+	}
+
+	doc.ValidUntil = date
+
+	return nil
+}
+
+func ParseValidUntilDateFromRfzoResponse(response string) (string, error) {
+	regex, err := regexp.Compile(`оверена до: <strong>(\d+\.\d+\.\d+\.)</strong>`)
+	if err != nil {
+		return "", fmt.Errorf("compiling regex: %w", err)
+	}
+
+	matches := regex.FindStringSubmatch(response)
+	if len(matches) < 2 {
+		return "", ErrNoSubmatchFound
+	}
+
+	return matches[1], nil
 }

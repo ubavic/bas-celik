@@ -2,10 +2,10 @@
 
 package internal
 
-func Run(pdfPath, jsonPath string, verbose bool, reader uint) error {
+func Run(pdfPath, jsonPath string, verbose, getMedicalExpiryDateFromRfzo bool, reader uint) error {
 	if len(pdfPath) == 0 && len(jsonPath) == 0 {
 		jsonPath = "out.json"
 	}
 
-	return readAndSave(pdfPath, jsonPath, reader)
+	return readAndSave(pdfPath, jsonPath, reader, getMedicalExpiryDateFromRfzo)
 }
