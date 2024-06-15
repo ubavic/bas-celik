@@ -85,7 +85,7 @@ func readAndSave(pdfPath, jsonPath string, reader uint, getMedicalExpiryDateFrom
 
 		err = os.WriteFile(jsonPath, json, 0600)
 		if err != nil {
-			fmt.Println(fmt.Errorf("writing file %s: %w", jsonPath, err))
+			return fmt.Errorf("writing file %s: %w", jsonPath, err)
 		}
 	}
 
