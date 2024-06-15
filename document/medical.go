@@ -15,6 +15,13 @@ import (
 
 // Represents a document stored on a Serbian public medical insurance card.
 type MedicalDocument struct {
+	InsurerName                    string
+	InsurerID                      string
+	CardId                         string
+	CardIssueDate                  string
+	CardExpiryDate                 string
+	ChipSerialNumber               string
+	Language                       string
 	PersonalNumber                 string
 	Surname                        string
 	GivenName                      string
@@ -24,7 +31,6 @@ type MedicalDocument struct {
 	ParentNameCyrl                 string
 	Sex                            string
 	InsuranceNumber                string
-	Language                       string
 	DateOfBirth                    string
 	AddressApartmentNumber         string
 	AddressNumber                  string
@@ -32,8 +38,6 @@ type MedicalDocument struct {
 	AddressTown                    string
 	AddressMunicipality            string
 	AddressState                   string
-	CardIssueDate                  string
-	CardExpiryDate                 string
 	ValidUntil                     string
 	PermanentlyValid               bool
 	InsuranceHolderName            string

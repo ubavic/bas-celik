@@ -42,6 +42,11 @@ func readMedicalCard(card MedicalCard) (*document.MedicalDocument, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	descramble(fields, 1553)
+	assignField(fields, 1553, &doc.InsurerName)
+	assignField(fields, 1554, &doc.InsurerID)
+	assignField(fields, 1555, &doc.CardId)
 	assignField(fields, 1557, &doc.CardIssueDate)
 	localization.FormatDate(&doc.CardIssueDate)
 	assignField(fields, 1558, &doc.CardExpiryDate)
