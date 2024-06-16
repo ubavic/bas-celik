@@ -12,12 +12,12 @@ import (
 
 var version string
 
-func ProcessFlags(_jsonPath, _pdfPath *string, _verbose, _getMedicalExpiryDateFromRfzo *bool, _readerIndex *uint) bool {
+func ProcessFlags(_jsonPath, _pdfPath *string, _verbose, _getValidUntilFromRfzo *bool, _readerIndex *uint) bool {
 	atrFlag := flag.Bool("atr", false, "Print the ATR form the card and exit")
 	jsonPath := flag.String("json", "", "Set JSON export path")
 	listFlag := flag.Bool("list", false, "List connected readers and exit")
 	pdfPath := flag.String("pdf", "", "Set PDF export path.")
-	getMedicalExpiryDateFromRfzo := flag.Bool("rfzoExpiryDate", false, "Get expiry date of medical card from RFZO API. Ignored for other cards")
+	getValidUntilFromRfzo := flag.Bool("rfzoValidUntil", false, "Get the valid until date of medical card insurance from the RFZO API. Ignored for other cards")
 	verboseFlag := flag.Bool("verbose", false, "Provide additional details in the terminal")
 	versionFlag := flag.Bool("version", false, "Display version information and exit")
 	readerIndex := flag.Uint("reader", 0, "Set reader")
@@ -48,7 +48,7 @@ func ProcessFlags(_jsonPath, _pdfPath *string, _verbose, _getMedicalExpiryDateFr
 	*_pdfPath = *pdfPath
 	*_verbose = *verboseFlag
 	*_readerIndex = *readerIndex
-	*_getMedicalExpiryDateFromRfzo = *getMedicalExpiryDateFromRfzo
+	*_getValidUntilFromRfzo = *getValidUntilFromRfzo
 
 	return false
 }

@@ -6,11 +6,11 @@ import (
 	"github.com/ubavic/bas-celik/gui"
 )
 
-func Run(pdfPath, jsonPath string, verbose, getMedicalExpiryDateFromRfzo bool, reader uint) error {
+func Run(pdfPath, jsonPath string, verbose, getValidUntilFromRfzo bool, reader uint) error {
 	if len(pdfPath) == 0 && len(jsonPath) == 0 {
 		gui.StartGui(verbose, version)
 		return nil
 	} else {
-		return readAndSave(pdfPath, jsonPath, reader, getMedicalExpiryDateFromRfzo)
+		return readAndSave(pdfPath, jsonPath, reader, getValidUntilFromRfzo)
 	}
 }

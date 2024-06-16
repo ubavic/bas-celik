@@ -10,7 +10,7 @@ import (
 	"github.com/ubavic/bas-celik/document"
 )
 
-func readAndSave(pdfPath, jsonPath string, reader uint, getMedicalExpiryDateFromRfzo bool) error {
+func readAndSave(pdfPath, jsonPath string, reader uint, getValidUntilFromRfzo bool) error {
 	ctx, err := scard.EstablishContext()
 	if err != nil {
 		return fmt.Errorf("establishing context: %w", err)
@@ -57,7 +57,7 @@ func readAndSave(pdfPath, jsonPath string, reader uint, getMedicalExpiryDateFrom
 
 	switch doc := doc.(type) {
 	case *document.MedicalDocument:
-		if getMedicalExpiryDateFromRfzo {
+		if getValidUntilFromRfzo {
 			err := doc.UpdateValidUntilDateFromRfzo()
 			if err != nil {
 				return fmt.Errorf("updating `ValidUntil` date: %w", err)
