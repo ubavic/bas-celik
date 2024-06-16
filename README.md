@@ -8,8 +8,7 @@ Baš Čelik je besplatan program, sa potpuno otvorenim kodom dostupnim na adresi
 
 > [!NOTE]
 > Baš Čelik is software for reading smart-card documents issued by the government of Serbia. Supported cards are ID cards, vehicle cards, and medical insurance cards. The application is written completely from scratch in Go and supports Linux, OSX and Windows. 
-> The rest of this document and the program interface are in Serbian (for now), but the all code is in English.
-
+> The rest of this document and the program interface are in Serbian (for now), but the whole codebase is in English.
 
 ![Interfejs](assets/ui.png)
 
@@ -18,6 +17,10 @@ Baš Čelik je besplatan program, sa potpuno otvorenim kodom dostupnim na adresi
 Povežite čitač za računar i pokrenite Baš Čelik. Ubacite karticu u čitač. Program će pročitati informacije sa kartice i prikazati ih. Tada možete sačuvati PDF pritiskom na donje desno dugme.
 
 Kreirani PDF dokument izgleda maksimalno približno dokumentu koji se dobija sa zvaničnim aplikacijama.
+
+### Podaci o overi zdravstvene knjižice
+
+Podatak o trajanju zdravstvenog osiguranja (*overena do*), ne zapisuje se na knjižicu prilikom overe. Zvanična RFZO aplikacija preuzima ovaj podatak sa web servisa, i zbog toga je ista funkcionalnost implementirana i u Baš Čeliku. Pritiskom na dugme *Ažuriraj*, preuzima se podatak o trajanju osiguranja. Pri ovom preuzimanju šalje se LBO broj i broj zdravstvene kartice.
 
 ### Pokretanje na Linuksu
 
@@ -37,6 +40,7 @@ Baš Čelik prihvata sledeće opcije:
  + `-json PATH`: grafički interfejs neće biti pokrenut, a sadržaj dokumenta biće direktno sačuvan u JSON datoteku na `PATH` lokaciji.
  + `-list`: lista raspoloživih čitača biće prikazana u konzoli.
  + `-pdf PATH`: grafički interfejs neće biti pokrenut, a sadržaj dokumenta biće direktno sačuvan u PDF datoteku na `PATH` lokaciji.
+ + `-rfzoValidUntil`: informacija o trajanju zdravstvenog osiguranja biće preuzeta sa RFZO portala. Ne odnosi se na grafički interfejs niti na ostala dokumenta.
  + `-verbose`: tokom rada aplikacije detalji o greškama biće prikazani u konzoli.
  + `-version`: informacija o verziji programa biće prikazana u konzoli.
  + `-reader INDEX`: postavlja odabrani čitač za čitanje podataka. Parametar `INDEX` označava prirodan broj koji je naveden u ispisu `list` komande. Izbor utiče samo na čitanje sa `pdf` i `json` opcijama.
