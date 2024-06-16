@@ -64,6 +64,8 @@ func ReadCard(sc Card) (doc.Document, error) {
 		card = VehicleCard{smartCard: sc}
 	} else if slices.Equal(smartCardStatus.Atr, VEHICLE_ATR_2) {
 		card = VehicleCard{smartCard: sc}
+	} else if slices.Equal(smartCardStatus.Atr, VEHICLE_ATR_3) {
+		card = VehicleCard{smartCard: sc}
 	} else {
 		return nil, fmt.Errorf("unknown card type: %s", hex.EncodeToString(smartCardStatus.Atr))
 	}
