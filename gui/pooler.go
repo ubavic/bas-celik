@@ -8,28 +8,30 @@ import (
 	"github.com/ubavic/bas-celik/card"
 )
 
-func pooler() {
+func establishContextAndStartPooler() {
+	setStartPage("Konekcija sa čitačem...", "", nil)
+
+	ctx, err := scard.EstablishContext()
+	if err != nil {
+		setStartPage(
+			"Greška pri upotrebi drajvera za pametne kartice.",
+			"Da li program ima neophodne dozvole? Restartujte aplikaciju.",
+			fmt.Errorf("establishing context: %w", err))
+	} else {
+		pooler(ctx)
+	}
+}
+
+func pooler(ctx *scard.Context) {
 	loaded := false
 	breakCardLoop := false
 	selectedReader := ""
 	selectedReaderIndex := 0
 	var readersNames []string
-
-	setStartPage("Konekcija sa čitačem...", "", nil)
+	var err error
 
 	for {
 		breakCardLoop = false
-
-		ctx, err := scard.EstablishContext()
-		if err != nil {
-			loaded = false
-			setStartPage(
-				"Greška pri upotrebi drajvera za pametne kartice",
-				"Da li program ima neophodne dozvole?",
-				fmt.Errorf("establishing context: %w", err))
-			time.Sleep(1000 * time.Millisecond)
-			continue
-		}
 
 		readersNames, err = ctx.ListReaders()
 		if err != nil {
@@ -38,14 +40,19 @@ func pooler() {
 				"Greška pri pretrazi dostupnih čitača",
 				"Da li je čitač povezan za računar?",
 				fmt.Errorf("listing readers: %w", err))
-			goto RELEASE
+
+			time.Sleep(1000 * time.Millisecond)
+			continue
+
 		} else if len(readersNames) == 0 {
 			loaded = false
 			setStartPage(
 				"Nijedan čitač nije detektovan",
 				"Da li je čitač povezan za računar?",
 				fmt.Errorf("no reader found"))
-			goto RELEASE
+
+			time.Sleep(1000 * time.Millisecond)
+			continue
 		}
 
 		state.mu.Lock()
@@ -98,10 +105,6 @@ func pooler() {
 			"Povezivanje se čitačem u toku...",
 			"",
 			nil)
-
-	RELEASE:
-		_ = ctx.Release()
-		time.Sleep(1000 * time.Millisecond)
 	}
 }
 
