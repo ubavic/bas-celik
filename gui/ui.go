@@ -17,15 +17,14 @@ import (
 )
 
 type State struct {
-	mu                  sync.Mutex
-	startPageOn         bool
-	verbose             bool
-	window              *fyne.Window
-	startPage           *widgets.StartPage
-	toolbar             *widgets.Toolbar
-	spacer              *widgets.Spacer
-	statusBar           *widgets.StatusBar
-	medicalUpdateButton *widget.Button
+	mu          sync.Mutex
+	startPageOn bool
+	verbose     bool
+	window      *fyne.Window
+	startPage   *widgets.StartPage
+	toolbar     *widgets.Toolbar
+	spacer      *widgets.Spacer
+	statusBar   *widgets.StatusBar
 }
 
 var state State
