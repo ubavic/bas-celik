@@ -2,7 +2,6 @@ package internal
 
 import (
 	"encoding/hex"
-	"errors"
 	"flag"
 	"fmt"
 	"strings"
@@ -101,11 +100,17 @@ func listReaders() error {
 
 	readersNames, err := ctx.ListReaders()
 	if err != nil {
+		if err.Error() == "scard: Cannot find a smart card reader." {
+			fmt.Println("No readers found.")
+			return nil
+		}
+
 		return fmt.Errorf("listing readers: %w", err)
 	}
 
 	if len(readersNames) == 0 {
-		return errors.New("no reader found")
+		fmt.Println("No readers found.")
+		return nil
 	}
 
 	for i, name := range readersNames {
