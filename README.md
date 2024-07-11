@@ -85,9 +85,11 @@ Uz pomoć [fyne-cross](https://github.com/fyne-io/fyne-cross) programa moguće j
  + Verifikacija podataka na karticama
  + Opcija promene PIN koda na LK
 
-## Poznati problemi
+## Poznati problemi (bug-ovi)
 
-Baš Čelik bi trebalo da podržava očitavanje svih ličnih karata, zdravstvenih knjižica i saobraćajnih dozvola. Unapred sam zahvalan za bilo kakvu povratnu informaciju o problemima.
+Pregled svih poznatih problema je dostupan na [*Issues* stranici](https://github.com/ubavic/bas-celik/issues).
+
+Unapred sam zahvalan za bilo kakvu povratnu informaciju o problemima. Za prijavljivanje problema, možete otvoriti novi *issue* ili mi poslati mejl (username `celik`, domen `ubavic.rs`).
 
 Eventualni bug u Baš Čelik aplikaciji ne utiče na "sigurnost" vašeg dokumenta. Baš Čelik isključivo čita podatke sa kartice.
 
