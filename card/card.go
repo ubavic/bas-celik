@@ -14,7 +14,7 @@ import (
 
 // Represents a physical or virtual smart card.
 // Essentially it is just a wrapper for the scard.Card type,
-// but it also allows virtual cards which cant be useful for testing.
+// but it also allows virtual cards which can be useful for testing.
 type Card interface {
 	Status() (*scard.CardStatus, error)
 	Transmit(cmd []byte) ([]byte, error)
