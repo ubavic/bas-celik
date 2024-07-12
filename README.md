@@ -61,6 +61,10 @@ Izvršne datoteke poslednje verzije programa možete preuzeti sa [Releases](http
 
 Za Linux operativni sistem su dostupne verzije sa i bez grafičkog interfejsa. Verzija sa grafičkim interfejsom je dostupna u okviru datoteke `bas-celik.linux.amd64.tar.xz`. Verzija bez grafičkog interfejsa je dostupna kao izvršna datoteka `bas-celik-cli.linux.amd64`. Obe verzije prihvataju gore navedene opcije komandne linije.
 
+### Izvršne datoteke za macOS
+
+Kako macOS ne dozvoljava (jednostavno) pokretanje izvršnih datoteka koje nisu potpisane sa sertifikatom izdatog od Apple-a, nema mnogo smisla pružati izvršne datoteke za mac. Korisnici Apple uređaja moraju sami instalirati Go (prema uputstvu sa [zvaničnog sajta](https://go.dev/doc/install)), a zatim kompajlirati Baš Čelik po gore navedenom uputstvu.
+
 ## Kompilacija
 
 Potrebno je posedovati `go` kompajler. Na Linuksu je potrebno instalirati i `libpcsclite-dev` i [pakete za Fyne](https://developer.fyne.io/started/#prerequisites) (možda i `pkg-config`).

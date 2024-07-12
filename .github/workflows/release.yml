@@ -86,33 +86,9 @@ jobs:
           name: windows-build-artifact
           path: bas-celik.windows.amd64.exe
 
-  buildMacOS:
-    runs-on: macos-latest
-    needs: [test]
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Install Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: "stable"
-      - name: Install Fyne
-        run: go install fyne.io/fyne/v2/cmd/fyne@latest
-      - name: Generate version file
-        run: go run script/generateVersion.go
-      - name: Build
-        run: |
-          fyne package -os darwin
-          zip -r bas-celik.macos.amd64.app.zip 'Bas Celik.app'
-      - name: Upload executables
-        uses: actions/upload-artifact@v4
-        with:
-          name: macos-build-artifact
-          path: bas-celik.macos.amd64.app.zip
-
   release:
     runs-on: ubuntu-latest
-    needs: [buildLinux, buildWindows, buildMacOS]
+    needs: [buildLinux, buildWindows]
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -122,7 +98,6 @@ jobs:
           mv linux-build-artifact/* .
           mv linux-cli-build-artifact/* .
           mv windows-build-artifact/* .
-          mv macos-build-artifact/* .
       - name: Generate release body
         run: |
           touch changelog.md
@@ -140,9 +115,6 @@ jobs:
           sha256sum bas-celik.windows.amd64.exe >> changelog.md
           echo '```' >> changelog.md
           echo ''    >> changelog.md
-          echo '```' >> changelog.md
-          sha256sum bas-celik.macos.amd64.app.zip >> changelog.md
-          echo '```' >> changelog.md
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
@@ -150,6 +122,5 @@ jobs:
             bas-celik.linux.amd64.tar.xz
             bas-celik-cli.linux.amd64
             bas-celik.windows.amd64.exe
-            bas-celik.macos.amd64.app.zip
           body_path: changelog.md
           tag_name: ${{github.ref_name}}
