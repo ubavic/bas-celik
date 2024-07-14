@@ -225,7 +225,7 @@ func (doc *MedicalDocument) BuildPdf() (data []byte, fileName string, retErr err
 
 	putData("Члан породице:", localization.FormatYesNo(doc.InsuranceHolderIsFamilyMember, localization.Cyrillic))
 
-	putData("Сродство:", doc.DateOfBirth)
+	putData("Сродство:", doc.InsuranceHolderRelation)
 
 	section("Подаци о осигурању")
 
