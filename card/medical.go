@@ -144,7 +144,6 @@ func readMedicalCard(card MedicalCard) (*document.MedicalDocument, error) {
 	if len(doc.ObligeeIdNumber) == 0 {
 		assignField(fields, 1633, &doc.ObligeeIdNumber)
 	}
-	descramble(fields, 1634)
 	assignField(fields, 1634, &doc.ObligeeActivity)
 
 	return &doc, nil
