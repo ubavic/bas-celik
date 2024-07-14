@@ -51,6 +51,14 @@ Pri pokretanju sa `atr`, `json` ili `pdf` opcijom, program očekuje da je kartic
 
 Pri pokretanju sa `atr`, `help`, `list` ili `version` opcijama podaci sa kartice neće biti očitani (osim ATR koda u slučaju `atr` komande). Program će prestati izvršavanje nakon ispisa odgovarajuće informacije.
 
+### Komandna linija na Windows-u
+
+Izvršna datoteka za Windows koja je dostupna za preuzimanje, je kompajlirana kao GUI aplikacija. Takve aplikacije ne mogu da ispisuju tekst u terminal u kom su pokrenute. Zbog toga, ako želite da vidite ispis u konzoli, potrebno je da preusmerite izlaz aplikacije. Na primer, u powershell-u:
+
+```powershell
+bas-celik.exe -help | more
+```
+
 ### Čitači i drajveri
 
 Baš Čelik bi trebalo da funkcioniše sa svim čitačima pametnih kartica koji su trenutno dostupni u prodaji (Gemalto, Hama, Samtec...). Korisnici Windows (7, 8, 10, 11) i macOS operativnih sistema ne moraju da instaliraju ni jedan dodatni program (drajver).
