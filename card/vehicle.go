@@ -106,6 +106,11 @@ func readVehicleCard(card VehicleCard) (*document.VehicleDocument, error) {
 	data.assignFrom(&doc.UsersSurnameOrBusinessName, 0x71, 0xA1, 0xA9, 0x83)
 	data.assignFrom(&doc.UsersName, 0x71, 0xA1, 0xA9, 0x84)
 	data.assignFrom(&doc.UsersAddress, 0x71, 0xA1, 0xA9, 0x85)
+	if doc.UsersName == "" && doc.UsersSurnameOrBusinessName == "" && doc.UsersAddress == "" {
+		data.assignFrom(&doc.UsersSurnameOrBusinessName, 0x72, 0xA1, 0xA9, 0x83)
+		data.assignFrom(&doc.UsersName, 0x72, 0xA1, 0xA9, 0x84)
+		data.assignFrom(&doc.UsersAddress, 0x72, 0xA1, 0xA9, 0x85)
+	}
 
 	return &doc, nil
 }
