@@ -94,16 +94,18 @@ func readVehicleCard(card VehicleCard) (*document.VehicleDocument, error) {
 	data.assignFrom(&doc.VehicleLoad, 0x72, 0xC4)
 	data.assignFrom(&doc.YearOfProduction, 0x72, 0xC5)
 	data.assignFrom(&doc.EngineIdNumber, 0x72, 0xA5, 0x9E)
+	data.assignFrom(&doc.SerialNumber, 0x72, 0xC9)
+	data.assignFrom(&doc.ColourOfVehicle, 0x72, 0x9F24)
+	data.assignFrom(&doc.UsersPersonalNo, 0x72, 0xC3)
+	data.assignFrom(&doc.OwnersPersonalNo, 0x72, 0xC2)
+
 	data.assignFrom(&doc.OwnersSurnameOrBusinessName, 0x71, 0xA1, 0xA2, 0x83)
 	data.assignFrom(&doc.OwnerName, 0x71, 0xA1, 0xA2, 0x84)
 	data.assignFrom(&doc.OwnerAddress, 0x71, 0xA1, 0xA2, 0x85)
+
 	data.assignFrom(&doc.UsersSurnameOrBusinessName, 0x71, 0xA1, 0xA9, 0x83)
 	data.assignFrom(&doc.UsersName, 0x71, 0xA1, 0xA9, 0x84)
 	data.assignFrom(&doc.UsersAddress, 0x71, 0xA1, 0xA9, 0x85)
-	data.assignFrom(&doc.OwnersPersonalNo, 0x72, 0xC2)
-	data.assignFrom(&doc.UsersPersonalNo, 0x72, 0xC3)
-	data.assignFrom(&doc.SerialNumber, 0x72, 0xC9)
-	data.assignFrom(&doc.ColourOfVehicle, 0x72, 0x9F24)
 
 	return &doc, nil
 }
