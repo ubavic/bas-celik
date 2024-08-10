@@ -220,7 +220,7 @@ func (doc *VehicleDocument) BuildPdf() (data []byte, fileName string, retErr err
 	putData("Adresa korisnika", doc.UsersAddress)
 	newLine()
 
-	putData("Jmbg korisnika", doc.UsersAddress)
+	putData("Jmbg korisnika", doc.UsersPersonalNo)
 	newLine()
 
 	pdf.SetXY(textLeftMargin, pdf.GetY()+6)
