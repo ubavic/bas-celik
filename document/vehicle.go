@@ -132,7 +132,7 @@ func (doc *VehicleDocument) BuildPdf() (data []byte, fileName string, retErr err
 
 		texts := strings.Split(data, ",")
 		if len(texts) == 2 {
-			cell(texts[0])
+			cell(texts[0] + ",")
 			pdf.SetXY(textLeftMargin, pdf.GetY()+14)
 			cell(strings.TrimSpace(texts[1]))
 			pdf.SetXY(textLeftMargin, pdf.GetY()+20)
