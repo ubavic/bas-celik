@@ -56,6 +56,8 @@ func ReadCard(sc Card) (doc.Document, error) {
 		}
 	} else if slices.Equal(smartCardStatus.Atr, GEMALTO_ATR_3) {
 		card = Gemalto{smartCard: sc}
+	} else if slices.Equal(smartCardStatus.Atr, GEMALTO_ATR_4) {
+		card = Gemalto{smartCard: sc}
 	} else if slices.Equal(smartCardStatus.Atr, APOLLO_ATR) {
 		card = Apollo{smartCard: sc}
 	} else if slices.Equal(smartCardStatus.Atr, MEDICAL_ATR) {
