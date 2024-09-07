@@ -62,6 +62,8 @@ func ReadCard(sc Card) (doc.Document, error) {
 		card = Apollo{smartCard: sc}
 	} else if slices.Equal(smartCardStatus.Atr, MEDICAL_ATR) {
 		card = MedicalCard{smartCard: sc}
+	} else if slices.Equal(smartCardStatus.Atr, MEDICAL_ATR_2) {
+		card = MedicalCard{smartCard: sc}
 	} else if slices.Equal(smartCardStatus.Atr, VEHICLE_ATR_0) {
 		card = VehicleCard{smartCard: sc}
 	} else if slices.Equal(smartCardStatus.Atr, VEHICLE_ATR_2) {
