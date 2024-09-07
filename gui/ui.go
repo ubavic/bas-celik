@@ -193,7 +193,7 @@ func updateMedicalDocHandler(doc *document.MedicalDocument) func() {
 			return
 		}
 
-		dialog.ShowInformation("Ažuriranje", "Ažuriranje podataka je uspešno izvršeno", *state.window)
+		setStatus("Ažuriranje podataka uspešno", nil)
 		setUI(doc)
 	}
 }

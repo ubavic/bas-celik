@@ -76,13 +76,15 @@ func pageMedical(doc *document.MedicalDocument) *fyne.Container {
 	insuranceHolderRow2 := container.New(layout.NewHBoxLayout(), insuranceHolderIsFamilyMemberF, insuranceHolderRelationF)
 	insuranceHolderGroup := widgets.NewGroup("Podaci o nosiocu osiguranja", insuranceHolderNameF, insuranceHolderRow1, insuranceHolderRow2)
 
+	cardNumber := widgets.NewField("Broj zdravstvene isprave", doc.CardId, 270)
+	cardRow0 := container.New(layout.NewHBoxLayout(), cardNumber)
 	issueDateF := widgets.NewField("Datum izdavanja", doc.CardIssueDate, 170)
 	expiryDateF := widgets.NewField("Datum važenja", doc.CardExpiryDate, 170)
 	cardRow1 := container.New(layout.NewHBoxLayout(), issueDateF, expiryDateF)
 	validUntilF := widgets.NewField("Overena do*", doc.ValidUntil, 170)
 	permanentlyValidF := widgets.NewField("Trajna overa", localization.FormatYesNo(doc.PermanentlyValid, localization.Latin), 170)
 	cardRow2 := container.New(layout.NewHBoxLayout(), validUntilF, permanentlyValidF)
-	cardGroup := widgets.NewGroup("Podaci o kartici", cardRow1, cardRow2)
+	cardGroup := widgets.NewGroup("Podaci o kartici", cardRow0, cardRow1, cardRow2)
 
 	obligeeNameF := widgets.NewField("Naziv / ime i prezime", doc.ObligeeName, 350)
 	obligeeActivityF := widgets.NewField("Oznaka delatnosti", doc.ObligeeActivity, 170)
