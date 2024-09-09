@@ -9,3 +9,5 @@ fyne-cross/
 bin/
 *.out
 *.cov
+.idea
+.DS_Store
