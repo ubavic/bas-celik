@@ -47,7 +47,7 @@ func (card Gemalto) initCard() error {
 	}
 
 	if !responseOK(rsp) {
-		return fmt.Errorf("initializing card: response not OK")
+		return fmt.Errorf("initializing card: response not OK (%X)", rsp)
 	}
 
 	return nil
