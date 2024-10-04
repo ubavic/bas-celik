@@ -30,10 +30,22 @@ var MEDICAL_ATR_2 = []byte{
 	0x31, 0x56, 0x30, 0x0D, 0x0A, 0x6E,
 }
 
+// Location of the file with document data.
+var MED_DOCUMENT_FILE_LOC = []byte{0x0D, 0x01}
+
+// Location of the file with fixed personal data.
+var MED_FIXED_PERSONAL_FILE_LOC = []byte{0x0D, 0x02}
+
+// Location of the file with variable personal data.
+var MED_VARIABLE_PERSONAL_FILE_LOC = []byte{0x0D, 0x03}
+
+// Location of the file with variable administrative data.
+var MED_VARIABLE_ADMIN_FILE_LOC = []byte{0x0D, 0x04}
+
 func readMedicalCard(card MedicalCard) (*document.MedicalDocument, error) {
 	doc := document.MedicalDocument{}
 
-	rsp, err := card.readFile([]byte{0x0D, 0x01}, false)
+	rsp, err := card.readFile(MED_DOCUMENT_FILE_LOC, false)
 	if err != nil {
 		return nil, fmt.Errorf("reading document file: %w", err)
 	}
@@ -53,7 +65,7 @@ func readMedicalCard(card MedicalCard) (*document.MedicalDocument, error) {
 	localization.FormatDate(&doc.CardExpiryDate)
 	assignField(fields, 1560, &doc.Language)
 
-	rsp, err = card.readFile([]byte{0x0D, 0x02}, false)
+	rsp, err = card.readFile(MED_FIXED_PERSONAL_FILE_LOC, false)
 	if err != nil {
 		return nil, fmt.Errorf("reading document file: %w", err)
 	}
@@ -74,7 +86,7 @@ func readMedicalCard(card MedicalCard) (*document.MedicalDocument, error) {
 	localization.FormatDate(&doc.DateOfBirth)
 	assignField(fields, 1569, &doc.InsuranceNumber)
 
-	rsp, err = card.readFile([]byte{0x0D, 0x03}, false)
+	rsp, err = card.readFile(MED_VARIABLE_PERSONAL_FILE_LOC, false)
 	if err != nil {
 		return nil, fmt.Errorf("reading document file: %w", err)
 	}
@@ -87,7 +99,7 @@ func readMedicalCard(card MedicalCard) (*document.MedicalDocument, error) {
 	localization.FormatDate(&doc.ValidUntil)
 	assignBoolField(fields, 1587, &doc.PermanentlyValid)
 
-	rsp, err = card.readFile([]byte{0x0D, 0x04}, false)
+	rsp, err = card.readFile(MED_VARIABLE_ADMIN_FILE_LOC, false)
 	if err != nil {
 		return nil, fmt.Errorf("reading document file: %w", err)
 	}
