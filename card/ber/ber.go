@@ -1,14 +1,13 @@
-package card
+package ber
 
 import (
 	"encoding/binary"
 	"errors"
 	"fmt"
 	"strings"
-)
 
-var ErrInvalidLength = errors.New("invalid length")
-var ErrInvalidFormat = errors.New("invalid format")
+	"github.com/ubavic/bas-celik/card/cardErrors"
+)
 
 // Represents a node (or a tree) of a BER structure.
 // Each leaf node contains data, and it is considered 'primitive'.
@@ -135,7 +134,7 @@ func (into *BER) add(new BER) error {
 
 // Merge two BER trees by adding all nodes of the second tree into the first tree.
 // Doesn't copy an data.+
-func (into *BER) merge(new BER) error {
+func (into *BER) Merge(new BER) error {
 	if into.tag != new.tag {
 		return errors.New("tags don't match")
 	}
@@ -157,14 +156,14 @@ func parseBERLayer(data []byte) (map[uint32][]byte, map[uint32][]byte, error) {
 	offset := uint32(0)
 
 	for {
-		tag, primitive, offsetDelta, err := parseBerTag(data[offset:])
+		tag, primitive, offsetDelta, err := ParseTag(data[offset:])
 		if err != nil {
 			return nil, nil, err
 		}
 
 		offset += offsetDelta
 
-		length, offsetDelta, err := parseBerLength(data[offset:])
+		length, offsetDelta, err := ParseLength(data[offset:])
 		if err != nil {
 			return nil, nil, err
 		}
@@ -183,14 +182,14 @@ func parseBERLayer(data []byte) (map[uint32][]byte, map[uint32][]byte, error) {
 		if offset == uint32(len(data)) {
 			break
 		} else if offset > uint32(len(data)) {
-			return nil, nil, ErrInvalidLength
+			return nil, nil, cardErrors.ErrInvalidLength
 		}
 	}
 
 	return primF, consF, nil
 }
 
-func (tree *BER) assignFrom(target *string, address ...uint32) {
+func (tree *BER) AssignFrom(target *string, address ...uint32) {
 	bytes, err := tree.access(address...)
 	if err == nil {
 		*target = string(bytes)
@@ -222,9 +221,9 @@ func (tree BER) String() string {
 
 // Parses length of a field according to specification given in ISO 7816-4 (5. Organization for interchange).
 // Returns parsed length, number of parsed bytes and possible error.
-func parseBerLength(data []byte) (uint32, uint32, error) {
+func ParseLength(data []byte) (uint32, uint32, error) {
 	if len(data) == 0 {
-		return 0, 0, ErrInvalidLength
+		return 0, 0, cardErrors.ErrInvalidLength
 	}
 
 	firstByte := uint32(data[0])
@@ -233,7 +232,7 @@ func parseBerLength(data []byte) (uint32, uint32, error) {
 		length = uint32(data[0])
 		offset = 1
 	} else if firstByte == 0x80 {
-		return 0, 0, ErrInvalidFormat
+		return 0, 0, cardErrors.ErrInvalidFormat
 	} else if firstByte == 0x81 && len(data) >= 2 {
 		length = uint32(data[1])
 		offset = 2
@@ -247,7 +246,7 @@ func parseBerLength(data []byte) (uint32, uint32, error) {
 		length = binary.BigEndian.Uint32(data[1:])
 		offset = 5
 	} else {
-		return 0, 0, ErrInvalidLength
+		return 0, 0, cardErrors.ErrInvalidLength
 	}
 
 	return length, offset, nil
@@ -255,9 +254,9 @@ func parseBerLength(data []byte) (uint32, uint32, error) {
 
 // Parses tag of a field according to specification given in ISO 7816-4 (5. Organization for interchange).
 // Returns parsed tag, primitive flag, number of parsed bytes and possible error.
-func parseBerTag(data []byte) (uint32, bool, uint32, error) {
+func ParseTag(data []byte) (uint32, bool, uint32, error) {
 	if len(data) == 0 {
-		return 0, false, 0, ErrInvalidLength
+		return 0, false, 0, cardErrors.ErrInvalidLength
 	}
 
 	primitive := true
@@ -276,7 +275,7 @@ func parseBerTag(data []byte) (uint32, bool, uint32, error) {
 		tag = uint32(data[0])<<16 | uint32(data[1])<<8 | uint32(data[2])
 		offset = 3
 	} else {
-		return 0, false, 0, ErrInvalidLength
+		return 0, false, 0, cardErrors.ErrInvalidLength
 	}
 
 	return tag, primitive, offset, nil

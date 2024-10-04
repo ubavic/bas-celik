@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/ubavic/bas-celik/card/tlv"
 	"github.com/ubavic/bas-celik/document"
 	"github.com/ubavic/bas-celik/localization"
 	"golang.org/x/text/encoding/unicode"
@@ -50,113 +51,113 @@ func readMedicalCard(card MedicalCard) (*document.MedicalDocument, error) {
 		return nil, fmt.Errorf("reading document file: %w", err)
 	}
 
-	fields, err := parseTLV(rsp)
+	fields, err := tlv.ParseTLV(rsp)
 	if err != nil {
 		return nil, err
 	}
 
 	descramble(fields, 1553)
-	assignField(fields, 1553, &doc.InsurerName)
-	assignField(fields, 1554, &doc.InsurerID)
-	assignField(fields, 1555, &doc.CardId)
-	assignField(fields, 1557, &doc.DateOfIssue)
+	tlv.AssignField(fields, 1553, &doc.InsurerName)
+	tlv.AssignField(fields, 1554, &doc.InsurerID)
+	tlv.AssignField(fields, 1555, &doc.CardId)
+	tlv.AssignField(fields, 1557, &doc.DateOfIssue)
 	localization.FormatDate(&doc.DateOfIssue)
-	assignField(fields, 1558, &doc.DateOfExpiry)
+	tlv.AssignField(fields, 1558, &doc.DateOfExpiry)
 	localization.FormatDate(&doc.DateOfExpiry)
-	assignField(fields, 1560, &doc.PrintLanguage)
+	tlv.AssignField(fields, 1560, &doc.PrintLanguage)
 
 	rsp, err = card.readFile(MED_FIXED_PERSONAL_FILE_LOC)
 	if err != nil {
 		return nil, fmt.Errorf("reading document file: %w", err)
 	}
 
-	fields, err = parseTLV(rsp)
+	fields, err = tlv.ParseTLV(rsp)
 	if err != nil {
 		return nil, err
 	}
 	descramble(fields, 1570)
-	assignField(fields, 1570, &doc.FamilyName)
+	tlv.AssignField(fields, 1570, &doc.FamilyName)
 	descramble(fields, 1571)
-	assignField(fields, 1571, &doc.FamilyNameLatin)
+	tlv.AssignField(fields, 1571, &doc.FamilyNameLatin)
 	descramble(fields, 1572)
-	assignField(fields, 1572, &doc.GivenName)
+	tlv.AssignField(fields, 1572, &doc.GivenName)
 	descramble(fields, 1573)
-	assignField(fields, 1573, &doc.GivenNameLatin)
-	assignField(fields, 1574, &doc.DateOfBirth)
+	tlv.AssignField(fields, 1573, &doc.GivenNameLatin)
+	tlv.AssignField(fields, 1574, &doc.DateOfBirth)
 	localization.FormatDate(&doc.DateOfBirth)
-	assignField(fields, 1569, &doc.InsurantNumber)
+	tlv.AssignField(fields, 1569, &doc.InsurantNumber)
 
 	rsp, err = card.readFile(MED_VARIABLE_PERSONAL_FILE_LOC)
 	if err != nil {
 		return nil, fmt.Errorf("reading document file: %w", err)
 	}
 
-	fields, err = parseTLV(rsp)
+	fields, err = tlv.ParseTLV(rsp)
 	if err != nil {
 		return nil, err
 	}
-	assignField(fields, 1586, &doc.ValidUntil)
+	tlv.AssignField(fields, 1586, &doc.ValidUntil)
 	localization.FormatDate(&doc.ValidUntil)
-	assignBoolField(fields, 1587, &doc.PermanentlyValid)
+	tlv.AssignBoolField(fields, 1587, &doc.PermanentlyValid)
 
 	rsp, err = card.readFile(MED_VARIABLE_ADMIN_FILE_LOC)
 	if err != nil {
 		return nil, fmt.Errorf("reading document file: %w", err)
 	}
 
-	fields, err = parseTLV(rsp)
+	fields, err = tlv.ParseTLV(rsp)
 	if err != nil {
 		return nil, err
 	}
 	descramble(fields, 1601)
-	assignField(fields, 1601, &doc.ParentName)
+	tlv.AssignField(fields, 1601, &doc.ParentName)
 	descramble(fields, 1602)
-	assignField(fields, 1602, &doc.ParentNameLatin)
+	tlv.AssignField(fields, 1602, &doc.ParentNameLatin)
 	if string(fields[1603]) == "01" {
 		doc.Gender = "Mушко"
 	} else {
 		doc.Gender = "Женско"
 	}
-	assignField(fields, 1604, &doc.PersonalNumber)
+	tlv.AssignField(fields, 1604, &doc.PersonalNumber)
 	descramble(fields, 1605)
-	assignField(fields, 1605, &doc.Street)
+	tlv.AssignField(fields, 1605, &doc.Street)
 	descramble(fields, 1607)
-	assignField(fields, 1607, &doc.Municipality)
+	tlv.AssignField(fields, 1607, &doc.Municipality)
 	descramble(fields, 1608)
-	assignField(fields, 1608, &doc.Place)
+	tlv.AssignField(fields, 1608, &doc.Place)
 	descramble(fields, 1610)
-	assignField(fields, 1610, &doc.Number)
+	tlv.AssignField(fields, 1610, &doc.Number)
 	descramble(fields, 1612)
-	assignField(fields, 1612, &doc.Apartment)
-	assignField(fields, 1614, &doc.InsuranceBasisRZZO)
+	tlv.AssignField(fields, 1612, &doc.Apartment)
+	tlv.AssignField(fields, 1614, &doc.InsuranceBasisRZZO)
 	descramble(fields, 1615)
-	assignField(fields, 1615, &doc.InsuranceDescription)
+	tlv.AssignField(fields, 1615, &doc.InsuranceDescription)
 	descramble(fields, 1616)
-	assignField(fields, 1616, &doc.CarrierRelationship)
-	assignBoolField(fields, 1617, &doc.CarrierFamilyMember)
-	assignField(fields, 1618, &doc.CarrierIdNumber)
-	assignField(fields, 1619, &doc.CarrierInsurantNumber)
+	tlv.AssignField(fields, 1616, &doc.CarrierRelationship)
+	tlv.AssignBoolField(fields, 1617, &doc.CarrierFamilyMember)
+	tlv.AssignField(fields, 1618, &doc.CarrierIdNumber)
+	tlv.AssignField(fields, 1619, &doc.CarrierInsurantNumber)
 	descramble(fields, 1620)
-	assignField(fields, 1620, &doc.CarrierFamilyName)
+	tlv.AssignField(fields, 1620, &doc.CarrierFamilyName)
 	descramble(fields, 1621)
-	assignField(fields, 1621, &doc.CarrierFamilyNameLatin)
+	tlv.AssignField(fields, 1621, &doc.CarrierFamilyNameLatin)
 	descramble(fields, 1622)
-	assignField(fields, 1622, &doc.CarrierGivenName)
+	tlv.AssignField(fields, 1622, &doc.CarrierGivenName)
 	descramble(fields, 1623)
-	assignField(fields, 1623, &doc.CarrierGivenNameLatin)
-	assignField(fields, 1624, &doc.InsuranceStartDate)
+	tlv.AssignField(fields, 1623, &doc.CarrierGivenNameLatin)
+	tlv.AssignField(fields, 1624, &doc.InsuranceStartDate)
 	localization.FormatDate(&doc.InsuranceStartDate)
 	descramble(fields, 1626)
-	assignField(fields, 1626, &doc.Country)
+	tlv.AssignField(fields, 1626, &doc.Country)
 	descramble(fields, 1630)
-	assignField(fields, 1630, &doc.TaxpayerName)
+	tlv.AssignField(fields, 1630, &doc.TaxpayerName)
 	descramble(fields, 1631)
-	assignField(fields, 1631, &doc.TaxpayerResidence)
-	assignField(fields, 1632, &doc.TaxpayerIdNumber)
+	tlv.AssignField(fields, 1631, &doc.TaxpayerResidence)
+	tlv.AssignField(fields, 1632, &doc.TaxpayerIdNumber)
 	if len(doc.TaxpayerIdNumber) == 0 {
-		assignField(fields, 1633, &doc.TaxpayerIdNumber)
+		tlv.AssignField(fields, 1633, &doc.TaxpayerIdNumber)
 	}
-	assignField(fields, 1634, &doc.TaxpayerActivityCode)
+	tlv.AssignField(fields, 1634, &doc.TaxpayerActivityCode)
 
 	return &doc, nil
 }
@@ -234,7 +235,7 @@ func (card MedicalCard) testMedicalCard() bool {
 		return false
 	}
 
-	fields, err := parseTLV(rsp)
+	fields, err := tlv.ParseTLV(rsp)
 	if err != nil {
 		return false
 	}

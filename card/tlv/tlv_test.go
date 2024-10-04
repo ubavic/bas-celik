@@ -1,10 +1,13 @@
-package card
+package tlv_test
 
 import (
 	"errors"
 	"fmt"
 	"reflect"
 	"testing"
+
+	"github.com/ubavic/bas-celik/card/cardErrors"
+	"github.com/ubavic/bas-celik/card/tlv"
 )
 
 func Test_parseTLV(t *testing.T) {
@@ -15,7 +18,7 @@ func Test_parseTLV(t *testing.T) {
 	}{
 		{
 			data:          []byte{},
-			expectedError: ErrInvalidLength,
+			expectedError: cardErrors.ErrInvalidLength,
 		},
 		{
 			data: []byte{0x01, 0x00, 0x05, 0x00, 0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x09, 0x00, 0x05, 0x00, 0x57, 0x6F, 0x72, 0x6C, 0x64},
@@ -27,7 +30,7 @@ func Test_parseTLV(t *testing.T) {
 		},
 		{
 			data:          []byte{0x01, 0x00, 0x05, 0x00, 0x48, 0x65},
-			expectedError: ErrInvalidLength,
+			expectedError: cardErrors.ErrInvalidLength,
 		},
 	}
 
@@ -35,7 +38,7 @@ func Test_parseTLV(t *testing.T) {
 		t.Run(
 			fmt.Sprintf("Case %d", i),
 			func(t *testing.T) {
-				result, err := parseTLV(testCase.data)
+				result, err := tlv.ParseTLV(testCase.data)
 
 				if err == nil && testCase.expectedError == nil {
 					if !reflect.DeepEqual(result, testCase.expectedResult) {
@@ -51,7 +54,7 @@ func Test_parseTLV(t *testing.T) {
 	}
 }
 
-func Test_assignField(t *testing.T) {
+func Test_AssignField(t *testing.T) {
 	t.Run(
 		"Case 1",
 		func(t *testing.T) {
@@ -60,7 +63,7 @@ func Test_assignField(t *testing.T) {
 			fields := make(map[uint][]byte)
 			fields[0] = []byte{}
 
-			assignField[uint](fields, 0, &target)
+			tlv.AssignField[uint](fields, 0, &target)
 			if target != "" {
 				t.Fatalf("Expected an empty string, but got '%s'", target)
 			}
@@ -75,7 +78,7 @@ func Test_assignField(t *testing.T) {
 			fields := make(map[uint][]byte)
 			fields[5] = []byte("Hello")
 
-			assignField[uint](fields, 5, &target)
+			tlv.AssignField[uint](fields, 5, &target)
 			if target != "Hello" {
 				t.Fatalf("Expected 'Hello', but got '%s'", target)
 			}
@@ -89,7 +92,7 @@ func Test_assignField(t *testing.T) {
 
 			fields := make(map[uint][]byte)
 
-			assignField[uint](fields, 0, &target)
+			tlv.AssignField[uint](fields, 0, &target)
 			if target != "" {
 				t.Fatalf("Expected an empty string, but got '%s'", target)
 			}
@@ -116,7 +119,7 @@ func Test_assignBoolField(t *testing.T) {
 				fields := make(map[uint][]byte)
 				fields[0] = testCase.value
 
-				assignBoolField(fields, 0, &target)
+				tlv.AssignBoolField(fields, 0, &target)
 				if target != testCase.target {
 					t.Fatalf("Expected target to be %v, but got %v", testCase.target, target)
 				}

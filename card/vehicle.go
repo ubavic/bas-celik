@@ -3,6 +3,8 @@ package card
 import (
 	"fmt"
 
+	"github.com/ubavic/bas-celik/card/ber"
+	"github.com/ubavic/bas-celik/card/cardErrors"
 	"github.com/ubavic/bas-celik/document"
 	"github.com/ubavic/bas-celik/localization"
 )
@@ -47,7 +49,7 @@ var VEHICLE_ATR_4 = Atr([]byte{
 
 func readVehicleCard(card VehicleCard) (*document.VehicleDocument, error) {
 	doc := document.VehicleDocument{}
-	data := BER{}
+	data := ber.BER{}
 
 	for i := byte(0); i <= 3; i++ {
 		rsp, err := card.readFile([]byte{0xD0, i*0x10 + 0x01})
@@ -55,62 +57,62 @@ func readVehicleCard(card VehicleCard) (*document.VehicleDocument, error) {
 			return nil, fmt.Errorf("reading document %d file: %w", i, err)
 		}
 
-		parsed, err := ParseBER(rsp)
+		parsed, err := ber.ParseBER(rsp)
 		if err != nil {
 			return nil, fmt.Errorf("parsing %d file: %w", i, err)
 		}
 
-		err = data.merge(*parsed)
+		err = data.Merge(*parsed)
 		if err != nil {
 			return nil, fmt.Errorf("merging %d data: %w", i, err)
 		}
 	}
 
-	data.assignFrom(&doc.RegistrationNumberOfVehicle, 0x71, 0x81)
-	data.assignFrom(&doc.DateOfFirstRegistration, 0x71, 0x82)
+	data.AssignFrom(&doc.RegistrationNumberOfVehicle, 0x71, 0x81)
+	data.AssignFrom(&doc.DateOfFirstRegistration, 0x71, 0x82)
 	localization.FormatDateYMD(&doc.DateOfFirstRegistration)
-	data.assignFrom(&doc.VehicleIdNumber, 0x71, 0x8A)
-	data.assignFrom(&doc.VehicleMass, 0x71, 0x8C)
-	data.assignFrom(&doc.ExpiryDate, 0x71, 0x8D)
+	data.AssignFrom(&doc.VehicleIdNumber, 0x71, 0x8A)
+	data.AssignFrom(&doc.VehicleMass, 0x71, 0x8C)
+	data.AssignFrom(&doc.ExpiryDate, 0x71, 0x8D)
 	localization.FormatDateYMD(&doc.ExpiryDate)
-	data.assignFrom(&doc.IssuingDate, 0x71, 0x8E)
+	data.AssignFrom(&doc.IssuingDate, 0x71, 0x8E)
 	localization.FormatDateYMD(&doc.IssuingDate)
-	data.assignFrom(&doc.TypeApprovalNumber, 0x71, 0x8F)
-	data.assignFrom(&doc.PowerWeightRatio, 0x71, 0x93)
-	data.assignFrom(&doc.VehicleMake, 0x71, 0xA3, 0x87)
-	data.assignFrom(&doc.VehicleType, 0x71, 0xA3, 0x88)
-	data.assignFrom(&doc.CommercialDescription, 0x71, 0xA3, 0x89)
-	data.assignFrom(&doc.MaximumPermissibleLadenMass, 0x71, 0xA4, 0x8B)
-	data.assignFrom(&doc.EngineCapacity, 0x71, 0xA5, 0x90)
-	data.assignFrom(&doc.MaximumNetPower, 0x71, 0xA5, 0x91)
-	data.assignFrom(&doc.TypeOfFuel, 0x71, 0xA5, 0x92)
-	data.assignFrom(&doc.NumberOfSeats, 0x71, 0xA6, 0x94)
-	data.assignFrom(&doc.NumberOfStandingPlaces, 0x71, 0xA6, 0x95)
-	data.assignFrom(&doc.StateIssuing, 0x71, 0x9F33)
-	data.assignFrom(&doc.CompetentAuthority, 0x71, 0x9F35)
-	data.assignFrom(&doc.AuthorityIssuing, 0x71, 0x9F36)
-	data.assignFrom(&doc.UnambiguousNumber, 0x71, 0x9F38)
-	data.assignFrom(&doc.VehicleCategory, 0x72, 0x98)
-	data.assignFrom(&doc.NumberOfAxles, 0x72, 0x99)
-	data.assignFrom(&doc.VehicleLoad, 0x72, 0xC4)
-	data.assignFrom(&doc.YearOfProduction, 0x72, 0xC5)
-	data.assignFrom(&doc.EngineIdNumber, 0x72, 0xA5, 0x9E)
-	data.assignFrom(&doc.SerialNumber, 0x72, 0xC9)
-	data.assignFrom(&doc.ColourOfVehicle, 0x72, 0x9F24)
-	data.assignFrom(&doc.UsersPersonalNo, 0x72, 0xC3)
-	data.assignFrom(&doc.OwnersPersonalNo, 0x72, 0xC2)
+	data.AssignFrom(&doc.TypeApprovalNumber, 0x71, 0x8F)
+	data.AssignFrom(&doc.PowerWeightRatio, 0x71, 0x93)
+	data.AssignFrom(&doc.VehicleMake, 0x71, 0xA3, 0x87)
+	data.AssignFrom(&doc.VehicleType, 0x71, 0xA3, 0x88)
+	data.AssignFrom(&doc.CommercialDescription, 0x71, 0xA3, 0x89)
+	data.AssignFrom(&doc.MaximumPermissibleLadenMass, 0x71, 0xA4, 0x8B)
+	data.AssignFrom(&doc.EngineCapacity, 0x71, 0xA5, 0x90)
+	data.AssignFrom(&doc.MaximumNetPower, 0x71, 0xA5, 0x91)
+	data.AssignFrom(&doc.TypeOfFuel, 0x71, 0xA5, 0x92)
+	data.AssignFrom(&doc.NumberOfSeats, 0x71, 0xA6, 0x94)
+	data.AssignFrom(&doc.NumberOfStandingPlaces, 0x71, 0xA6, 0x95)
+	data.AssignFrom(&doc.StateIssuing, 0x71, 0x9F33)
+	data.AssignFrom(&doc.CompetentAuthority, 0x71, 0x9F35)
+	data.AssignFrom(&doc.AuthorityIssuing, 0x71, 0x9F36)
+	data.AssignFrom(&doc.UnambiguousNumber, 0x71, 0x9F38)
+	data.AssignFrom(&doc.VehicleCategory, 0x72, 0x98)
+	data.AssignFrom(&doc.NumberOfAxles, 0x72, 0x99)
+	data.AssignFrom(&doc.VehicleLoad, 0x72, 0xC4)
+	data.AssignFrom(&doc.YearOfProduction, 0x72, 0xC5)
+	data.AssignFrom(&doc.EngineIdNumber, 0x72, 0xA5, 0x9E)
+	data.AssignFrom(&doc.SerialNumber, 0x72, 0xC9)
+	data.AssignFrom(&doc.ColourOfVehicle, 0x72, 0x9F24)
+	data.AssignFrom(&doc.UsersPersonalNo, 0x72, 0xC3)
+	data.AssignFrom(&doc.OwnersPersonalNo, 0x72, 0xC2)
 
-	data.assignFrom(&doc.OwnersSurnameOrBusinessName, 0x71, 0xA1, 0xA2, 0x83)
-	data.assignFrom(&doc.OwnerName, 0x71, 0xA1, 0xA2, 0x84)
-	data.assignFrom(&doc.OwnerAddress, 0x71, 0xA1, 0xA2, 0x85)
+	data.AssignFrom(&doc.OwnersSurnameOrBusinessName, 0x71, 0xA1, 0xA2, 0x83)
+	data.AssignFrom(&doc.OwnerName, 0x71, 0xA1, 0xA2, 0x84)
+	data.AssignFrom(&doc.OwnerAddress, 0x71, 0xA1, 0xA2, 0x85)
 
-	data.assignFrom(&doc.UsersSurnameOrBusinessName, 0x71, 0xA1, 0xA9, 0x83)
-	data.assignFrom(&doc.UsersName, 0x71, 0xA1, 0xA9, 0x84)
-	data.assignFrom(&doc.UsersAddress, 0x71, 0xA1, 0xA9, 0x85)
+	data.AssignFrom(&doc.UsersSurnameOrBusinessName, 0x71, 0xA1, 0xA9, 0x83)
+	data.AssignFrom(&doc.UsersName, 0x71, 0xA1, 0xA9, 0x84)
+	data.AssignFrom(&doc.UsersAddress, 0x71, 0xA1, 0xA9, 0x85)
 	if doc.UsersName == "" && doc.UsersSurnameOrBusinessName == "" && doc.UsersAddress == "" {
-		data.assignFrom(&doc.UsersSurnameOrBusinessName, 0x72, 0xA1, 0xA9, 0x83)
-		data.assignFrom(&doc.UsersName, 0x72, 0xA1, 0xA9, 0x84)
-		data.assignFrom(&doc.UsersAddress, 0x72, 0xA1, 0xA9, 0x85)
+		data.AssignFrom(&doc.UsersSurnameOrBusinessName, 0x72, 0xA1, 0xA9, 0x83)
+		data.AssignFrom(&doc.UsersName, 0x72, 0xA1, 0xA9, 0x84)
+		data.AssignFrom(&doc.UsersAddress, 0x72, 0xA1, 0xA9, 0x85)
 	}
 
 	return &doc, nil
@@ -154,25 +156,25 @@ func (card VehicleCard) readFile(name []byte) ([]byte, error) {
 
 func parseVehicleCardFileSize(data []byte) (uint, uint, error) {
 	if len(data) < 1 {
-		return 0, 0, ErrInvalidLength
+		return 0, 0, cardErrors.ErrInvalidLength
 	}
 
 	offset := uint(data[1]) + 2
 
 	if offset >= uint(len(data)) {
-		return 0, 0, ErrInvalidLength
+		return 0, 0, cardErrors.ErrInvalidLength
 	}
 
-	_, _, offsetDelta1, err := parseBerTag(data[offset:])
+	_, _, offsetDelta1, err := ber.ParseTag(data[offset:])
 	if err != nil {
 		return 0, 0, fmt.Errorf("parsing tag: %w", err)
 	}
 
 	if offset+uint(offsetDelta1) >= uint(len(data)) {
-		return 0, 0, ErrInvalidLength
+		return 0, 0, cardErrors.ErrInvalidLength
 	}
 
-	dataLength, offsetDelta2, err := parseBerLength(data[offset+uint(offsetDelta1):])
+	dataLength, offsetDelta2, err := ber.ParseLength(data[offset+uint(offsetDelta1):])
 	if err != nil {
 		return 0, 0, fmt.Errorf("parsing size: %w", err)
 	}

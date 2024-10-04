@@ -1,8 +1,10 @@
-package card
+package ber
 
 import (
 	"encoding/binary"
 	"testing"
+
+	"github.com/ubavic/bas-celik/card/cardErrors"
 )
 
 func Test_parseBerLength(t *testing.T) {
@@ -14,7 +16,7 @@ func Test_parseBerLength(t *testing.T) {
 	}{
 		{
 			data:          []byte{},
-			expectedError: ErrInvalidLength,
+			expectedError: cardErrors.ErrInvalidLength,
 		},
 		{
 			data:                []byte{0x79},
@@ -24,7 +26,7 @@ func Test_parseBerLength(t *testing.T) {
 		},
 		{
 			data:          []byte{0x80, 0x91},
-			expectedError: ErrInvalidFormat,
+			expectedError: cardErrors.ErrInvalidFormat,
 		},
 		{
 			data:                []byte{0x81, 0x01},
@@ -34,7 +36,7 @@ func Test_parseBerLength(t *testing.T) {
 		},
 		{
 			data:          []byte{0x81},
-			expectedError: ErrInvalidLength,
+			expectedError: cardErrors.ErrInvalidLength,
 		},
 		{
 			data:                []byte{0x82, 0x01, 0x02},
@@ -44,7 +46,7 @@ func Test_parseBerLength(t *testing.T) {
 		},
 		{
 			data:          []byte{0x82},
-			expectedError: ErrInvalidLength,
+			expectedError: cardErrors.ErrInvalidLength,
 		},
 		{
 			data:                []byte{0x83, 0x01, 0x02, 0x03},
@@ -54,7 +56,7 @@ func Test_parseBerLength(t *testing.T) {
 		},
 		{
 			data:          []byte{0x83},
-			expectedError: ErrInvalidLength,
+			expectedError: cardErrors.ErrInvalidLength,
 		},
 		{
 			data:                []byte{0x84, 0x01, 0x02, 0x03, 0x04},
@@ -64,12 +66,12 @@ func Test_parseBerLength(t *testing.T) {
 		},
 		{
 			data:          []byte{0x84},
-			expectedError: ErrInvalidLength,
+			expectedError: cardErrors.ErrInvalidLength,
 		},
 	}
 
 	for _, testCase := range testCases {
-		length, parsedBytes, err := parseBerLength(testCase.data)
+		length, parsedBytes, err := ParseLength(testCase.data)
 
 		if err == nil && testCase.expectedError == nil {
 			if length != testCase.expectedLength {
@@ -96,7 +98,7 @@ func Test_parseBerTag(t *testing.T) {
 	}{
 		{
 			data:          []byte{},
-			expectedError: ErrInvalidLength,
+			expectedError: cardErrors.ErrInvalidLength,
 		},
 		{
 			data:                []byte{0b000001},
@@ -124,7 +126,7 @@ func Test_parseBerTag(t *testing.T) {
 			expectedTag:         uint32(binary.BigEndian.Uint16([]byte{0b10111111, 0b10101111})),
 			expectedPrimitive:   false,
 			expectedParsedBytes: 2,
-			expectedError:       ErrInvalidLength,
+			expectedError:       cardErrors.ErrInvalidLength,
 		},
 		{
 			data:                []byte{0b10111111, 0b10101111, 0b011010101},
@@ -136,7 +138,7 @@ func Test_parseBerTag(t *testing.T) {
 	}
 
 	for _, testCase := range testCases {
-		tag, primitive, parsedBytes, err := parseBerTag(testCase.data)
+		tag, primitive, parsedBytes, err := ParseTag(testCase.data)
 		if err == nil && testCase.expectedError == nil {
 			if tag != testCase.expectedTag {
 				t.Errorf("Expected tag be %d, but it is %d", testCase.expectedTag, tag)

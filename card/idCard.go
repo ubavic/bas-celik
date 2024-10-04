@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"image"
 
+	"github.com/ubavic/bas-celik/card/tlv"
 	"github.com/ubavic/bas-celik/document"
 	"github.com/ubavic/bas-celik/localization"
 )
@@ -22,16 +23,16 @@ var ID_RESIDENCE_FILE_LOC = []byte{0x0F, 0x04}
 var ID_PHOTO_FILE_LOC = []byte{0x0F, 0x06}
 
 func parseIdDocumentFile(data []byte, doc *document.IdDocument) error {
-	fields, err := parseTLV(data)
+	fields, err := tlv.ParseTLV(data)
 	if err != nil {
 		return err
 	}
-	assignField(fields, 1546, &doc.DocumentNumber)
-	assignField(fields, 1547, &doc.DocumentType)
-	assignField(fields, 1548, &doc.DocumentSerialNumber)
-	assignField(fields, 1549, &doc.IssuingDate)
-	assignField(fields, 1550, &doc.ExpiryDate)
-	assignField(fields, 1551, &doc.IssuingAuthority)
+	tlv.AssignField(fields, 1546, &doc.DocumentNumber)
+	tlv.AssignField(fields, 1547, &doc.DocumentType)
+	tlv.AssignField(fields, 1548, &doc.DocumentSerialNumber)
+	tlv.AssignField(fields, 1549, &doc.IssuingDate)
+	tlv.AssignField(fields, 1550, &doc.ExpiryDate)
+	tlv.AssignField(fields, 1551, &doc.IssuingAuthority)
 	localization.FormatDate(&doc.IssuingDate)
 	localization.FormatDate(&doc.ExpiryDate)
 
@@ -39,40 +40,40 @@ func parseIdDocumentFile(data []byte, doc *document.IdDocument) error {
 }
 
 func parseIdPersonalFile(data []byte, doc *document.IdDocument) error {
-	fields, err := parseTLV(data)
+	fields, err := tlv.ParseTLV(data)
 	if err != nil {
 		return err
 	}
 
-	assignField(fields, 1558, &doc.PersonalNumber)
-	assignField(fields, 1559, &doc.Surname)
-	assignField(fields, 1560, &doc.GivenName)
-	assignField(fields, 1561, &doc.ParentGivenName)
-	assignField(fields, 1562, &doc.Sex)
-	assignField(fields, 1563, &doc.PlaceOfBirth)
-	assignField(fields, 1564, &doc.CommunityOfBirth)
-	assignField(fields, 1565, &doc.StateOfBirth)
-	assignField(fields, 1566, &doc.DateOfBirth)
+	tlv.AssignField(fields, 1558, &doc.PersonalNumber)
+	tlv.AssignField(fields, 1559, &doc.Surname)
+	tlv.AssignField(fields, 1560, &doc.GivenName)
+	tlv.AssignField(fields, 1561, &doc.ParentGivenName)
+	tlv.AssignField(fields, 1562, &doc.Sex)
+	tlv.AssignField(fields, 1563, &doc.PlaceOfBirth)
+	tlv.AssignField(fields, 1564, &doc.CommunityOfBirth)
+	tlv.AssignField(fields, 1565, &doc.StateOfBirth)
+	tlv.AssignField(fields, 1566, &doc.DateOfBirth)
 	localization.FormatDate(&doc.DateOfBirth)
 
 	return nil
 }
 
 func parseIdResidenceFile(data []byte, doc *document.IdDocument) error {
-	fields, err := parseTLV(data)
+	fields, err := tlv.ParseTLV(data)
 	if err != nil {
 		return err
 	}
-	assignField(fields, 1568, &doc.State)
-	assignField(fields, 1569, &doc.Community)
-	assignField(fields, 1570, &doc.Place)
-	assignField(fields, 1571, &doc.Street)
-	assignField(fields, 1572, &doc.AddressNumber)
-	assignField(fields, 1573, &doc.AddressLetter)
-	assignField(fields, 1574, &doc.AddressEntrance)
-	assignField(fields, 1575, &doc.AddressFloor)
-	assignField(fields, 1578, &doc.AddressApartmentNumber)
-	assignField(fields, 1580, &doc.AddressDate)
+	tlv.AssignField(fields, 1568, &doc.State)
+	tlv.AssignField(fields, 1569, &doc.Community)
+	tlv.AssignField(fields, 1570, &doc.Place)
+	tlv.AssignField(fields, 1571, &doc.Street)
+	tlv.AssignField(fields, 1572, &doc.AddressNumber)
+	tlv.AssignField(fields, 1573, &doc.AddressLetter)
+	tlv.AssignField(fields, 1574, &doc.AddressEntrance)
+	tlv.AssignField(fields, 1575, &doc.AddressFloor)
+	tlv.AssignField(fields, 1578, &doc.AddressApartmentNumber)
+	tlv.AssignField(fields, 1580, &doc.AddressDate)
 	localization.FormatDate(&doc.AddressDate)
 
 	return nil
