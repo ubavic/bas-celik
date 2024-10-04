@@ -114,10 +114,9 @@ Program prikazuje i eksportuje podatke onako kako su zapisani na kartici. Ako na
 Aplikacija je podeljena na sledeće pakete:
 
  + `document` - paket definiše tri tipa `IdDocument`, `MedicalDocument` i `VehicleDocument` koji zadovoljavaju [`Document` interfejs](./document/document.go). Ovi tipovi se koriste kroz celu aplikaciju. Uz definicije tipova, implementirane su i metode za eksport struktura u PDF i JSON.
- + `card` - paket definiše [funkcije za komunikaciju](./card/card.go) sa pametnim karticama i funkcije za parsiranje `Document` struktura iz [TLV](./card/tlv.go) i [BER](./card/ber.go) datoteka.
- + `gui` - definicija grafičkog interfejsa uključujući i [*pooler* kartice](./gui/pooler.go).
+ + `card` - paket definiše [funkcije za komunikaciju](./card/card.go) sa pametnim karticama i funkcije za parsiranje `Document` struktura iz [TLV](./card/tlv/tlv.go) i [BER](./card/ber/ber.go) datoteka.
+ + `internal` - paket sa funkcijama za pokretanje programa, parsiranje argumenata komandne linije, itd... Uključuje i paket `gui` sa definicijom grafičkog interfejsa.
  + `localization` - skup pomoćnih funkcije da za formatiranje datuma, podršku za različita pisma, itd..
- + `internal` - skup funkcija koje (za sada) služe samo za pokretanje programa (parsiranje opcija komandne linije, pokretanje grafičkog interfejsa, itd...)
 
 Ostali direktorijumi u okviru projekta:
  + `embed` i `assets` - dodatne datoteke. Neke se linkuju u izvršnu verziju prilikom kompilacije.
