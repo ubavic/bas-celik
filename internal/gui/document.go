@@ -7,7 +7,7 @@ import (
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
 	"github.com/ubavic/bas-celik/document"
-	"github.com/ubavic/bas-celik/gui/widgets"
+	"github.com/ubavic/bas-celik/internal/gui/widgets"
 	"github.com/ubavic/bas-celik/localization"
 )
 

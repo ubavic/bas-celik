@@ -3,7 +3,7 @@
 package internal
 
 import (
-	"github.com/ubavic/bas-celik/gui"
+	"github.com/ubavic/bas-celik/internal/gui"
 )
 
 func Run(pdfPath, jsonPath string, verbose, getValidUntilFromRfzo bool, reader uint) error {

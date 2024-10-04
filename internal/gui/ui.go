@@ -13,7 +13,7 @@ import (
 	"fyne.io/fyne/v2/storage"
 	"fyne.io/fyne/v2/widget"
 	"github.com/ubavic/bas-celik/document"
-	"github.com/ubavic/bas-celik/gui/widgets"
+	"github.com/ubavic/bas-celik/internal/gui/widgets"
 )
 
 type State struct {
