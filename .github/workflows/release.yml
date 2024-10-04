@@ -41,7 +41,10 @@ jobs:
       - name: Install Fyne
         run: go install fyne.io/fyne/v2/cmd/fyne@latest
       - name: Generate version file
-        run: go run script/generateVersion.go
+        run: |
+          VERSION=$(git describe --tags --abbrev=0 | tail -c +2)
+          echo "$VERSION" >> assets/version
+          echo "  Version = \"$VERSION\"" >> FyneApp.toml
       - name: Build GUI version
         run: |
           fyne package -os linux
@@ -75,7 +78,10 @@ jobs:
       - name: Install Fyne
         run: go install fyne.io/fyne/v2/cmd/fyne@latest
       - name: Generate version file
-        run: go run script\generateVersion.go
+        run: |
+          $version = (git describe --tags --abbrev=0).Substring(1)
+          $version | Out-File -FilePath "assets/version" -Append
+          "  Version = `"$version`"" | Out-File -FilePath "FyneApp.toml" -Append
       - name: Build
         run: |
           fyne package -os windows

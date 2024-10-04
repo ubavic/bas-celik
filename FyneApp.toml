@@ -4,5 +4,4 @@ Website = "https://github.com/ubavic/bas-celik"
   Icon = "assets/logo.png"
   Name = "Bas Celik"
   ID = "com.github.ubavic.bas-celik"
-  Version = "1.0.0"
   Build = 1
