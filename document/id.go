@@ -18,40 +18,40 @@ import (
 
 // Represents a document stored on a Serbian ID card.
 type IdDocument struct {
-	Portrait               image.Image
-	DocumentNumber         string
-	DocumentType           string
-	IssuingDate            string
-	ExpiryDate             string
-	IssuingAuthority       string
-	DocumentSerialNumber   string
-	ChipSerialNumber       string
-	DocumentName           string
-	PersonalNumber         string
-	Surname                string
-	GivenName              string
-	ParentGivenName        string
-	Sex                    string
-	PlaceOfBirth           string
-	CommunityOfBirth       string
-	StateOfBirth           string
-	StateOfBirthCode       string
-	DateOfBirth            string
-	StatusOfForeigner      string
-	NationalityFull        string
-	PurposeOfStay          string
-	ENote                  string
-	State                  string
-	Community              string
-	Place                  string
-	Street                 string
-	AddressNumber          string
-	AddressLetter          string
-	AddressEntrance        string
-	AddressFloor           string
-	AddressApartmentNumber string
-	AddressDate            string
-	AddressLabel           string
+	Portrait             image.Image
+	DocRegNo             string
+	DocumentType         string
+	IssuingDate          string
+	ExpiryDate           string
+	IssuingAuthority     string
+	DocumentSerialNumber string
+	ChipSerialNumber     string
+	DocumentName         string
+	PersonalNumber       string
+	Surname              string
+	GivenName            string
+	ParentGivenName      string
+	Sex                  string
+	PlaceOfBirth         string
+	CommunityOfBirth     string
+	StateOfBirth         string
+	StateOfBirthCode     string
+	DateOfBirth          string
+	StatusOfForeigner    string
+	NationalityFull      string
+	PurposeOfStay        string
+	ENote                string
+	State                string
+	Community            string
+	Place                string
+	Street               string
+	HouseNumber          string
+	HouseLetter          string
+	Entrance             string
+	Floor                string
+	ApartmentNumber      string
+	AddressDate          string
+	AddressLabel         string
 }
 
 func (doc *IdDocument) GetFullName() string {
@@ -61,11 +61,11 @@ func (doc *IdDocument) GetFullName() string {
 func (doc *IdDocument) GetFullAddress() string {
 	var streetAndNumber = doc.Street
 
-	if doc.AddressNumber != "" || doc.AddressLetter != "" {
-		streetAndNumber += " " + doc.AddressNumber + doc.AddressLetter
+	if doc.HouseNumber != "" || doc.HouseLetter != "" {
+		streetAndNumber += " " + doc.HouseNumber + doc.HouseLetter
 
-		if doc.AddressApartmentNumber != "" {
-			streetAndNumber += "/" + doc.AddressApartmentNumber
+		if doc.ApartmentNumber != "" {
+			streetAndNumber += "/" + doc.ApartmentNumber
 		}
 	}
 
@@ -228,7 +228,7 @@ func (doc *IdDocument) BuildPdf() (data []byte, fileName string, retErr error) {
 	line(0)
 	moveY(9)
 	putData("Dokument izdaje:", doc.IssuingAuthority)
-	putData("Broj dokumenta:", doc.DocumentNumber)
+	putData("Broj dokumenta:", doc.DocRegNo)
 	putData("Datum izdavanja:", doc.IssuingDate)
 	putData("Važi do:", doc.ExpiryDate)
 

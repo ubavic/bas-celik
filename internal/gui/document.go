@@ -23,7 +23,7 @@ func pageID(doc *document.IdDocument) *fyne.Container {
 	personInformationGroup := widgets.NewGroup("Podaci o građaninu", nameF, birthRow, birthPlaceF, addressF, addressDateF)
 
 	issuedByF := widgets.NewField("Dokument izdaje", doc.IssuingAuthority, 10)
-	documentNumberF := widgets.NewField("Broj dokumenta", doc.DocumentNumber, 100)
+	documentNumberF := widgets.NewField("Broj dokumenta", doc.DocRegNo, 100)
 	issueDateF := widgets.NewField("Datum izdavanja", doc.IssuingDate, 100)
 	expiryDateF := widgets.NewField("Važi do", doc.ExpiryDate, 100)
 	docRow := container.New(layout.NewHBoxLayout(), documentNumberF, issueDateF, expiryDateF)

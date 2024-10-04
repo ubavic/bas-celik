@@ -27,7 +27,7 @@ func parseIdDocumentFile(data []byte, doc *document.IdDocument) error {
 	if err != nil {
 		return err
 	}
-	tlv.AssignField(fields, 1546, &doc.DocumentNumber)
+	tlv.AssignField(fields, 1546, &doc.DocRegNo)
 	tlv.AssignField(fields, 1547, &doc.DocumentType)
 	tlv.AssignField(fields, 1548, &doc.DocumentSerialNumber)
 	tlv.AssignField(fields, 1549, &doc.IssuingDate)
@@ -68,11 +68,11 @@ func parseIdResidenceFile(data []byte, doc *document.IdDocument) error {
 	tlv.AssignField(fields, 1569, &doc.Community)
 	tlv.AssignField(fields, 1570, &doc.Place)
 	tlv.AssignField(fields, 1571, &doc.Street)
-	tlv.AssignField(fields, 1572, &doc.AddressNumber)
-	tlv.AssignField(fields, 1573, &doc.AddressLetter)
-	tlv.AssignField(fields, 1574, &doc.AddressEntrance)
-	tlv.AssignField(fields, 1575, &doc.AddressFloor)
-	tlv.AssignField(fields, 1578, &doc.AddressApartmentNumber)
+	tlv.AssignField(fields, 1572, &doc.HouseNumber)
+	tlv.AssignField(fields, 1573, &doc.HouseLetter)
+	tlv.AssignField(fields, 1574, &doc.Entrance)
+	tlv.AssignField(fields, 1575, &doc.Floor)
+	tlv.AssignField(fields, 1578, &doc.ApartmentNumber)
 	tlv.AssignField(fields, 1580, &doc.AddressDate)
 	localization.FormatDate(&doc.AddressDate)
 
