@@ -50,7 +50,7 @@ func readVehicleCard(card VehicleCard) (*document.VehicleDocument, error) {
 	data := BER{}
 
 	for i := byte(0); i <= 3; i++ {
-		rsp, err := card.readFile([]byte{0xD0, i*0x10 + 0x01}, false)
+		rsp, err := card.readFile([]byte{0xD0, i*0x10 + 0x01})
 		if err != nil {
 			return nil, fmt.Errorf("reading document %d file: %w", i, err)
 		}
@@ -116,7 +116,7 @@ func readVehicleCard(card VehicleCard) (*document.VehicleDocument, error) {
 	return &doc, nil
 }
 
-func (card VehicleCard) readFile(name []byte, _ bool) ([]byte, error) {
+func (card VehicleCard) readFile(name []byte) ([]byte, error) {
 	output := make([]byte, 0)
 
 	_, err := card.selectFile(name)

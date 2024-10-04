@@ -11,7 +11,7 @@ func (card UnknownDocumentCard) Atr() Atr {
 	return card.atr
 }
 
-func (card UnknownDocumentCard) readFile(_ []byte, _ bool) ([]byte, error) {
+func (card UnknownDocumentCard) readFile(_ []byte) ([]byte, error) {
 	return nil, errors.New("not implemented")
 }
 

@@ -48,7 +48,7 @@ type Gemalto struct {
 func readGemaltoCard(card Gemalto) (*document.IdDocument, error) {
 	doc := document.IdDocument{}
 
-	rsp, err := card.readFile(ID_DOCUMENT_FILE_LOC, false)
+	rsp, err := card.readFile(ID_DOCUMENT_FILE_LOC)
 	if err != nil {
 		return nil, fmt.Errorf("reading document file: %w", err)
 	}
@@ -60,7 +60,7 @@ func readGemaltoCard(card Gemalto) (*document.IdDocument, error) {
 		return nil, fmt.Errorf("parsing document file: %w", err)
 	}
 
-	rsp, err = card.readFile(ID_PERSONAL_FILE_LOC, false)
+	rsp, err = card.readFile(ID_PERSONAL_FILE_LOC)
 	if err != nil {
 		return nil, fmt.Errorf("reading personal file: %w", err)
 	}
@@ -72,7 +72,7 @@ func readGemaltoCard(card Gemalto) (*document.IdDocument, error) {
 		return nil, fmt.Errorf("parsing personal file: %w", err)
 	}
 
-	rsp, err = card.readFile(ID_RESIDENCE_FILE_LOC, false)
+	rsp, err = card.readFile(ID_RESIDENCE_FILE_LOC)
 	if err != nil {
 		return nil, fmt.Errorf("reading residence file: %w", err)
 	}
@@ -84,12 +84,12 @@ func readGemaltoCard(card Gemalto) (*document.IdDocument, error) {
 		return nil, fmt.Errorf("parsing residence file: %w", err)
 	}
 
-	rsp, err = card.readFile(ID_PHOTO_FILE_LOC, true)
+	rsp, err = card.readFile(ID_PHOTO_FILE_LOC)
 	if err != nil {
 		return nil, fmt.Errorf("reading photo file: %w", err)
 	}
 
-	card.photoFile = rsp
+	card.photoFile = trim4b(rsp)
 
 	err = parseAndAssignIdPhotoFile(card.photoFile, &doc)
 	if err != nil {
@@ -114,7 +114,7 @@ func (card Gemalto) initCard() error {
 	return nil
 }
 
-func (card Gemalto) readFile(name []byte, trim bool) ([]byte, error) {
+func (card Gemalto) readFile(name []byte) ([]byte, error) {
 	output := make([]byte, 0)
 
 	_, err := card.selectFile(name, 4)
@@ -145,10 +145,6 @@ func (card Gemalto) readFile(name []byte, trim bool) ([]byte, error) {
 		length -= uint(len(data))
 	}
 
-	if trim {
-		return output[4:], nil
-	}
-
 	return output, nil
 }
 
@@ -168,7 +164,7 @@ func (card Gemalto) testGemalto() bool {
 		return false
 	}
 
-	_, err = card.readFile(ID_DOCUMENT_FILE_LOC, false)
+	_, err = card.readFile(ID_DOCUMENT_FILE_LOC)
 	return err == nil
 }
 

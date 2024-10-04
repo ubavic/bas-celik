@@ -26,7 +26,7 @@ var APOLLO_ATR = Atr([]byte{
 func readApolloCard(card Apollo) (*document.IdDocument, error) {
 	doc := document.IdDocument{}
 
-	rsp, err := card.readFile(ID_DOCUMENT_FILE_LOC, false)
+	rsp, err := card.readFile(ID_DOCUMENT_FILE_LOC)
 	if err != nil {
 		return nil, fmt.Errorf("reading document file: %w", err)
 	}
@@ -38,7 +38,7 @@ func readApolloCard(card Apollo) (*document.IdDocument, error) {
 		return nil, fmt.Errorf("parsing document file: %w", err)
 	}
 
-	rsp, err = card.readFile(ID_PERSONAL_FILE_LOC, false)
+	rsp, err = card.readFile(ID_PERSONAL_FILE_LOC)
 	if err != nil {
 		return nil, fmt.Errorf("reading personal file: %w", err)
 	}
@@ -50,7 +50,7 @@ func readApolloCard(card Apollo) (*document.IdDocument, error) {
 		return nil, fmt.Errorf("parsing personal file: %w", err)
 	}
 
-	rsp, err = card.readFile(ID_RESIDENCE_FILE_LOC, false)
+	rsp, err = card.readFile(ID_RESIDENCE_FILE_LOC)
 	if err != nil {
 		return nil, fmt.Errorf("reading residence file: %w", err)
 	}
@@ -62,12 +62,12 @@ func readApolloCard(card Apollo) (*document.IdDocument, error) {
 		return nil, fmt.Errorf("parsing residence file: %w", err)
 	}
 
-	rsp, err = card.readFile(ID_PHOTO_FILE_LOC, true)
+	rsp, err = card.readFile(ID_PHOTO_FILE_LOC)
 	if err != nil {
 		return nil, fmt.Errorf("reading photo file: %w", err)
 	}
 
-	card.photoFile = rsp
+	card.photoFile = trim4b(rsp)
 
 	err = parseAndAssignIdPhotoFile(card.photoFile, &doc)
 	if err != nil {
@@ -77,7 +77,7 @@ func readApolloCard(card Apollo) (*document.IdDocument, error) {
 	return &doc, nil
 }
 
-func (card Apollo) readFile(name []byte, trim bool) ([]byte, error) {
+func (card Apollo) readFile(name []byte) ([]byte, error) {
 	output := make([]byte, 0)
 
 	_, err := card.selectFile(name, 4)
@@ -95,11 +95,6 @@ func (card Apollo) readFile(name []byte, trim bool) ([]byte, error) {
 	}
 	length := uint(binary.LittleEndian.Uint16(data[4:]))
 	offset := uint(6)
-
-	if trim {
-		length -= 4
-		offset += 4
-	}
 
 	for length > 0 {
 		data, err := read(card.smartCard, offset, length)

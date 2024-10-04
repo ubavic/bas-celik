@@ -45,7 +45,7 @@ var MED_VARIABLE_ADMIN_FILE_LOC = []byte{0x0D, 0x04}
 func readMedicalCard(card MedicalCard) (*document.MedicalDocument, error) {
 	doc := document.MedicalDocument{}
 
-	rsp, err := card.readFile(MED_DOCUMENT_FILE_LOC, false)
+	rsp, err := card.readFile(MED_DOCUMENT_FILE_LOC)
 	if err != nil {
 		return nil, fmt.Errorf("reading document file: %w", err)
 	}
@@ -65,7 +65,7 @@ func readMedicalCard(card MedicalCard) (*document.MedicalDocument, error) {
 	localization.FormatDate(&doc.DateOfExpiry)
 	assignField(fields, 1560, &doc.PrintLanguage)
 
-	rsp, err = card.readFile(MED_FIXED_PERSONAL_FILE_LOC, false)
+	rsp, err = card.readFile(MED_FIXED_PERSONAL_FILE_LOC)
 	if err != nil {
 		return nil, fmt.Errorf("reading document file: %w", err)
 	}
@@ -86,7 +86,7 @@ func readMedicalCard(card MedicalCard) (*document.MedicalDocument, error) {
 	localization.FormatDate(&doc.DateOfBirth)
 	assignField(fields, 1569, &doc.InsurantNumber)
 
-	rsp, err = card.readFile(MED_VARIABLE_PERSONAL_FILE_LOC, false)
+	rsp, err = card.readFile(MED_VARIABLE_PERSONAL_FILE_LOC)
 	if err != nil {
 		return nil, fmt.Errorf("reading document file: %w", err)
 	}
@@ -99,7 +99,7 @@ func readMedicalCard(card MedicalCard) (*document.MedicalDocument, error) {
 	localization.FormatDate(&doc.ValidUntil)
 	assignBoolField(fields, 1587, &doc.PermanentlyValid)
 
-	rsp, err = card.readFile(MED_VARIABLE_ADMIN_FILE_LOC, false)
+	rsp, err = card.readFile(MED_VARIABLE_ADMIN_FILE_LOC)
 	if err != nil {
 		return nil, fmt.Errorf("reading document file: %w", err)
 	}
@@ -175,7 +175,7 @@ func descramble(fields map[uint][]byte, tag uint) {
 	fields[tag] = []byte{}
 }
 
-func (card MedicalCard) readFile(name []byte, _ bool) ([]byte, error) {
+func (card MedicalCard) readFile(name []byte) ([]byte, error) {
 	output := make([]byte, 0)
 
 	_, err := card.selectFile(name)
@@ -229,7 +229,7 @@ func (card MedicalCard) testMedicalCard() bool {
 		return false
 	}
 
-	rsp, err := card.readFile([]byte{0x0D, 0x01}, false)
+	rsp, err := card.readFile([]byte{0x0D, 0x01})
 	if err != nil {
 		return false
 	}

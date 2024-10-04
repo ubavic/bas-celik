@@ -23,7 +23,7 @@ type Card interface {
 // Represents a smart card with a document.
 // All types of documents that Bas Celik can read should satisfy this interface
 type CardDocument interface {
-	readFile([]byte, bool) ([]byte, error)
+	readFile([]byte) ([]byte, error)
 	initCard() error
 	Atr() Atr
 }
@@ -133,4 +133,13 @@ func responseOK(rsp []byte) bool {
 	}
 
 	return slices.Equal(rsp[len(rsp)-2:], []byte{0x90, 0x00})
+}
+
+// Trim four bytes from the start of the slice
+func trim4b(data []byte) []byte {
+	if len(data) > 4 {
+		return data[4:]
+	}
+
+	return data
 }
