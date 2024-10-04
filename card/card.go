@@ -30,10 +30,9 @@ type CardDocument interface {
 
 var ErrUnknownCard = errors.New("unknown card")
 
-// Reads a smart card and returns the associated document.
-// It determines the type of the card based on its ATR value and initializes
-// the appropriate card implementation for further reading.
-func ReadCard(sc Card) (doc.Document, error) {
+// Detects Card Document from card's ATR
+// Ambiguous cases are solved by reading specific card content
+func DetectCardDocument(sc Card) (CardDocument, error) {
 	var card CardDocument
 
 	smartCardStatus, err := sc.Status()
@@ -78,32 +77,37 @@ func ReadCard(sc Card) (doc.Document, error) {
 		card = VehicleCard{atr: atr, smartCard: sc}
 	} else {
 		card = UnknownDocumentCard{atr: atr, smartCard: sc}
-		return nil, ErrUnknownCard
+		return card, ErrUnknownCard
 	}
 
-	var d doc.Document
+	return card, nil
+}
 
-	err = card.initCard()
+// Initializes and reads a smart card and returns the associated document.
+func ReadCard(cardDocument CardDocument) (doc.Document, error) {
+	var document doc.Document
+
+	err := cardDocument.initCard()
 	if err != nil {
 		return nil, fmt.Errorf("initializing card: %w", err)
 	}
 
-	switch card := card.(type) {
+	switch card := cardDocument.(type) {
 	case Apollo:
-		d, err = readIdCard(card)
+		document, err = readIdCard(card)
 	case Gemalto:
-		d, err = readIdCard(card)
+		document, err = readIdCard(card)
 	case MedicalCard:
-		d, err = readMedicalCard(card)
+		document, err = readMedicalCard(card)
 	case VehicleCard:
-		d, err = readVehicleCard(card)
+		document, err = readVehicleCard(card)
 	}
 
 	if err != nil {
 		return nil, fmt.Errorf("reading card: %w", err)
 	}
 
-	return d, nil
+	return document, nil
 }
 
 // Reads binary data from the card starting from the specified offset and with the specified length.

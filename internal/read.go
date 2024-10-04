@@ -50,7 +50,12 @@ func readAndSave(pdfPath, jsonPath string, reader uint, getValidUntilFromRfzo bo
 
 	defer sCard.Disconnect(scard.LeaveCard)
 
-	doc, err := card.ReadCard(sCard)
+	cardDoc, err := card.DetectCardDocument(sCard)
+	if err != nil {
+		return fmt.Errorf("detecting card type: %w", err)
+	}
+
+	doc, err := card.ReadCard(cardDoc)
 	if err != nil {
 		return fmt.Errorf("reading card: %w", err)
 	}

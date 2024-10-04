@@ -71,17 +71,31 @@ func pooler(ctx *scard.Context) {
 			if err == nil {
 				if !loaded {
 					setStartPage("Čitam sa kartice...", "", nil)
-					doc, err := card.ReadCard(sCard)
+
+					cardDoc, err := card.DetectCardDocument(sCard)
 					if err != nil {
+						message := ""
+						if err == card.ErrUnknownCard {
+							message = "Nepoznata kartica: " + cardDoc.Atr().String()
+						}
 						setStartPage(
 							"Greška pri čitanju kartice",
-							"",
+							message,
 							fmt.Errorf("reading from card: %w", err))
 					} else {
-						setStatus("Dokument uspešno pročitan", nil)
-						setUI(doc)
-						loaded = true
+						doc, err := card.ReadCard(cardDoc)
+						if err != nil {
+							setStartPage(
+								"Greška pri čitanju kartice",
+								"",
+								fmt.Errorf("reading from card: %w", err))
+						} else {
+							setStatus("Dokument uspešno pročitan", nil)
+							setUI(doc)
+							loaded = true
+						}
 					}
+
 				}
 				_ = sCard.Disconnect(scard.LeaveCard)
 			} else {
