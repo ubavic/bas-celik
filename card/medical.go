@@ -18,7 +18,7 @@ type MedicalCard struct {
 }
 
 // Possibly the first version of the medical card. Newer version has the GEMALTO_ATR_2 for the ATR.
-var MEDICAL_ATR = Atr([]byte{
+var MEDICAL_ATR_1 = Atr([]byte{
 	0x3B, 0xF4, 0x13, 0x00, 0x00, 0x81, 0x31, 0xFE,
 	0x45, 0x52, 0x46, 0x5A, 0x4F, 0xED,
 })

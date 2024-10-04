@@ -63,7 +63,7 @@ func DetectCardDocument(sc Card) (CardDocument, error) {
 		card = Gemalto{atr: atr, smartCard: sc}
 	} else if atr.Is(APOLLO_ATR) {
 		card = Apollo{atr: atr, smartCard: sc}
-	} else if atr.Is(MEDICAL_ATR) {
+	} else if atr.Is(MEDICAL_ATR_1) {
 		card = MedicalCard{atr: atr, smartCard: sc}
 	} else if atr.Is(MEDICAL_ATR_2) {
 		card = MedicalCard{atr: atr, smartCard: sc}
