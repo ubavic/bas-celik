@@ -33,6 +33,8 @@ func parseIdDocumentFile(data []byte, doc *document.IdDocument) error {
 	tlv.AssignField(fields, 1549, &doc.IssuingDate)
 	tlv.AssignField(fields, 1550, &doc.ExpiryDate)
 	tlv.AssignField(fields, 1551, &doc.IssuingAuthority)
+	tlv.AssignField(fields, 1681, &doc.ChipSerialNumber)
+	tlv.AssignField(fields, 1682, &doc.DocumentName)
 	localization.FormatDate(&doc.IssuingDate)
 	localization.FormatDate(&doc.ExpiryDate)
 
@@ -54,6 +56,10 @@ func parseIdPersonalFile(data []byte, doc *document.IdDocument) error {
 	tlv.AssignField(fields, 1564, &doc.CommunityOfBirth)
 	tlv.AssignField(fields, 1565, &doc.StateOfBirth)
 	tlv.AssignField(fields, 1566, &doc.DateOfBirth)
+	tlv.AssignField(fields, 1567, &doc.StateOfBirthCode)
+	tlv.AssignField(fields, 1583, &doc.NationalityFull)
+	tlv.AssignField(fields, 1683, &doc.PurposeOfStay)
+	tlv.AssignField(fields, 1684, &doc.ENote)
 	localization.FormatDate(&doc.DateOfBirth)
 
 	return nil

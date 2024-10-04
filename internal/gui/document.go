@@ -12,6 +12,8 @@ import (
 )
 
 func pageID(doc *document.IdDocument) *fyne.Container {
+	var personalInformationGroupObjects, docGroupObjects []fyne.CanvasObject
+
 	nameF := widgets.NewField("Ime, ime roditelja, prezime", doc.GetFullName(), 350)
 	birthDateF := widgets.NewField("Datum rođenja", doc.DateOfBirth, 100)
 	sexF := widgets.NewField("Pol", doc.Sex, 50)
@@ -20,14 +22,33 @@ func pageID(doc *document.IdDocument) *fyne.Container {
 	birthPlaceF := widgets.NewField("Mesto rođenja, opština i država", doc.GetFullPlaceOfBirth(), 350)
 	addressF := widgets.NewField("Prebivalište i adresa stana", doc.GetFullAddress(), 350)
 	addressDateF := widgets.NewField("Datum promene adrese", doc.AddressDate, 10)
-	personInformationGroup := widgets.NewGroup("Podaci o građaninu", nameF, birthRow, birthPlaceF, addressF, addressDateF)
 
-	issuedByF := widgets.NewField("Dokument izdaje", doc.IssuingAuthority, 10)
+	personalInformationGroupObjects = []fyne.CanvasObject{nameF, birthRow, birthPlaceF, addressF, addressDateF}
+
+	if doc.DocumentType == document.ID_TYPE_IDENTITY_FOREIGNER {
+		personalInformationGroupObjects = append(personalInformationGroupObjects,
+			widgets.NewField("Nacionalnost", doc.NationalityFull, 200),
+			widgets.NewField("Status stranca", doc.StatusOfForeigner, 200))
+	} else if doc.DocumentType == document.ID_TYPE_RESIDENCE_PERMIT {
+		personalInformationGroupObjects = append(personalInformationGroupObjects,
+			widgets.NewField("Nacionalnost", doc.NationalityFull, 200),
+			widgets.NewField("Osnov boravka", doc.PurposeOfStay, 200),
+			widgets.NewField("Napomena", doc.ENote, 200))
+	}
+
+	personInformationGroup := widgets.NewGroup("Podaci o građaninu", personalInformationGroupObjects...)
+
+	if doc.DocumentType == document.ID_TYPE_RESIDENCE_PERMIT {
+		docGroupObjects = append(docGroupObjects, widgets.NewField("Naziv dokumenta", doc.DocumentName, 100))
+	}
+	docGroupObjects = append(docGroupObjects, widgets.NewField("Dokument izdaje", doc.IssuingAuthority, 10))
 	documentNumberF := widgets.NewField("Broj dokumenta", doc.DocRegNo, 100)
 	issueDateF := widgets.NewField("Datum izdavanja", doc.IssuingDate, 100)
 	expiryDateF := widgets.NewField("Važi do", doc.ExpiryDate, 100)
 	docRow := container.New(layout.NewHBoxLayout(), documentNumberF, issueDateF, expiryDateF)
-	docGroup := widgets.NewGroup("Podaci o dokumentu", issuedByF, docRow)
+	docGroupObjects = append(docGroupObjects, docRow)
+	docGroup := widgets.NewGroup("Podaci o dokumentu", docGroupObjects...)
+
 	colRight := container.New(layout.NewVBoxLayout(), personInformationGroup, docGroup)
 
 	imgWidget := canvas.NewImageFromImage(doc.Portrait)

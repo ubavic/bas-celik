@@ -16,6 +16,11 @@ import (
 	"github.com/ubavic/bas-celik/localization"
 )
 
+const ID_TYPE_APOLLO = ""
+const ID_TYPE_ID = "ID"
+const ID_TYPE_IDENTITY_FOREIGNER = "IF"
+const ID_TYPE_RESIDENCE_PERMIT = "RP"
+
 // Represents a document stored on a Serbian ID card.
 type IdDocument struct {
 	Portrait             image.Image
@@ -168,6 +173,10 @@ func (doc *IdDocument) BuildPdf() (data []byte, fileName string, retErr error) {
 	line(0.83)
 
 	pdf.SetXY(textLeftMargin+1.0, 68.5)
+	if doc.DocumentType == ID_TYPE_RESIDENCE_PERMIT {
+		pdf.SetY(64.95)
+	}
+
 	err = pdf.SetCharSpacing(-0.2)
 	if err != nil {
 		panic(err)
@@ -180,16 +189,26 @@ func (doc *IdDocument) BuildPdf() (data []byte, fileName string, retErr error) {
 	}
 
 	pdf.SetY(88)
+	if doc.DocumentType == ID_TYPE_RESIDENCE_PERMIT {
+		pdf.SetY(79.8)
+	}
+
 	line(0)
 
-	err = pdf.ImageFrom(doc.Portrait, leftMargin, 102.8, &gopdf.Rect{W: 119.9, H: 159})
+	imageY := 102.8
+	imageHeight := 159.0
+	if doc.DocumentType == ID_TYPE_RESIDENCE_PERMIT {
+		imageY = 86
+	}
+
+	err = pdf.ImageFrom(doc.Portrait, leftMargin, imageY, &gopdf.Rect{W: 119.9, H: imageHeight})
 	if err != nil {
 		panic(err)
 	}
 
 	pdf.SetLineWidth(0.48)
 	pdf.SetFillColor(255, 255, 255)
-	err = pdf.Rectangle(leftMargin, 102.8, 179, 262, "D", 0, 0)
+	err = pdf.Rectangle(leftMargin, imageY, 179, imageY+imageHeight, "D", 0, 0)
 	if err != nil {
 		panic(err)
 	}
@@ -197,27 +216,49 @@ func (doc *IdDocument) BuildPdf() (data []byte, fileName string, retErr error) {
 	pdf.SetFillColor(0, 0, 0)
 
 	pdf.SetY(276)
+	if doc.DocumentType == ID_TYPE_RESIDENCE_PERMIT {
+		pdf.SetY(250)
+	}
 	line(1.08)
 	moveY(8)
-	pdf.SetXY(textLeftMargin, 284)
+	pdf.SetX(textLeftMargin)
 	err = pdf.SetFontSize(11.1)
 	if err != nil {
 		panic(err)
 	}
-	cell("Podaci o građaninu")
+
+	if doc.DocumentType == ID_TYPE_RESIDENCE_PERMIT {
+		cell("Podaci o strancu")
+	} else {
+		cell("Podaci o građaninu")
+	}
+
 	moveY(16)
 	line(0)
 	moveY(9)
 
 	putData("Prezime:", doc.Surname)
 	putData("Ime:", doc.GivenName)
-	putData("Ime jednog roditelja:", doc.ParentGivenName)
+
+	if doc.DocumentType != ID_TYPE_RESIDENCE_PERMIT {
+		putData("Ime jednog roditelja:", doc.ParentGivenName)
+	} else {
+		putData("Državljanstvo:", doc.NationalityFull)
+	}
 	putData("Datum rođenja:", doc.DateOfBirth)
 	putData("Mesto rođenja, opština i država:", doc.GetFullPlaceOfBirth())
 	putData("Prebivalište:", doc.GetFullAddress())
 	putData("Datum promene adrese:", doc.AddressDate)
-	putData("JMBG:", doc.PersonalNumber)
+	if doc.DocumentType == ID_TYPE_RESIDENCE_PERMIT {
+		putData("Evidencijski broj stranca:", doc.PersonalNumber)
+	} else {
+		putData("JMBG:", doc.PersonalNumber)
+	}
 	putData("Pol:", doc.Sex)
+	if doc.DocumentType == ID_TYPE_RESIDENCE_PERMIT {
+		putData("Osnov boravka:", doc.PurposeOfStay)
+		putData("Napomena:", doc.ENote)
+	}
 
 	moveY(-8.67)
 	line(0)
@@ -227,6 +268,9 @@ func (doc *IdDocument) BuildPdf() (data []byte, fileName string, retErr error) {
 
 	line(0)
 	moveY(9)
+	if doc.DocumentType == ID_TYPE_RESIDENCE_PERMIT {
+		putData("Naziv dokumenta:", doc.DocumentName)
+	}
 	putData("Dokument izdaje:", doc.IssuingAuthority)
 	putData("Broj dokumenta:", doc.DocRegNo)
 	putData("Datum izdavanja:", doc.IssuingDate)
@@ -241,6 +285,10 @@ func (doc *IdDocument) BuildPdf() (data []byte, fileName string, retErr error) {
 	cell("Datum štampe: " + time.Now().Format("02.01.2006."))
 
 	pdf.SetY(730.6)
+	if doc.DocumentType == ID_TYPE_RESIDENCE_PERMIT {
+		pdf.SetY(735)
+	}
+
 	line(0.83)
 
 	err = pdf.SetFontSize(9)
@@ -248,16 +296,29 @@ func (doc *IdDocument) BuildPdf() (data []byte, fileName string, retErr error) {
 		panic(err)
 	}
 
-	pdf.SetXY(leftMargin, 739.7)
-	cell("1. U čipu lične karte, podaci o imenu i prezimenu imaoca lične karte ispisani su na nacionalnom pismu onako kako su")
-	pdf.SetXY(leftMargin, 749.9)
-	cell("ispisani na samom obrascu lične karte, dok su ostali podaci ispisani latiničkim pismom.")
-	pdf.SetXY(leftMargin, 759.7)
-	cell("2. Ako se ime lica sastoji od dve reči čija je ukupna dužina između 20 i 30 karaktera ili prezimena od dve reči čija je")
-	pdf.SetXY(leftMargin, 769.4)
-	cell("ukupna dužina između 30 i 36 karaktera, u čipu lične karte izdate pre 18.08.2014. godine, druga reč u imenu ili prezimenu")
-	pdf.SetXY(leftMargin, 779.1)
-	cell("skraćuje se na prva dva karaktera")
+	if doc.DocumentType == ID_TYPE_RESIDENCE_PERMIT {
+		pdf.SetXY(leftMargin, 741.7)
+		cell("1. U čipu dozvole za privremeni boravak i rad, podaci o imenu i prezimenu imaoca dozvole ispisani su onako")
+		pdf.SetXY(leftMargin, 751.9)
+		cell("kako su ispisani na samom obrascu dozvole za privremeni boravak latiničnim pismom.")
+		pdf.SetXY(leftMargin, 761.7)
+		cell("2. Ako se ime ili prezime stranca sastoji od dve ili više reči čija dužina prelazi 30 karaktera za ime,")
+		pdf.SetXY(leftMargin, 771.4)
+		cell("odnosno 36 karaktera za prezime u čip se upisuje puno ime stranca, a na obrascu dozvole za privremeni boravak")
+		pdf.SetXY(leftMargin, 781.1)
+		cell("se upisuje do 30 karaktera za ime, odnosno 36 karaktera za prezime.")
+	} else {
+		pdf.SetXY(leftMargin, 739.7)
+		cell("1. U čipu lične karte, podaci o imenu i prezimenu imaoca lične karte ispisani su na nacionalnom pismu onako kako su")
+		pdf.SetXY(leftMargin, 749.9)
+		cell("ispisani na samom obrascu lične karte, dok su ostali podaci ispisani latiničkim pismom.")
+		pdf.SetXY(leftMargin, 759.7)
+		cell("2. Ako se ime lica sastoji od dve reči čija je ukupna dužina između 20 i 30 karaktera ili prezimena od dve reči čija je")
+		pdf.SetXY(leftMargin, 769.4)
+		cell("ukupna dužina između 30 i 36 karaktera, u čipu lične karte izdate pre 18.08.2014. godine, druga reč u imenu ili prezimenu")
+		pdf.SetXY(leftMargin, 779.1)
+		cell("skraćuje se na prva dva karaktera")
+	}
 
 	pdf.SetY(794.5)
 	line(0)

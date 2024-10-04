@@ -104,14 +104,36 @@ func (card Gemalto) initCard() error {
 	apu := buildAPDU(0x00, 0xA4, 0x04, 0x00, data, 0)
 	rsp, err := card.smartCard.Transmit(apu)
 	if err != nil {
-		return fmt.Errorf("initializing card: %w", err)
+		return fmt.Errorf("initializing ID card: %w", err)
 	}
 
-	if !responseOK(rsp) {
-		return fmt.Errorf("initializing card: response not OK (%X)", rsp)
+	if responseOK(rsp) {
+		return nil
 	}
 
-	return nil
+	data = []byte{0xF3, 0x81, 0x00, 0x00, 0x02, 0x53, 0x45, 0x52, 0x49, 0x46, 0x01}
+	apu = buildAPDU(0x00, 0xA4, 0x04, 0x00, data, 0)
+	rsp, err = card.smartCard.Transmit(apu)
+	if err != nil {
+		return fmt.Errorf("initializing IF card: %w", err)
+	}
+
+	if responseOK(rsp) {
+		return nil
+	}
+
+	data = []byte{0xF3, 0x81, 0x00, 0x00, 0x02, 0x53, 0x45, 0x52, 0x52, 0x50, 0x01}
+	apu = buildAPDU(0x00, 0xA4, 0x04, 0x00, data, 0)
+	rsp, err = card.smartCard.Transmit(apu)
+	if err != nil {
+		return fmt.Errorf("initializing RP card: %w", err)
+	}
+
+	if responseOK(rsp) {
+		return nil
+	}
+
+	return fmt.Errorf("initializing identity document card: unknown card type")
 }
 
 func (card Gemalto) readFile(name []byte) ([]byte, error) {
