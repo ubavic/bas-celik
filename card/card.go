@@ -24,6 +24,7 @@ type Card interface {
 // All types of documents that Bas Celik can read should satisfy this interface
 type CardDocument interface {
 	readFile([]byte, bool) ([]byte, error)
+	initCard() error
 	Atr() Atr
 }
 
@@ -82,13 +83,7 @@ func ReadCard(sc Card) (doc.Document, error) {
 
 	var d doc.Document
 
-	switch card := card.(type) {
-	case Gemalto:
-		err = card.initCard()
-	case VehicleCard:
-		err = card.initCard()
-	}
-
+	err = card.initCard()
 	if err != nil {
 		return nil, fmt.Errorf("initializing card: %w", err)
 	}

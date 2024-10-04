@@ -242,3 +242,7 @@ func (card MedicalCard) testMedicalCard() bool {
 func (card MedicalCard) Atr() Atr {
 	return card.atr
 }
+
+func (card MedicalCard) initCard() error {
+	return nil
+}

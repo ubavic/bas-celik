@@ -69,3 +69,7 @@ func (card Apollo) selectFile(name []byte, ne uint) ([]byte, error) {
 func (card Apollo) Atr() Atr {
 	return card.atr
 }
+
+func (card Apollo) initCard() error {
+	return nil
+}
