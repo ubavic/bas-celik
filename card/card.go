@@ -4,7 +4,7 @@
 package card
 
 import (
-	"encoding/hex"
+	"errors"
 	"fmt"
 	"slices"
 
@@ -17,14 +17,17 @@ import (
 // but it also allows virtual cards which can be useful for testing.
 type Card interface {
 	Status() (*scard.CardStatus, error)
-	Transmit(cmd []byte) ([]byte, error)
+	Transmit([]byte) ([]byte, error)
 }
 
 // Represents a smart card with a document.
 // All types of documents that Bas Celik can read should satisfy this interface
 type CardDocument interface {
 	readFile([]byte, bool) ([]byte, error)
+	Atr() Atr
 }
+
+var ErrUnknownCard = errors.New("unknown card")
 
 // Reads a smart card and returns the associated document.
 // It determines the type of the card based on its ATR value and initializes
@@ -37,41 +40,44 @@ func ReadCard(sc Card) (doc.Document, error) {
 		return nil, fmt.Errorf("reading card %w", err)
 	}
 
-	if slices.Equal(smartCardStatus.Atr, GEMALTO_ATR_1) {
+	atr := Atr(smartCardStatus.Atr)
+
+	if atr.Is(GEMALTO_ATR_1) {
 		tempIdCard := Gemalto{smartCard: sc}
 		if tempIdCard.testGemalto() {
-			card = Gemalto{smartCard: sc}
+			card = Gemalto{atr: atr, smartCard: sc}
 		} else {
-			card = VehicleCard{smartCard: sc}
+			card = VehicleCard{atr: atr, smartCard: sc}
 		}
-	} else if slices.Equal(smartCardStatus.Atr, GEMALTO_ATR_2) || slices.Equal(smartCardStatus.Atr, GEMALTO_ATR_3) {
+	} else if atr.Is(GEMALTO_ATR_2) || atr.Is(GEMALTO_ATR_3) {
 		tempIdCard := Gemalto{smartCard: sc}
 		tmpMedCard := MedicalCard{smartCard: sc}
 		if tempIdCard.testGemalto() {
 			card = Gemalto{smartCard: sc}
 		} else if tmpMedCard.testMedicalCard() {
-			card = MedicalCard{smartCard: sc}
+			card = MedicalCard{atr: atr, smartCard: sc}
 		} else {
-			card = VehicleCard{smartCard: sc}
+			card = VehicleCard{atr: atr, smartCard: sc}
 		}
-	} else if slices.Equal(smartCardStatus.Atr, GEMALTO_ATR_4) {
-		card = Gemalto{smartCard: sc}
-	} else if slices.Equal(smartCardStatus.Atr, APOLLO_ATR) {
-		card = Apollo{smartCard: sc}
-	} else if slices.Equal(smartCardStatus.Atr, MEDICAL_ATR) {
-		card = MedicalCard{smartCard: sc}
-	} else if slices.Equal(smartCardStatus.Atr, MEDICAL_ATR_2) {
-		card = MedicalCard{smartCard: sc}
-	} else if slices.Equal(smartCardStatus.Atr, VEHICLE_ATR_0) {
-		card = VehicleCard{smartCard: sc}
-	} else if slices.Equal(smartCardStatus.Atr, VEHICLE_ATR_2) {
-		card = VehicleCard{smartCard: sc}
-	} else if slices.Equal(smartCardStatus.Atr, VEHICLE_ATR_3) {
-		card = VehicleCard{smartCard: sc}
-	} else if slices.Equal(smartCardStatus.Atr, VEHICLE_ATR_4) {
-		card = VehicleCard{smartCard: sc}
+	} else if atr.Is(GEMALTO_ATR_4) {
+		card = Gemalto{atr: atr, smartCard: sc}
+	} else if atr.Is(APOLLO_ATR) {
+		card = Apollo{atr: atr, smartCard: sc}
+	} else if atr.Is(MEDICAL_ATR) {
+		card = MedicalCard{atr: atr, smartCard: sc}
+	} else if atr.Is(MEDICAL_ATR_2) {
+		card = MedicalCard{atr: atr, smartCard: sc}
+	} else if atr.Is(VEHICLE_ATR_0) {
+		card = VehicleCard{atr: atr, smartCard: sc}
+	} else if atr.Is(VEHICLE_ATR_2) {
+		card = VehicleCard{atr: atr, smartCard: sc}
+	} else if atr.Is(VEHICLE_ATR_3) {
+		card = VehicleCard{atr: atr, smartCard: sc}
+	} else if atr.Is(VEHICLE_ATR_4) {
+		card = VehicleCard{atr: atr, smartCard: sc}
 	} else {
-		return nil, fmt.Errorf("unknown card type: %s", hex.EncodeToString(smartCardStatus.Atr))
+		card = UnknownDocumentCard{atr: atr, smartCard: sc}
+		return nil, ErrUnknownCard
 	}
 
 	var d doc.Document

@@ -13,14 +13,15 @@ import (
 
 // Represents a smart card that holds a Serbian medical insurance document.
 type MedicalCard struct {
+	atr       Atr
 	smartCard Card
 }
 
 // Possibly the first version of the medical card. Newer version has the GEMALTO_ATR_2 for the ATR.
-var MEDICAL_ATR = []byte{
+var MEDICAL_ATR = Atr([]byte{
 	0x3B, 0xF4, 0x13, 0x00, 0x00, 0x81, 0x31, 0xFE,
 	0x45, 0x52, 0x46, 0x5A, 0x4F, 0xED,
-}
+})
 
 // Available since March 2023?
 var MEDICAL_ATR_2 = []byte{
@@ -236,4 +237,8 @@ func (card MedicalCard) testMedicalCard() bool {
 	descramble(fields, 1553)
 
 	return strings.Compare(string(fields[1553]), "Републички фонд за здравствено осигурање") == 0
+}
+
+func (card MedicalCard) Atr() Atr {
+	return card.atr
 }

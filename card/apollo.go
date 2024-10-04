@@ -8,13 +8,14 @@ import (
 // Apollo is the type of the first smart ID cards.
 // Apollo cards are not manufactured anymore, and this code could be removed in the future.
 type Apollo struct {
+	atr       Atr
 	smartCard Card
 }
 
-var APOLLO_ATR = []byte{
+var APOLLO_ATR = Atr([]byte{
 	0x3B, 0xB9, 0x18, 0x00, 0x81, 0x31, 0xFE, 0x9E, 0x80,
 	0x73, 0xFF, 0x61, 0x40, 0x83, 0x00, 0x00, 0x00, 0xDF,
-}
+})
 
 func (card Apollo) readFile(name []byte, trim bool) ([]byte, error) {
 	output := make([]byte, 0)
@@ -63,4 +64,8 @@ func (card Apollo) selectFile(name []byte, ne uint) ([]byte, error) {
 	}
 
 	return rsp, nil
+}
+
+func (card Apollo) Atr() Atr {
+	return card.atr
 }
