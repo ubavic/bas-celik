@@ -21,10 +21,12 @@ type IdDocument struct {
 	Portrait               image.Image
 	DocumentNumber         string
 	DocumentType           string
-	DocumentSerialNumber   string
 	IssuingDate            string
 	ExpiryDate             string
 	IssuingAuthority       string
+	DocumentSerialNumber   string
+	ChipSerialNumber       string
+	DocumentName           string
 	PersonalNumber         string
 	Surname                string
 	GivenName              string
@@ -35,6 +37,10 @@ type IdDocument struct {
 	StateOfBirth           string
 	StateOfBirthCode       string
 	DateOfBirth            string
+	StatusOfForeigner      string
+	NationalityFull        string
+	PurposeOfStay          string
+	ENote                  string
 	State                  string
 	Community              string
 	Place                  string
@@ -45,6 +51,7 @@ type IdDocument struct {
 	AddressFloor           string
 	AddressApartmentNumber string
 	AddressDate            string
+	AddressLabel           string
 }
 
 func (doc *IdDocument) GetFullName() string {
