@@ -21,23 +21,10 @@ var ID_RESIDENCE_FILE_LOC = []byte{0x0F, 0x04}
 // Location of the the portrait. Portrait is encoded as JPEG.
 var ID_PHOTO_FILE_LOC = []byte{0x0F, 0x06}
 
-// Represents a smart card that contains a Serbian ID document.
-type IdDocument interface {
-	Apollo | Gemalto
-	CardDocument
-}
-
-func readIdCard[Id IdDocument](card Id) (*document.IdDocument, error) {
-	rsp, err := card.readFile(ID_DOCUMENT_FILE_LOC, false)
+func parseIdDocumentFile(data []byte, doc *document.IdDocument) error {
+	fields, err := parseTLV(data)
 	if err != nil {
-		return nil, fmt.Errorf("reading document file: %w", err)
-	}
-
-	doc := document.IdDocument{}
-
-	fields, err := parseTLV(rsp)
-	if err != nil {
-		return nil, err
+		return err
 	}
 	assignField(fields, 1546, &doc.DocumentNumber)
 	assignField(fields, 1547, &doc.DocumentType)
@@ -48,15 +35,15 @@ func readIdCard[Id IdDocument](card Id) (*document.IdDocument, error) {
 	localization.FormatDate(&doc.IssuingDate)
 	localization.FormatDate(&doc.ExpiryDate)
 
-	rsp, err = card.readFile(ID_PERSONAL_FILE_LOC, false)
+	return nil
+}
+
+func parseIdPersonalFile(data []byte, doc *document.IdDocument) error {
+	fields, err := parseTLV(data)
 	if err != nil {
-		return nil, fmt.Errorf("reading personal file: %w", err)
+		return err
 	}
 
-	fields, err = parseTLV(rsp)
-	if err != nil {
-		return nil, err
-	}
 	assignField(fields, 1558, &doc.PersonalNumber)
 	assignField(fields, 1559, &doc.Surname)
 	assignField(fields, 1560, &doc.GivenName)
@@ -68,14 +55,13 @@ func readIdCard[Id IdDocument](card Id) (*document.IdDocument, error) {
 	assignField(fields, 1566, &doc.DateOfBirth)
 	localization.FormatDate(&doc.DateOfBirth)
 
-	rsp, err = card.readFile(ID_RESIDENCE_FILE_LOC, false)
-	if err != nil {
-		return nil, fmt.Errorf("reading residence file: %w", err)
-	}
+	return nil
+}
 
-	fields, err = parseTLV(rsp)
+func parseIdResidenceFile(data []byte, doc *document.IdDocument) error {
+	fields, err := parseTLV(data)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	assignField(fields, 1568, &doc.State)
 	assignField(fields, 1569, &doc.Community)
@@ -89,15 +75,16 @@ func readIdCard[Id IdDocument](card Id) (*document.IdDocument, error) {
 	assignField(fields, 1580, &doc.AddressDate)
 	localization.FormatDate(&doc.AddressDate)
 
-	rsp, err = card.readFile(ID_PHOTO_FILE_LOC, true)
+	return nil
+}
+
+func parseAndAssignIdPhotoFile(data []byte, doc *document.IdDocument) error {
+	img, _, err := image.Decode(bytes.NewReader(data))
 	if err != nil {
-		return nil, fmt.Errorf("reading photo file: %w", err)
+		return fmt.Errorf("decoding photo file: %w", err)
 	}
 
-	doc.Portrait, _, err = image.Decode(bytes.NewReader(rsp))
-	if err != nil {
-		return nil, fmt.Errorf("decoding photo file: %w", err)
-	}
+	doc.Portrait = img
 
-	return &doc, nil
+	return nil
 }
