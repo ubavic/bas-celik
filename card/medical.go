@@ -59,11 +59,11 @@ func readMedicalCard(card MedicalCard) (*document.MedicalDocument, error) {
 	assignField(fields, 1553, &doc.InsurerName)
 	assignField(fields, 1554, &doc.InsurerID)
 	assignField(fields, 1555, &doc.CardId)
-	assignField(fields, 1557, &doc.CardIssueDate)
-	localization.FormatDate(&doc.CardIssueDate)
-	assignField(fields, 1558, &doc.CardExpiryDate)
-	localization.FormatDate(&doc.CardExpiryDate)
-	assignField(fields, 1560, &doc.Language)
+	assignField(fields, 1557, &doc.DateOfIssue)
+	localization.FormatDate(&doc.DateOfIssue)
+	assignField(fields, 1558, &doc.DateOfExpiry)
+	localization.FormatDate(&doc.DateOfExpiry)
+	assignField(fields, 1560, &doc.PrintLanguage)
 
 	rsp, err = card.readFile(MED_FIXED_PERSONAL_FILE_LOC, false)
 	if err != nil {
@@ -75,16 +75,16 @@ func readMedicalCard(card MedicalCard) (*document.MedicalDocument, error) {
 		return nil, err
 	}
 	descramble(fields, 1570)
-	assignField(fields, 1570, &doc.SurnameCyrl)
+	assignField(fields, 1570, &doc.FamilyName)
 	descramble(fields, 1571)
-	assignField(fields, 1571, &doc.Surname)
+	assignField(fields, 1571, &doc.FamilyNameLatin)
 	descramble(fields, 1572)
-	assignField(fields, 1572, &doc.GivenNameCyrl)
+	assignField(fields, 1572, &doc.GivenName)
 	descramble(fields, 1573)
-	assignField(fields, 1573, &doc.GivenName)
+	assignField(fields, 1573, &doc.GivenNameLatin)
 	assignField(fields, 1574, &doc.DateOfBirth)
 	localization.FormatDate(&doc.DateOfBirth)
-	assignField(fields, 1569, &doc.InsuranceNumber)
+	assignField(fields, 1569, &doc.InsurantNumber)
 
 	rsp, err = card.readFile(MED_VARIABLE_PERSONAL_FILE_LOC, false)
 	if err != nil {
@@ -109,54 +109,54 @@ func readMedicalCard(card MedicalCard) (*document.MedicalDocument, error) {
 		return nil, err
 	}
 	descramble(fields, 1601)
-	assignField(fields, 1601, &doc.ParentNameCyrl)
+	assignField(fields, 1601, &doc.ParentName)
 	descramble(fields, 1602)
-	assignField(fields, 1602, &doc.ParentName)
+	assignField(fields, 1602, &doc.ParentNameLatin)
 	if string(fields[1603]) == "01" {
-		doc.Sex = "Mушко"
+		doc.Gender = "Mушко"
 	} else {
-		doc.Sex = "Женско"
+		doc.Gender = "Женско"
 	}
 	assignField(fields, 1604, &doc.PersonalNumber)
 	descramble(fields, 1605)
-	assignField(fields, 1605, &doc.AddressStreet)
+	assignField(fields, 1605, &doc.Street)
 	descramble(fields, 1607)
-	assignField(fields, 1607, &doc.AddressMunicipality)
+	assignField(fields, 1607, &doc.Municipality)
 	descramble(fields, 1608)
-	assignField(fields, 1608, &doc.AddressTown)
+	assignField(fields, 1608, &doc.Place)
 	descramble(fields, 1610)
-	assignField(fields, 1610, &doc.AddressNumber)
+	assignField(fields, 1610, &doc.Number)
 	descramble(fields, 1612)
-	assignField(fields, 1612, &doc.AddressApartmentNumber)
-	assignField(fields, 1614, &doc.InsuranceReason)
+	assignField(fields, 1612, &doc.Apartment)
+	assignField(fields, 1614, &doc.InsuranceBasisRZZO)
 	descramble(fields, 1615)
 	assignField(fields, 1615, &doc.InsuranceDescription)
 	descramble(fields, 1616)
-	assignField(fields, 1616, &doc.InsuranceHolderRelation)
-	assignBoolField(fields, 1617, &doc.InsuranceHolderIsFamilyMember)
-	assignField(fields, 1618, &doc.InsuranceHolderPersonalNumber)
-	assignField(fields, 1619, &doc.InsuranceHolderInsuranceNumber)
+	assignField(fields, 1616, &doc.CarrierRelationship)
+	assignBoolField(fields, 1617, &doc.CarrierFamilyMember)
+	assignField(fields, 1618, &doc.CarrierIdNumber)
+	assignField(fields, 1619, &doc.CarrierInsurantNumber)
 	descramble(fields, 1620)
-	assignField(fields, 1620, &doc.InsuranceHolderSurnameCyrl)
+	assignField(fields, 1620, &doc.CarrierFamilyName)
 	descramble(fields, 1621)
-	assignField(fields, 1621, &doc.InsuranceHolderSurname)
+	assignField(fields, 1621, &doc.CarrierFamilyNameLatin)
 	descramble(fields, 1622)
-	assignField(fields, 1622, &doc.InsuranceHolderNameCyrl)
+	assignField(fields, 1622, &doc.CarrierGivenName)
 	descramble(fields, 1623)
-	assignField(fields, 1623, &doc.InsuranceHolderName)
+	assignField(fields, 1623, &doc.CarrierGivenNameLatin)
 	assignField(fields, 1624, &doc.InsuranceStartDate)
 	localization.FormatDate(&doc.InsuranceStartDate)
 	descramble(fields, 1626)
-	assignField(fields, 1626, &doc.AddressState)
+	assignField(fields, 1626, &doc.Country)
 	descramble(fields, 1630)
-	assignField(fields, 1630, &doc.ObligeeName)
+	assignField(fields, 1630, &doc.TaxpayerName)
 	descramble(fields, 1631)
-	assignField(fields, 1631, &doc.ObligeePlace)
-	assignField(fields, 1632, &doc.ObligeeIdNumber)
-	if len(doc.ObligeeIdNumber) == 0 {
-		assignField(fields, 1633, &doc.ObligeeIdNumber)
+	assignField(fields, 1631, &doc.TaxpayerResidence)
+	assignField(fields, 1632, &doc.TaxpayerIdNumber)
+	if len(doc.TaxpayerIdNumber) == 0 {
+		assignField(fields, 1633, &doc.TaxpayerIdNumber)
 	}
-	assignField(fields, 1634, &doc.ObligeeActivity)
+	assignField(fields, 1634, &doc.TaxpayerActivityCode)
 
 	return &doc, nil
 }

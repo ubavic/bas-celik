@@ -30,72 +30,72 @@ var ErrNoSubmatchFound = errors.New("no submatch found")
 
 // Represents a document stored on a Serbian public medical insurance card.
 type MedicalDocument struct {
-	InsurerName                    string
-	InsurerID                      string
-	CardId                         string
-	CardIssueDate                  string
-	CardExpiryDate                 string
-	ChipSerialNumber               string
-	Language                       string
-	PersonalNumber                 string
-	Surname                        string
-	GivenName                      string
-	ParentName                     string
-	SurnameCyrl                    string
-	GivenNameCyrl                  string
-	ParentNameCyrl                 string
-	Sex                            string
-	InsuranceNumber                string
-	DateOfBirth                    string
-	AddressApartmentNumber         string
-	AddressNumber                  string
-	AddressStreet                  string
-	AddressTown                    string
-	AddressMunicipality            string
-	AddressState                   string
-	ValidUntil                     string
-	PermanentlyValid               bool
-	InsuranceHolderName            string
-	InsuranceHolderSurname         string
-	InsuranceHolderNameCyrl        string
-	InsuranceHolderSurnameCyrl     string
-	InsuranceHolderPersonalNumber  string
-	InsuranceHolderInsuranceNumber string
-	InsuranceHolderIsFamilyMember  bool
-	InsuranceHolderRelation        string
-	InsuranceReason                string
-	InsuranceStartDate             string
-	InsuranceDescription           string
-	ObligeeName                    string
-	ObligeePlace                   string
-	ObligeeRegistrationNumber      string
-	ObligeeIdNumber                string
-	ObligeeActivity                string
+	InsurerName            string
+	InsurerID              string
+	CardId                 string
+	DateOfIssue            string
+	DateOfExpiry           string
+	ChipSerialNumber       string
+	PrintLanguage          string
+	PersonalNumber         string
+	FamilyNameLatin        string
+	GivenNameLatin         string
+	ParentNameLatin        string
+	FamilyName             string
+	GivenName              string
+	ParentName             string
+	Gender                 string
+	InsurantNumber         string
+	DateOfBirth            string
+	Apartment              string
+	Number                 string
+	Street                 string
+	Place                  string
+	Municipality           string
+	Country                string
+	ValidUntil             string
+	PermanentlyValid       bool
+	CarrierGivenNameLatin  string
+	CarrierFamilyNameLatin string
+	CarrierGivenName       string
+	CarrierFamilyName      string
+	CarrierIdNumber        string
+	CarrierInsurantNumber  string
+	CarrierFamilyMember    bool
+	CarrierRelationship    string
+	InsuranceBasisRZZO     string
+	InsuranceStartDate     string
+	InsuranceDescription   string
+	TaxpayerName           string
+	TaxpayerResidence      string
+	TaxpayerNumber         string
+	TaxpayerIdNumber       string
+	TaxpayerActivityCode   string
 }
 
 func (doc *MedicalDocument) GetFullName() string {
-	return localization.JoinWithComma(doc.GivenName, doc.ParentName, doc.Surname)
+	return localization.JoinWithComma(doc.GivenNameLatin, doc.ParentNameLatin, doc.FamilyNameLatin)
 }
 
 func (doc *MedicalDocument) GetFullStreetAddress() string {
 	var address strings.Builder
 
-	address.WriteString(doc.AddressStreet)
-	if len(doc.AddressNumber) > 0 {
+	address.WriteString(doc.Street)
+	if len(doc.Number) > 0 {
 		address.WriteString(", Број: ")
-		address.WriteString(doc.AddressNumber)
+		address.WriteString(doc.Number)
 	}
 
-	if len(doc.AddressApartmentNumber) > 0 {
+	if len(doc.Apartment) > 0 {
 		address.WriteString(" Стан: ")
-		address.WriteString(doc.AddressApartmentNumber)
+		address.WriteString(doc.Apartment)
 	}
 
 	return address.String()
 }
 
 func (doc *MedicalDocument) GetFullPlaceAddress() string {
-	return localization.JoinWithComma(doc.AddressTown, doc.AddressMunicipality, doc.AddressState)
+	return localization.JoinWithComma(doc.Place, doc.Municipality, doc.Country)
 }
 
 func (doc *MedicalDocument) BuildPdf() (data []byte, fileName string, retErr error) {
@@ -183,11 +183,11 @@ func (doc *MedicalDocument) BuildPdf() (data []byte, fileName string, retErr err
 	pdf.SetY(68)
 	section("Општи подаци о осигуранику")
 
-	putData("Име:", doc.GivenNameCyrl+" ("+doc.GivenName+")")
+	putData("Име:", doc.GivenName+" ("+doc.GivenNameLatin+")")
 
-	putData("Име једног родитеља:", doc.ParentNameCyrl+" ("+doc.ParentName+")")
+	putData("Име једног родитеља:", doc.ParentName+" ("+doc.ParentNameLatin+")")
 
-	putData("Презиме:", doc.SurnameCyrl+" ("+doc.Surname+")")
+	putData("Презиме:", doc.FamilyName+" ("+doc.FamilyNameLatin+")")
 
 	putData("Датум рођења:", doc.DateOfBirth)
 
@@ -195,19 +195,19 @@ func (doc *MedicalDocument) BuildPdf() (data []byte, fileName string, retErr err
 
 	putData("Улица:", doc.GetFullStreetAddress())
 
-	putData("Пол:", doc.Sex)
+	putData("Пол:", doc.Gender)
 
-	putData("Језик:", doc.Language)
+	putData("Језик:", doc.PrintLanguage)
 
-	putData("ЛБО:", doc.InsuranceNumber)
+	putData("ЛБО:", doc.InsurantNumber)
 
 	putData("ЈМБГ:", doc.PersonalNumber)
 
 	section("Подаци о картици здравственог осигурања")
 
-	putData("Датум издавања:", doc.CardIssueDate)
+	putData("Датум издавања:", doc.DateOfIssue)
 
-	putData("Датум важења:", doc.CardExpiryDate)
+	putData("Датум важења:", doc.DateOfExpiry)
 
 	putData("Оверена до:", doc.ValidUntil)
 
@@ -215,21 +215,21 @@ func (doc *MedicalDocument) BuildPdf() (data []byte, fileName string, retErr err
 
 	section("Подаци о носиоцу осигурања")
 
-	putData("Име:", doc.InsuranceHolderNameCyrl+" ("+doc.InsuranceHolderName+")")
+	putData("Име:", doc.CarrierGivenName+" ("+doc.CarrierGivenNameLatin+")")
 
-	putData("Презиме:", doc.InsuranceHolderSurnameCyrl+" ("+doc.InsuranceHolderSurnameCyrl+")")
+	putData("Презиме:", doc.CarrierFamilyName+" ("+doc.CarrierFamilyName+")")
 
-	putData("ЛБО:", doc.InsuranceHolderInsuranceNumber)
+	putData("ЛБО:", doc.CarrierInsurantNumber)
 
-	putData("ЈМБГ:", doc.InsuranceHolderPersonalNumber)
+	putData("ЈМБГ:", doc.CarrierIdNumber)
 
-	putData("Члан породице:", localization.FormatYesNo(doc.InsuranceHolderIsFamilyMember, localization.Cyrillic))
+	putData("Члан породице:", localization.FormatYesNo(doc.CarrierFamilyMember, localization.Cyrillic))
 
-	putData("Сродство:", doc.InsuranceHolderRelation)
+	putData("Сродство:", doc.CarrierRelationship)
 
 	section("Подаци о осигурању")
 
-	putData("Основ осигурања:", doc.InsuranceReason)
+	putData("Основ осигурања:", doc.InsuranceBasisRZZO)
 
 	putData("Датум почетка осигурања:", doc.InsuranceStartDate)
 
@@ -237,20 +237,20 @@ func (doc *MedicalDocument) BuildPdf() (data []byte, fileName string, retErr err
 
 	section("Подаци о обвезнику плаћања доприноса")
 
-	putData("Назив:", doc.ObligeeName)
+	putData("Назив:", doc.TaxpayerName)
 
-	putData("Седиште:", doc.ObligeePlace)
+	putData("Седиште:", doc.TaxpayerResidence)
 
-	putData("Регистарски број:", doc.ObligeeRegistrationNumber)
+	putData("Регистарски број:", doc.TaxpayerNumber)
 
-	putData("ПИБ/ЈМБГ:", doc.ObligeeIdNumber)
+	putData("ПИБ/ЈМБГ:", doc.TaxpayerIdNumber)
 
-	putData("Делатност:", doc.ObligeeActivity)
+	putData("Делатност:", doc.TaxpayerActivityCode)
 
-	fileName = strings.ToLower(doc.GivenName + "_" + doc.Surname + ".pdf")
+	fileName = strings.ToLower(doc.GivenNameLatin + "_" + doc.FamilyNameLatin + ".pdf")
 
 	pdf.SetInfo(gopdf.PdfInfo{
-		Title:        doc.GivenName + " " + doc.Surname,
+		Title:        doc.GivenNameLatin + " " + doc.FamilyNameLatin,
 		Author:       "Baš Čelik",
 		Subject:      "Lična karta",
 		CreationDate: time.Now(),
@@ -268,11 +268,11 @@ func (doc *MedicalDocument) UpdateValidUntilDateFromRfzo() error {
 		return ErrInvalidCardNo
 	}
 
-	if len([]rune(doc.InsuranceNumber)) != 11 {
+	if len([]rune(doc.InsurantNumber)) != 11 {
 		return ErrInvalidInsuranceNo
 	}
 
-	resp, err := http.PostForm(rfzoServiceUrl, url.Values{"zk": {doc.CardId}, "lbo": {doc.InsuranceNumber}})
+	resp, err := http.PostForm(rfzoServiceUrl, url.Values{"zk": {doc.CardId}, "lbo": {doc.InsurantNumber}})
 	if err != nil {
 		return fmt.Errorf("posting: %w", err)
 	}
