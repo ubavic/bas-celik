@@ -108,7 +108,7 @@ func (card Gemalto) testGemalto() bool {
 		return false
 	}
 
-	_, err = card.readFile(DOCUMENT_FILE_LOC, false)
+	_, err = card.readFile(ID_DOCUMENT_FILE_LOC, false)
 	return err == nil
 }
 

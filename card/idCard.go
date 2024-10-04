@@ -10,16 +10,16 @@ import (
 )
 
 // Location of the file with document data.
-var DOCUMENT_FILE_LOC = []byte{0x0F, 0x02}
+var ID_DOCUMENT_FILE_LOC = []byte{0x0F, 0x02}
 
 // Location of the file with personal data.
-var PERSONAL_FILE_LOC = []byte{0x0F, 0x03}
+var ID_PERSONAL_FILE_LOC = []byte{0x0F, 0x03}
 
 // Location of the file with residence data.
-var RESIDENCE_FILE_LOC = []byte{0x0F, 0x04}
+var ID_RESIDENCE_FILE_LOC = []byte{0x0F, 0x04}
 
 // Location of the the portrait. Portrait is encoded as JPEG.
-var PHOTO_FILE_LOC = []byte{0x0F, 0x06}
+var ID_PHOTO_FILE_LOC = []byte{0x0F, 0x06}
 
 // Represents a smart card that contains a Serbian ID document.
 type IdDocument interface {
@@ -28,7 +28,7 @@ type IdDocument interface {
 }
 
 func readIdCard[Id IdDocument](card Id) (*document.IdDocument, error) {
-	rsp, err := card.readFile(DOCUMENT_FILE_LOC, false)
+	rsp, err := card.readFile(ID_DOCUMENT_FILE_LOC, false)
 	if err != nil {
 		return nil, fmt.Errorf("reading document file: %w", err)
 	}
@@ -48,7 +48,7 @@ func readIdCard[Id IdDocument](card Id) (*document.IdDocument, error) {
 	localization.FormatDate(&doc.IssuingDate)
 	localization.FormatDate(&doc.ExpiryDate)
 
-	rsp, err = card.readFile(PERSONAL_FILE_LOC, false)
+	rsp, err = card.readFile(ID_PERSONAL_FILE_LOC, false)
 	if err != nil {
 		return nil, fmt.Errorf("reading personal file: %w", err)
 	}
@@ -68,7 +68,7 @@ func readIdCard[Id IdDocument](card Id) (*document.IdDocument, error) {
 	assignField(fields, 1566, &doc.DateOfBirth)
 	localization.FormatDate(&doc.DateOfBirth)
 
-	rsp, err = card.readFile(RESIDENCE_FILE_LOC, false)
+	rsp, err = card.readFile(ID_RESIDENCE_FILE_LOC, false)
 	if err != nil {
 		return nil, fmt.Errorf("reading residence file: %w", err)
 	}
@@ -89,7 +89,7 @@ func readIdCard[Id IdDocument](card Id) (*document.IdDocument, error) {
 	assignField(fields, 1580, &doc.AddressDate)
 	localization.FormatDate(&doc.AddressDate)
 
-	rsp, err = card.readFile(PHOTO_FILE_LOC, true)
+	rsp, err = card.readFile(ID_PHOTO_FILE_LOC, true)
 	if err != nil {
 		return nil, fmt.Errorf("reading photo file: %w", err)
 	}
