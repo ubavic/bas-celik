@@ -31,14 +31,6 @@ var MEDICAL_ATR_2 = []byte{
 }
 
 func readMedicalCard(card MedicalCard) (*document.MedicalDocument, error) {
-	s1 := []byte{0xF3, 0x81, 0x00, 0x00, 0x02, 0x53, 0x45, 0x52, 0x56, 0x53, 0x5A, 0x4B, 0x01}
-	apu := buildAPDU(0x00, 0xA4, 0x04, 0x00, s1, 0)
-
-	_, err := card.smartCard.Transmit(apu)
-	if err != nil {
-		return nil, err
-	}
-
 	doc := document.MedicalDocument{}
 
 	rsp, err := card.readFile([]byte{0x0D, 0x01}, false)
@@ -244,5 +236,17 @@ func (card MedicalCard) Atr() Atr {
 }
 
 func (card MedicalCard) initCard() error {
+	s1 := []byte{0xF3, 0x81, 0x00, 0x00, 0x02, 0x53, 0x45, 0x52, 0x56, 0x53, 0x5A, 0x4B, 0x01}
+	apu := buildAPDU(0x00, 0xA4, 0x04, 0x00, s1, 0)
+
+	rsp, err := card.smartCard.Transmit(apu)
+	if err != nil {
+		return err
+	}
+
+	if !responseOK(rsp) {
+		return fmt.Errorf("initializing card: response not OK")
+	}
+
 	return nil
 }
