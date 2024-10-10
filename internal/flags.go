@@ -11,7 +11,9 @@ import (
 
 var version string
 
-func ProcessFlags(_jsonPath, _pdfPath *string, _verbose, _getValidUntilFromRfzo *bool, _readerIndex *uint) bool {
+func ProcessFlags() (LaunchConfig, bool) {
+	launchCfg := LaunchConfig{}
+
 	atrFlag := flag.Bool("atr", false, "Print the ATR form the card and exit")
 	jsonPath := flag.String("json", "", "Set JSON export path")
 	listFlag := flag.Bool("list", false, "List connected readers and exit")
@@ -24,7 +26,7 @@ func ProcessFlags(_jsonPath, _pdfPath *string, _verbose, _getValidUntilFromRfzo 
 
 	if *versionFlag {
 		printVersion()
-		return true
+		return launchCfg, true
 	}
 
 	if *listFlag {
@@ -32,7 +34,7 @@ func ProcessFlags(_jsonPath, _pdfPath *string, _verbose, _getValidUntilFromRfzo 
 		if err != nil {
 			fmt.Println("Error reading ATR:", err)
 		}
-		return true
+		return launchCfg, true
 	}
 
 	if *atrFlag {
@@ -40,16 +42,16 @@ func ProcessFlags(_jsonPath, _pdfPath *string, _verbose, _getValidUntilFromRfzo 
 		if err != nil {
 			fmt.Println("Error reading ATR:", err)
 		}
-		return true
+		return launchCfg, true
 	}
 
-	*_jsonPath = *jsonPath
-	*_pdfPath = *pdfPath
-	*_verbose = *verboseFlag
-	*_readerIndex = *readerIndex
-	*_getValidUntilFromRfzo = *getValidUntilFromRfzo
+	launchCfg.JsonPath = *jsonPath
+	launchCfg.PdfPath = *pdfPath
+	launchCfg.Verbose = *verboseFlag
+	launchCfg.Reader = *readerIndex
+	launchCfg.GetValidUntilFromRfzo = *getValidUntilFromRfzo
 
-	return false
+	return launchCfg, false
 }
 
 func printATR(reader uint) error {

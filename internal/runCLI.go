@@ -2,10 +2,10 @@
 
 package internal
 
-func Run(pdfPath, jsonPath string, verbose, getValidUntilFromRfzo bool, reader uint) error {
-	if len(pdfPath) == 0 && len(jsonPath) == 0 {
-		jsonPath = "out.json"
+func Run(cfg LaunchConfig) error {
+	if len(cfg.PdfPath) == 0 && len(cfg.JsonPath) == 0 {
+		cfg.JsonPath = "out.json"
 	}
 
-	return readAndSave(pdfPath, jsonPath, reader, getValidUntilFromRfzo)
+	return readAndSave(cfg)
 }

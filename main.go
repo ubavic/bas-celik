@@ -17,10 +17,7 @@ var embedFS embed.FS
 func main() {
 	internal.SetVersion(version)
 
-	var jsonPath, pdfPath string
-	var verboseFlag, getValidUntilFromRfzo bool
-	var readerIndex uint
-	exit := internal.ProcessFlags(&jsonPath, &pdfPath, &verboseFlag, &getValidUntilFromRfzo, &readerIndex)
+	cfg, exit := internal.ProcessFlags()
 	if exit {
 		return
 	}
@@ -31,7 +28,7 @@ func main() {
 		return
 	}
 
-	err = internal.Run(pdfPath, jsonPath, verboseFlag, getValidUntilFromRfzo, readerIndex)
+	err = internal.Run(cfg)
 	if err != nil {
 		fmt.Println("Error saving document:", err)
 	}
