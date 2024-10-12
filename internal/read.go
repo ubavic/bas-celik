@@ -70,9 +70,19 @@ func readAndSave(cfg LaunchConfig) error {
 		return fmt.Errorf("detecting card type: %w", err)
 	}
 
-	doc, err := card.ReadCard(cardDoc)
+	err = cardDoc.InitCard()
+	if err != nil {
+		return fmt.Errorf("initializing card: %w", err)
+	}
+
+	err = cardDoc.ReadCard()
 	if err != nil {
 		return fmt.Errorf("reading card: %w", err)
+	}
+
+	doc, err := cardDoc.GetDocument()
+	if err != nil {
+		return fmt.Errorf("getting document: %w", err)
 	}
 
 	switch doc := doc.(type) {

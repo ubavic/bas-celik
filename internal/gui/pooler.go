@@ -6,6 +6,7 @@ import (
 
 	"github.com/ebfe/scard"
 	"github.com/ubavic/bas-celik/card"
+	"github.com/ubavic/bas-celik/document"
 )
 
 func establishContextAndStartPooler() {
@@ -83,7 +84,7 @@ func pooler(ctx *scard.Context) {
 							message,
 							fmt.Errorf("reading from card: %w", err))
 					} else {
-						doc, err := card.ReadCard(cardDoc)
+						doc, err := initCardAndReadDoc(cardDoc)
 						if err != nil {
 							setStartPage(
 								"Greška pri čitanju kartice",
@@ -120,6 +121,25 @@ func pooler(ctx *scard.Context) {
 			"",
 			nil)
 	}
+}
+
+func initCardAndReadDoc(cardDoc card.CardDocument) (document.Document, error) {
+	err := cardDoc.InitCard()
+	if err != nil {
+		return nil, err
+	}
+
+	err = cardDoc.ReadCard()
+	if err != nil {
+		return nil, err
+	}
+
+	doc, err := cardDoc.GetDocument()
+	if err != nil {
+		return nil, err
+	}
+
+	return doc, nil
 }
 
 func indexOf(element string, elements []string) int {

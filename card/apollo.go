@@ -23,23 +23,45 @@ var APOLLO_ATR = Atr([]byte{
 	0x73, 0xFF, 0x61, 0x40, 0x83, 0x00, 0x00, 0x00, 0xDF,
 })
 
-func readApolloCard(card Apollo) (*document.IdDocument, error) {
-	doc := document.IdDocument{}
+func (card Apollo) InitCard() error {
+	return nil
+}
+
+func (card Apollo) ReadCard() error {
+
 	var err error
 
 	card.documentFile, err = card.readFile(ID_DOCUMENT_FILE_LOC)
 	if err != nil {
-		return nil, fmt.Errorf("reading document file: %w", err)
-	}
-
-	err = parseIdDocumentFile(card.documentFile, &doc)
-	if err != nil {
-		return nil, fmt.Errorf("parsing document file: %w", err)
+		return fmt.Errorf("reading document file: %w", err)
 	}
 
 	card.personalFile, err = card.readFile(ID_PERSONAL_FILE_LOC)
 	if err != nil {
-		return nil, fmt.Errorf("reading personal file: %w", err)
+		return fmt.Errorf("reading personal file: %w", err)
+	}
+
+	card.residenceFile, err = card.readFile(ID_RESIDENCE_FILE_LOC)
+	if err != nil {
+		return fmt.Errorf("reading residence file: %w", err)
+	}
+
+	rsp, err := card.readFile(ID_PHOTO_FILE_LOC)
+	if err != nil {
+		return fmt.Errorf("reading photo file: %w", err)
+	}
+
+	card.photoFile = trim4b(rsp)
+
+	return nil
+}
+
+func (card Apollo) GetDocument() (document.Document, error) {
+	doc := document.IdDocument{}
+
+	err := parseIdDocumentFile(card.documentFile, &doc)
+	if err != nil {
+		return nil, fmt.Errorf("parsing document file: %w", err)
 	}
 
 	err = parseIdPersonalFile(card.personalFile, &doc)
@@ -47,22 +69,10 @@ func readApolloCard(card Apollo) (*document.IdDocument, error) {
 		return nil, fmt.Errorf("parsing personal file: %w", err)
 	}
 
-	card.residenceFile, err = card.readFile(ID_RESIDENCE_FILE_LOC)
-	if err != nil {
-		return nil, fmt.Errorf("reading residence file: %w", err)
-	}
-
 	err = parseIdResidenceFile(card.residenceFile, &doc)
 	if err != nil {
 		return nil, fmt.Errorf("parsing residence file: %w", err)
 	}
-
-	rsp, err := card.readFile(ID_PHOTO_FILE_LOC)
-	if err != nil {
-		return nil, fmt.Errorf("reading photo file: %w", err)
-	}
-
-	card.photoFile = trim4b(rsp)
 
 	err = parseAndAssignIdPhotoFile(card.photoFile, &doc)
 	if err != nil {
@@ -118,8 +128,4 @@ func (card Apollo) selectFile(name []byte, ne uint) ([]byte, error) {
 
 func (card Apollo) Atr() Atr {
 	return card.atr
-}
-
-func (card Apollo) initCard() error {
-	return nil
 }

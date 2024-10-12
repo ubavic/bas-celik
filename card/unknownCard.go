@@ -1,6 +1,10 @@
 package card
 
-import "errors"
+import (
+	"errors"
+
+	"github.com/ubavic/bas-celik/document"
+)
 
 type UnknownDocumentCard struct {
 	atr       Atr
@@ -15,6 +19,14 @@ func (card UnknownDocumentCard) readFile(_ []byte) ([]byte, error) {
 	return nil, errors.New("not implemented")
 }
 
-func (card UnknownDocumentCard) initCard() error {
+func (card UnknownDocumentCard) InitCard() error {
 	return nil
+}
+
+func (card UnknownDocumentCard) ReadCard() error {
+	return nil
+}
+
+func (card UnknownDocumentCard) GetDocument() (document.Document, error) {
+	return nil, nil
 }

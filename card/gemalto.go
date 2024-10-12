@@ -45,56 +45,35 @@ type Gemalto struct {
 	photoFile     []byte
 }
 
-func readGemaltoCard(card Gemalto) (*document.IdDocument, error) {
-	doc := document.IdDocument{}
+func (card Gemalto) ReadCard() error {
 	var err error
 
 	card.documentFile, err = card.readFile(ID_DOCUMENT_FILE_LOC)
 	if err != nil {
-		return nil, fmt.Errorf("reading document file: %w", err)
-	}
-
-	err = parseIdDocumentFile(card.documentFile, &doc)
-	if err != nil {
-		return nil, fmt.Errorf("parsing document file: %w", err)
+		return fmt.Errorf("reading document file: %w", err)
 	}
 
 	card.personalFile, err = card.readFile(ID_PERSONAL_FILE_LOC)
 	if err != nil {
-		return nil, fmt.Errorf("reading personal file: %w", err)
-	}
-
-	err = parseIdPersonalFile(card.personalFile, &doc)
-	if err != nil {
-		return nil, fmt.Errorf("parsing personal file: %w", err)
+		return fmt.Errorf("reading personal file: %w", err)
 	}
 
 	card.residenceFile, err = card.readFile(ID_RESIDENCE_FILE_LOC)
 	if err != nil {
-		return nil, fmt.Errorf("reading residence file: %w", err)
-	}
-
-	err = parseIdResidenceFile(card.residenceFile, &doc)
-	if err != nil {
-		return nil, fmt.Errorf("parsing residence file: %w", err)
+		return fmt.Errorf("reading residence file: %w", err)
 	}
 
 	rsp, err := card.readFile(ID_PHOTO_FILE_LOC)
 	if err != nil {
-		return nil, fmt.Errorf("reading photo file: %w", err)
+		return fmt.Errorf("reading photo file: %w", err)
 	}
 
 	card.photoFile = trim4b(rsp)
 
-	err = parseAndAssignIdPhotoFile(card.photoFile, &doc)
-	if err != nil {
-		return nil, fmt.Errorf("parsing photo file: %w", err)
-	}
-
-	return &doc, nil
+	return nil
 }
 
-func (card Gemalto) initCard() error {
+func (card Gemalto) InitCard() error {
 	data := []byte{0xF3, 0x81, 0x00, 0x00, 0x02, 0x53, 0x45, 0x52, 0x49, 0x44, 0x01}
 	apu := buildAPDU(0x00, 0xA4, 0x04, 0x00, data, 0)
 	rsp, err := card.smartCard.Transmit(apu)
@@ -129,6 +108,32 @@ func (card Gemalto) initCard() error {
 	}
 
 	return fmt.Errorf("initializing identity document card: unknown card type")
+}
+
+func (card Gemalto) GetDocument() (document.Document, error) {
+	doc := document.IdDocument{}
+
+	err := parseIdDocumentFile(card.documentFile, &doc)
+	if err != nil {
+		return nil, fmt.Errorf("parsing document file: %w", err)
+	}
+
+	err = parseIdPersonalFile(card.personalFile, &doc)
+	if err != nil {
+		return nil, fmt.Errorf("parsing personal file: %w", err)
+	}
+
+	err = parseIdResidenceFile(card.residenceFile, &doc)
+	if err != nil {
+		return nil, fmt.Errorf("parsing residence file: %w", err)
+	}
+
+	err = parseAndAssignIdPhotoFile(card.photoFile, &doc)
+	if err != nil {
+		return nil, fmt.Errorf("parsing photo file: %w", err)
+	}
+
+	return &doc, nil
 }
 
 func (card Gemalto) readFile(name []byte) ([]byte, error) {
@@ -176,7 +181,7 @@ func (card Gemalto) selectFile(name []byte, ne uint) ([]byte, error) {
 }
 
 func (card Gemalto) testGemalto() bool {
-	err := card.initCard()
+	err := card.InitCard()
 	if err != nil {
 		return false
 	}

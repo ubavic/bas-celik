@@ -48,17 +48,24 @@ var VEHICLE_ATR_4 = Atr([]byte{
 	0x73, 0x02, 0x05, 0x02, 0xD4,
 })
 
-func readVehicleCard(card VehicleCard) (*document.VehicleDocument, error) {
-	doc := document.VehicleDocument{}
-	data := ber.BER{}
+func (card VehicleCard) ReadCard() error {
 	var err error
 
 	for i := byte(0); i <= 3; i++ {
 		card.files[int(i)], err = card.readFile([]byte{0xD0, i*0x10 + 0x01})
 		if err != nil {
-			return nil, fmt.Errorf("reading document %d file: %w", i, err)
+			return fmt.Errorf("reading document %d file: %w", i, err)
 		}
+	}
 
+	return nil
+}
+
+func (card VehicleCard) GetDocument() (document.Document, error) {
+	doc := document.VehicleDocument{}
+	data := ber.BER{}
+
+	for i := byte(0); i <= 3; i++ {
 		parsed, err := ber.ParseBER(card.files[int(i)])
 		if err != nil {
 			return nil, fmt.Errorf("parsing %d file: %w", i, err)
@@ -188,7 +195,7 @@ func parseVehicleCardFileSize(data []byte) (uint, uint, error) {
 
 // Initializes vehicle card by trying three different sets of commands.
 // The procedure is reverse-engineered from the official binary.
-func (card VehicleCard) initCard() error {
+func (card VehicleCard) InitCard() error {
 	tryToSelect := func(cmd1, cmd2, cmd3 []byte) error {
 		apu := buildAPDU(0x00, 0xA4, 0x04, 0x00, cmd1, 0)
 		rsp, err := card.smartCard.Transmit(apu)

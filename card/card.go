@@ -24,7 +24,9 @@ type Card interface {
 // All types of documents that Bas Celik can read should satisfy this interface
 type CardDocument interface {
 	readFile([]byte) ([]byte, error)
-	initCard() error
+	InitCard() error
+	ReadCard() error
+	GetDocument() (doc.Document, error)
 	Atr() Atr
 }
 
@@ -81,33 +83,6 @@ func DetectCardDocument(sc Card) (CardDocument, error) {
 	}
 
 	return card, nil
-}
-
-// Initializes and reads a smart card and returns the associated document.
-func ReadCard(cardDocument CardDocument) (doc.Document, error) {
-	var document doc.Document
-
-	err := cardDocument.initCard()
-	if err != nil {
-		return nil, fmt.Errorf("initializing card: %w", err)
-	}
-
-	switch card := cardDocument.(type) {
-	case Apollo:
-		document, err = readApolloCard(card)
-	case Gemalto:
-		document, err = readGemaltoCard(card)
-	case MedicalCard:
-		document, err = readMedicalCard(card)
-	case VehicleCard:
-		document, err = readVehicleCard(card)
-	}
-
-	if err != nil {
-		return nil, fmt.Errorf("reading card: %w", err)
-	}
-
-	return document, nil
 }
 
 // Reads binary data from the card starting from the specified offset and with the specified length.

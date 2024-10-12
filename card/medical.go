@@ -47,23 +47,38 @@ var MED_VARIABLE_PERSONAL_FILE_LOC = []byte{0x0D, 0x03}
 // Location of the file with variable administrative data.
 var MED_VARIABLE_ADMIN_FILE_LOC = []byte{0x0D, 0x04}
 
-func readMedicalCard(card MedicalCard) (*document.MedicalDocument, error) {
-	doc := document.MedicalDocument{}
+func (card MedicalCard) ReadCard() error {
 	var err error
 
 	card.medicalDocumentFile, err = card.readFile(MED_DOCUMENT_FILE_LOC)
 	if err != nil {
-		return nil, fmt.Errorf("reading document file: %w", err)
-	}
-
-	err = parseMedicalDocumentFile(card.medicalDocumentFile, &doc)
-	if err != nil {
-		return nil, fmt.Errorf("parsing document file: %w", err)
+		return fmt.Errorf("reading document file: %w", err)
 	}
 
 	card.fixedPersonalFile, err = card.readFile(MED_FIXED_PERSONAL_FILE_LOC)
 	if err != nil {
-		return nil, fmt.Errorf("reading fixed personal file: %w", err)
+		return fmt.Errorf("reading fixed personal file: %w", err)
+	}
+
+	card.variablePersonalFile, err = card.readFile(MED_VARIABLE_PERSONAL_FILE_LOC)
+	if err != nil {
+		return fmt.Errorf("reading variable personal file: %w", err)
+	}
+
+	card.variableAdminFile, err = card.readFile(MED_VARIABLE_ADMIN_FILE_LOC)
+	if err != nil {
+		return fmt.Errorf("reading variable administrative file: %w", err)
+	}
+
+	return nil
+}
+
+func (card MedicalCard) GetDocument() (document.Document, error) {
+	doc := document.MedicalDocument{}
+
+	err := parseMedicalDocumentFile(card.medicalDocumentFile, &doc)
+	if err != nil {
+		return nil, fmt.Errorf("parsing document file: %w", err)
 	}
 
 	err = parseMedicalFixedPersonalFile(card.fixedPersonalFile, &doc)
@@ -71,19 +86,9 @@ func readMedicalCard(card MedicalCard) (*document.MedicalDocument, error) {
 		return nil, fmt.Errorf("parsing fixed personal file: %w", err)
 	}
 
-	card.variablePersonalFile, err = card.readFile(MED_VARIABLE_PERSONAL_FILE_LOC)
-	if err != nil {
-		return nil, fmt.Errorf("reading variable personal file: %w", err)
-	}
-
 	err = parseMedicalVariablePersonalFile(card.variablePersonalFile, &doc)
 	if err != nil {
 		return nil, fmt.Errorf("parsing variable personal file: %w", err)
-	}
-
-	card.variableAdminFile, err = card.readFile(MED_VARIABLE_ADMIN_FILE_LOC)
-	if err != nil {
-		return nil, fmt.Errorf("reading variable administrative file: %w", err)
 	}
 
 	err = parseMedicalVariableAdminFile(card.variableAdminFile, &doc)
@@ -180,7 +185,7 @@ func (card MedicalCard) Atr() Atr {
 	return card.atr
 }
 
-func (card MedicalCard) initCard() error {
+func (card MedicalCard) InitCard() error {
 	s1 := []byte{0xF3, 0x81, 0x00, 0x00, 0x02, 0x53, 0x45, 0x52, 0x56, 0x53, 0x5A, 0x4B, 0x01}
 	apu := buildAPDU(0x00, 0xA4, 0x04, 0x00, s1, 0)
 
