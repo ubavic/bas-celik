@@ -13,6 +13,7 @@ import (
 type VehicleCard struct {
 	atr       Atr
 	smartCard Card
+	files     [4][]byte
 }
 
 // Possibly deprecated.
@@ -50,14 +51,15 @@ var VEHICLE_ATR_4 = Atr([]byte{
 func readVehicleCard(card VehicleCard) (*document.VehicleDocument, error) {
 	doc := document.VehicleDocument{}
 	data := ber.BER{}
+	var err error
 
 	for i := byte(0); i <= 3; i++ {
-		rsp, err := card.readFile([]byte{0xD0, i*0x10 + 0x01})
+		card.files[int(i)], err = card.readFile([]byte{0xD0, i*0x10 + 0x01})
 		if err != nil {
 			return nil, fmt.Errorf("reading document %d file: %w", i, err)
 		}
 
-		parsed, err := ber.ParseBER(rsp)
+		parsed, err := ber.ParseBER(card.files[int(i)])
 		if err != nil {
 			return nil, fmt.Errorf("parsing %d file: %w", i, err)
 		}
