@@ -25,44 +25,39 @@ var APOLLO_ATR = Atr([]byte{
 
 func readApolloCard(card Apollo) (*document.IdDocument, error) {
 	doc := document.IdDocument{}
+	var err error
 
-	rsp, err := card.readFile(ID_DOCUMENT_FILE_LOC)
+	card.documentFile, err = card.readFile(ID_DOCUMENT_FILE_LOC)
 	if err != nil {
 		return nil, fmt.Errorf("reading document file: %w", err)
 	}
-
-	card.documentFile = rsp
 
 	err = parseIdDocumentFile(card.documentFile, &doc)
 	if err != nil {
 		return nil, fmt.Errorf("parsing document file: %w", err)
 	}
 
-	rsp, err = card.readFile(ID_PERSONAL_FILE_LOC)
+	card.personalFile, err = card.readFile(ID_PERSONAL_FILE_LOC)
 	if err != nil {
 		return nil, fmt.Errorf("reading personal file: %w", err)
 	}
-
-	card.personalFile = rsp
 
 	err = parseIdPersonalFile(card.personalFile, &doc)
 	if err != nil {
 		return nil, fmt.Errorf("parsing personal file: %w", err)
 	}
 
-	rsp, err = card.readFile(ID_RESIDENCE_FILE_LOC)
+	card.residenceFile, err = card.readFile(ID_RESIDENCE_FILE_LOC)
 	if err != nil {
 		return nil, fmt.Errorf("reading residence file: %w", err)
 	}
-
-	card.residenceFile = rsp
 
 	err = parseIdResidenceFile(card.residenceFile, &doc)
 	if err != nil {
 		return nil, fmt.Errorf("parsing residence file: %w", err)
 	}
 
-	rsp, err = card.readFile(ID_PHOTO_FILE_LOC)
+	rsp, err := card.readFile(ID_PHOTO_FILE_LOC)
 	if err != nil {
 		return nil, fmt.Errorf("reading photo file: %w", err)
 	}
