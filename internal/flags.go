@@ -15,6 +15,7 @@ func ProcessFlags() (LaunchConfig, bool) {
 	launchCfg := LaunchConfig{}
 
 	atrFlag := flag.Bool("atr", false, "Print the ATR form the card and exit")
+	excelPath := flag.String("excel", "", "Set Excel export path")
 	jsonPath := flag.String("json", "", "Set JSON export path")
 	listFlag := flag.Bool("list", false, "List connected readers and exit")
 	pdfPath := flag.String("pdf", "", "Set PDF export path.")
@@ -47,6 +48,7 @@ func ProcessFlags() (LaunchConfig, bool) {
 
 	launchCfg.JsonPath = *jsonPath
 	launchCfg.PdfPath = *pdfPath
+	launchCfg.ExcelPath = *excelPath
 	launchCfg.Verbose = *verboseFlag
 	launchCfg.Reader = *readerIndex
 	launchCfg.GetValidUntilFromRfzo = *getValidUntilFromRfzo

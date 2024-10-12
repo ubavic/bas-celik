@@ -13,6 +13,7 @@ import (
 type LaunchConfig struct {
 	PdfPath               string
 	JsonPath              string
+	ExcelPath             string
 	Verbose               bool
 	GetValidUntilFromRfzo bool
 	Reader                uint
@@ -35,6 +36,12 @@ func readAndSave(cfg LaunchConfig) error {
 	if len(cfg.JsonPath) > 0 {
 		if _, err := os.Stat(cfg.JsonPath); err != nil && !errors.Is(err, os.ErrNotExist) {
 			return fmt.Errorf("opening file %s: %w", cfg.JsonPath, err)
+		}
+	}
+
+	if len(cfg.ExcelPath) > 0 {
+		if _, err := os.Stat(cfg.ExcelPath); err != nil && !errors.Is(err, os.ErrNotExist) {
+			return fmt.Errorf("opening file %s: %w", cfg.ExcelPath, err)
 		}
 	}
 
@@ -99,6 +106,18 @@ func readAndSave(cfg LaunchConfig) error {
 		err = os.WriteFile(cfg.JsonPath, json, 0600)
 		if err != nil {
 			return fmt.Errorf("writing file %s: %w", cfg.JsonPath, err)
+		}
+	}
+
+	if len(cfg.ExcelPath) > 0 {
+		excel, err := doc.BuildExcel()
+		if err != nil {
+			return fmt.Errorf("generating json: %w", err)
+		}
+
+		err = os.WriteFile(cfg.ExcelPath, excel, 0600)
+		if err != nil {
+			return fmt.Errorf("writing file %s: %w", cfg.ExcelPath, err)
 		}
 	}
 

@@ -3,7 +3,7 @@
 package internal
 
 func Run(cfg LaunchConfig) error {
-	if len(cfg.PdfPath) == 0 && len(cfg.JsonPath) == 0 {
+	if len(cfg.PdfPath) == 0 && len(cfg.JsonPath) == 0 && len(cfg.ExcelPath) == 0 {
 		cfg.JsonPath = "out.json"
 	}
 

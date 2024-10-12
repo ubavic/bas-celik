@@ -36,6 +36,7 @@ sudo systemctl enable pcscd
 Baš Čelik prihvata sledeće opcije:
  
  + `-atr`: ATR kôd kartice biće prikazan u konzoli. 
+ + `-excel PATH`: grafički interfejs neće biti pokrenut, a sadržaj dokumenta biće direktno sačuvan u Excel datoteku (`xlsx`) na `PATH` lokaciji. U Excel datoteku će biti sačuvana samo tekstualna polja, ne i slike.
  + `-help`: informacija o opcijama biće prikazana u konzoli.
  + `-json PATH`: grafički interfejs neće biti pokrenut, a sadržaj dokumenta biće direktno sačuvan u JSON datoteku na `PATH` lokaciji.
  + `-list`: lista raspoloživih čitača biće prikazana u konzoli.
@@ -43,11 +44,11 @@ Baš Čelik prihvata sledeće opcije:
  + `-rfzoValidUntil`: informacija o trajanju zdravstvenog osiguranja biće preuzeta sa RFZO portala. Ne odnosi se na grafički interfejs niti na ostala dokumenta.
  + `-verbose`: tokom rada aplikacije detalji o greškama biće prikazani u konzoli.
  + `-version`: informacija o verziji programa biće prikazana u konzoli.
- + `-reader INDEX`: postavlja odabrani čitač za čitanje podataka. Parametar `INDEX` označava prirodan broj koji je naveden u ispisu `list` komande. Izbor utiče samo na čitanje sa `atr`, `pdf` i `json` opcijama.
+ + `-reader INDEX`: postavlja odabrani čitač za čitanje podataka. Parametar `INDEX` označava prirodan broj koji je naveden u ispisu `list` komande. Izbor utiče samo na čitanje sa `atr`, `excel`, `pdf` i `json` opcijama.
 
-U slučaju `json` i `pdf` opcija, program ne dodaje ekstenziju na kraj lokacije koju je korisnik naveo.
+U slučaju `excel`, `json` i `pdf` opcija, program ne dodaje ekstenziju na kraj lokacije koju je korisnik naveo.
 
-Pri pokretanju sa `atr`, `json` ili `pdf` opcijom, program očekuje da je kartica smeštena u čitač i neće čekati na ubacivanje kartice kao što je to slučaj sa grafičkim okruženjem.
+Pri pokretanju sa `atr`, `excel`, `json` ili `pdf` opcijom, program očekuje da je kartica smeštena u čitač i neće čekati na ubacivanje kartice kao što je to slučaj sa grafičkim okruženjem.
 
 Pri pokretanju sa `atr`, `help`, `list` ili `version` opcijama podaci sa kartice neće biti očitani (osim ATR koda u slučaju `atr` komande). Program će prestati izvršavanje nakon ispisa odgovarajuće informacije.
 

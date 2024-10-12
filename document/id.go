@@ -351,3 +351,7 @@ func (doc *IdDocument) BuildJson() ([]byte, error) {
 		Alias:    (*Alias)(doc),
 	})
 }
+
+func (doc *IdDocument) BuildExcel() ([]byte, error) {
+	return CreateExcel(*doc)
+}

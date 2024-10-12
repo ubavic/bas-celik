@@ -295,3 +295,7 @@ func (doc *VehicleDocument) BuildPdf() (data []byte, fileName string, retErr err
 func (doc *VehicleDocument) BuildJson() ([]byte, error) {
 	return json.Marshal(doc)
 }
+
+func (doc *VehicleDocument) BuildExcel() ([]byte, error) {
+	return CreateExcel(*doc)
+}

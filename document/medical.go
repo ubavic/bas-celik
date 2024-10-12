@@ -263,6 +263,10 @@ func (doc *MedicalDocument) BuildJson() ([]byte, error) {
 	return json.Marshal(doc)
 }
 
+func (doc *MedicalDocument) BuildExcel() ([]byte, error) {
+	return CreateExcel(*doc)
+}
+
 func (doc *MedicalDocument) UpdateValidUntilDateFromRfzo() error {
 	if len([]rune(doc.CardId)) != 11 {
 		return ErrInvalidCardNo

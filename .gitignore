@@ -3,6 +3,7 @@ main
 __debug_bin*
 *.pdf
 *.json
+*.xlsx
 *.tar.xz
 *.exe
 fyne-cross/

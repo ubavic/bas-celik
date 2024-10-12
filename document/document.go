@@ -9,6 +9,7 @@ import (
 type Document interface {
 	BuildPdf() ([]byte, string, error) // Renders document to pdf
 	BuildJson() ([]byte, error)        // Renders document to json
+	BuildExcel() ([]byte, error)       // Renders document to xlsx
 }
 
 var (
