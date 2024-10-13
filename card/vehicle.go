@@ -48,7 +48,7 @@ var VEHICLE_ATR_4 = Atr([]byte{
 	0x73, 0x02, 0x05, 0x02, 0xD4,
 })
 
-func (card VehicleCard) ReadCard() error {
+func (card *VehicleCard) ReadCard() error {
 	var err error
 
 	for i := byte(0); i <= 3; i++ {
@@ -61,7 +61,7 @@ func (card VehicleCard) ReadCard() error {
 	return nil
 }
 
-func (card VehicleCard) GetDocument() (document.Document, error) {
+func (card *VehicleCard) GetDocument() (document.Document, error) {
 	doc := document.VehicleDocument{}
 	data := ber.BER{}
 
@@ -127,7 +127,7 @@ func (card VehicleCard) GetDocument() (document.Document, error) {
 	return &doc, nil
 }
 
-func (card VehicleCard) readFile(name []byte) ([]byte, error) {
+func (card *VehicleCard) readFile(name []byte) ([]byte, error) {
 	output := make([]byte, 0)
 
 	_, err := card.selectFile(name)
@@ -249,7 +249,7 @@ func (card VehicleCard) InitCard() error {
 	return fmt.Errorf("card not responsive: %w", err)
 }
 
-func (card VehicleCard) selectFile(name []byte) ([]byte, error) {
+func (card *VehicleCard) selectFile(name []byte) ([]byte, error) {
 	apu := buildAPDU(0x00, 0xA4, 0x02, 0x04, name, 0)
 
 	rsp, err := card.smartCard.Transmit(apu)
@@ -260,6 +260,6 @@ func (card VehicleCard) selectFile(name []byte) ([]byte, error) {
 	return rsp, nil
 }
 
-func (card VehicleCard) Atr() Atr {
+func (card *VehicleCard) Atr() Atr {
 	return card.atr
 }

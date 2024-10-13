@@ -47,38 +47,38 @@ func DetectCardDocument(sc Card) (CardDocument, error) {
 	if atr.Is(GEMALTO_ATR_1) {
 		tempIdCard := Gemalto{smartCard: sc}
 		if tempIdCard.testGemalto() {
-			card = Gemalto{atr: atr, smartCard: sc}
+			card = &Gemalto{atr: atr, smartCard: sc}
 		} else {
-			card = VehicleCard{atr: atr, smartCard: sc}
+			card = &VehicleCard{atr: atr, smartCard: sc}
 		}
 	} else if atr.Is(GEMALTO_ATR_2) || atr.Is(GEMALTO_ATR_3) {
 		tempIdCard := Gemalto{smartCard: sc}
 		tmpMedCard := MedicalCard{smartCard: sc}
 		if tempIdCard.testGemalto() {
-			card = Gemalto{smartCard: sc}
+			card = &Gemalto{smartCard: sc}
 		} else if tmpMedCard.testMedicalCard() {
-			card = MedicalCard{atr: atr, smartCard: sc}
+			card = &MedicalCard{atr: atr, smartCard: sc}
 		} else {
-			card = VehicleCard{atr: atr, smartCard: sc}
+			card = &VehicleCard{atr: atr, smartCard: sc}
 		}
 	} else if atr.Is(GEMALTO_ATR_4) {
-		card = Gemalto{atr: atr, smartCard: sc}
+		card = &Gemalto{atr: atr, smartCard: sc}
 	} else if atr.Is(APOLLO_ATR) {
-		card = Apollo{atr: atr, smartCard: sc}
+		card = &Apollo{atr: atr, smartCard: sc}
 	} else if atr.Is(MEDICAL_ATR_1) {
-		card = MedicalCard{atr: atr, smartCard: sc}
+		card = &MedicalCard{atr: atr, smartCard: sc}
 	} else if atr.Is(MEDICAL_ATR_2) {
-		card = MedicalCard{atr: atr, smartCard: sc}
+		card = &MedicalCard{atr: atr, smartCard: sc}
 	} else if atr.Is(VEHICLE_ATR_0) {
-		card = VehicleCard{atr: atr, smartCard: sc}
+		card = &VehicleCard{atr: atr, smartCard: sc}
 	} else if atr.Is(VEHICLE_ATR_2) {
-		card = VehicleCard{atr: atr, smartCard: sc}
+		card = &VehicleCard{atr: atr, smartCard: sc}
 	} else if atr.Is(VEHICLE_ATR_3) {
-		card = VehicleCard{atr: atr, smartCard: sc}
+		card = &VehicleCard{atr: atr, smartCard: sc}
 	} else if atr.Is(VEHICLE_ATR_4) {
-		card = VehicleCard{atr: atr, smartCard: sc}
+		card = &VehicleCard{atr: atr, smartCard: sc}
 	} else {
-		card = UnknownDocumentCard{atr: atr, smartCard: sc}
+		card = &UnknownDocumentCard{atr: atr, smartCard: sc}
 		return card, ErrUnknownCard
 	}
 

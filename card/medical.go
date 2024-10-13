@@ -47,7 +47,7 @@ var MED_VARIABLE_PERSONAL_FILE_LOC = []byte{0x0D, 0x03}
 // Location of the file with variable administrative data.
 var MED_VARIABLE_ADMIN_FILE_LOC = []byte{0x0D, 0x04}
 
-func (card MedicalCard) ReadCard() error {
+func (card *MedicalCard) ReadCard() error {
 	var err error
 
 	card.medicalDocumentFile, err = card.readFile(MED_DOCUMENT_FILE_LOC)
@@ -73,7 +73,7 @@ func (card MedicalCard) ReadCard() error {
 	return nil
 }
 
-func (card MedicalCard) GetDocument() (document.Document, error) {
+func (card *MedicalCard) GetDocument() (document.Document, error) {
 	doc := document.MedicalDocument{}
 
 	err := parseMedicalDocumentFile(card.medicalDocumentFile, &doc)
@@ -113,7 +113,7 @@ func descramble(fields map[uint][]byte, tag uint) {
 	fields[tag] = []byte{}
 }
 
-func (card MedicalCard) readFile(name []byte) ([]byte, error) {
+func (card *MedicalCard) readFile(name []byte) ([]byte, error) {
 	output := make([]byte, 0)
 
 	_, err := card.selectFile(name)
@@ -147,7 +147,7 @@ func (card MedicalCard) readFile(name []byte) ([]byte, error) {
 	return output, nil
 }
 
-func (card MedicalCard) selectFile(name []byte) ([]byte, error) {
+func (card *MedicalCard) selectFile(name []byte) ([]byte, error) {
 	apu := buildAPDU(0x00, 0xA4, 0x00, 0x00, name, 0)
 	rsp, err := card.smartCard.Transmit(apu)
 	if err != nil {
@@ -159,7 +159,7 @@ func (card MedicalCard) selectFile(name []byte) ([]byte, error) {
 
 // Newer medical cards share ATR with the ID cards (GEMALTO_ATR_2)
 // Function testMedicalCard tests if s smart card is a medical card.
-func (card MedicalCard) testMedicalCard() bool {
+func (card *MedicalCard) testMedicalCard() bool {
 	s1 := []byte{0xF3, 0x81, 0x00, 0x00, 0x02, 0x53, 0x45, 0x52, 0x56, 0x53, 0x5A, 0x4B, 0x01}
 	apu := buildAPDU(0x00, 0xA4, 0x04, 0x00, s1, 0)
 	_, err := card.smartCard.Transmit(apu)
@@ -181,11 +181,11 @@ func (card MedicalCard) testMedicalCard() bool {
 	return strings.Compare(string(fields[1553]), "Републички фонд за здравствено осигурање") == 0
 }
 
-func (card MedicalCard) Atr() Atr {
+func (card *MedicalCard) Atr() Atr {
 	return card.atr
 }
 
-func (card MedicalCard) InitCard() error {
+func (card *MedicalCard) InitCard() error {
 	s1 := []byte{0xF3, 0x81, 0x00, 0x00, 0x02, 0x53, 0x45, 0x52, 0x56, 0x53, 0x5A, 0x4B, 0x01}
 	apu := buildAPDU(0x00, 0xA4, 0x04, 0x00, s1, 0)
 

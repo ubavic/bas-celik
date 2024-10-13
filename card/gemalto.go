@@ -45,7 +45,7 @@ type Gemalto struct {
 	photoFile     []byte
 }
 
-func (card Gemalto) ReadCard() error {
+func (card *Gemalto) ReadCard() error {
 	var err error
 
 	card.documentFile, err = card.readFile(ID_DOCUMENT_FILE_LOC)
@@ -73,7 +73,7 @@ func (card Gemalto) ReadCard() error {
 	return nil
 }
 
-func (card Gemalto) InitCard() error {
+func (card *Gemalto) InitCard() error {
 	data := []byte{0xF3, 0x81, 0x00, 0x00, 0x02, 0x53, 0x45, 0x52, 0x49, 0x44, 0x01}
 	apu := buildAPDU(0x00, 0xA4, 0x04, 0x00, data, 0)
 	rsp, err := card.smartCard.Transmit(apu)
@@ -110,8 +110,10 @@ func (card Gemalto) InitCard() error {
 	return fmt.Errorf("initializing identity document card: unknown card type")
 }
 
-func (card Gemalto) GetDocument() (document.Document, error) {
+func (card *Gemalto) GetDocument() (document.Document, error) {
 	doc := document.IdDocument{}
+
+	fmt.Println(len(card.documentFile))
 
 	err := parseIdDocumentFile(card.documentFile, &doc)
 	if err != nil {
@@ -136,7 +138,7 @@ func (card Gemalto) GetDocument() (document.Document, error) {
 	return &doc, nil
 }
 
-func (card Gemalto) readFile(name []byte) ([]byte, error) {
+func (card *Gemalto) readFile(name []byte) ([]byte, error) {
 	output := make([]byte, 0)
 
 	_, err := card.selectFile(name, 4)
@@ -170,7 +172,7 @@ func (card Gemalto) readFile(name []byte) ([]byte, error) {
 	return output, nil
 }
 
-func (card Gemalto) selectFile(name []byte, ne uint) ([]byte, error) {
+func (card *Gemalto) selectFile(name []byte, ne uint) ([]byte, error) {
 	apu := buildAPDU(0x00, 0xA4, 0x08, 0x00, name, ne)
 	rsp, err := card.smartCard.Transmit(apu)
 	if err != nil {
@@ -180,7 +182,7 @@ func (card Gemalto) selectFile(name []byte, ne uint) ([]byte, error) {
 	return rsp, nil
 }
 
-func (card Gemalto) testGemalto() bool {
+func (card *Gemalto) testGemalto() bool {
 	err := card.InitCard()
 	if err != nil {
 		return false
@@ -190,6 +192,6 @@ func (card Gemalto) testGemalto() bool {
 	return err == nil
 }
 
-func (card Gemalto) Atr() Atr {
+func (card *Gemalto) Atr() Atr {
 	return card.atr
 }

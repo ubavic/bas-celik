@@ -23,11 +23,11 @@ var APOLLO_ATR = Atr([]byte{
 	0x73, 0xFF, 0x61, 0x40, 0x83, 0x00, 0x00, 0x00, 0xDF,
 })
 
-func (card Apollo) InitCard() error {
+func (card *Apollo) InitCard() error {
 	return nil
 }
 
-func (card Apollo) ReadCard() error {
+func (card *Apollo) ReadCard() error {
 
 	var err error
 
@@ -56,7 +56,7 @@ func (card Apollo) ReadCard() error {
 	return nil
 }
 
-func (card Apollo) GetDocument() (document.Document, error) {
+func (card *Apollo) GetDocument() (document.Document, error) {
 	doc := document.IdDocument{}
 
 	err := parseIdDocumentFile(card.documentFile, &doc)
@@ -82,7 +82,7 @@ func (card Apollo) GetDocument() (document.Document, error) {
 	return &doc, nil
 }
 
-func (card Apollo) readFile(name []byte) ([]byte, error) {
+func (card *Apollo) readFile(name []byte) ([]byte, error) {
 	output := make([]byte, 0)
 
 	_, err := card.selectFile(name, 4)
@@ -116,7 +116,7 @@ func (card Apollo) readFile(name []byte) ([]byte, error) {
 	return output, nil
 }
 
-func (card Apollo) selectFile(name []byte, ne uint) ([]byte, error) {
+func (card *Apollo) selectFile(name []byte, ne uint) ([]byte, error) {
 	apu := buildAPDU(0x00, 0xA4, 0x08, 0x00, name, ne)
 	rsp, err := card.smartCard.Transmit(apu)
 	if err != nil {
@@ -126,6 +126,6 @@ func (card Apollo) selectFile(name []byte, ne uint) ([]byte, error) {
 	return rsp, nil
 }
 
-func (card Apollo) Atr() Atr {
+func (card *Apollo) Atr() Atr {
 	return card.atr
 }
