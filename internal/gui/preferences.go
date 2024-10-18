@@ -17,7 +17,7 @@ func showSetupBox(win fyne.Window, app fyne.App) func() {
 		themeSelect := widget.NewSelect([]string{"Operativni sistem određuje", "Uvek svetla", "Uvek tamna"}, func(s string) {})
 		themeSelect.SetSelectedIndex(colorTheme)
 
-		formItems := []*widget.FormItem{ // we can specify items in the constructor
+		formItems := []*widget.FormItem{
 			{Text: "Tema aplikacije", Widget: themeSelect},
 			{Text: "", Widget: &widgets.Spacer{}},
 		}
