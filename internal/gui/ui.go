@@ -13,6 +13,7 @@ import (
 	"fyne.io/fyne/v2/storage"
 	"fyne.io/fyne/v2/widget"
 	"github.com/ubavic/bas-celik/document"
+	"github.com/ubavic/bas-celik/internal/gui/celiktheme"
 	"github.com/ubavic/bas-celik/internal/gui/widgets"
 )
 
@@ -32,12 +33,15 @@ var state State
 func StartGui(verbose_ bool, version string) {
 	app := app.New()
 	win := app.NewWindow("Baš Čelik")
-	app.Settings().SetTheme(MyTheme{})
+
+	theme := celiktheme.NewTheme(app.Preferences().IntWithFallback(themePreferenceKey, 1))
+	app.Settings().SetTheme(theme)
 
 	showAboutBox := ShowAboutBox(win, version)
+	showSettings := showSetupBox(win, app)
 
 	statusBar := widgets.NewStatusBar()
-	toolbar := widgets.NewToolbar(showAboutBox)
+	toolbar := widgets.NewToolbar(showAboutBox, showSettings)
 	spacer := widgets.NewSpacer()
 	startPage := widgets.NewStartPage()
 	startPage.SetStatus("", "", false)

@@ -10,10 +10,11 @@ import (
 
 type Toolbar struct {
 	widget.BaseWidget
-	readers        []string
-	onAbout        func()
-	selectedReader string
-	readerChanged  bool
+	readers           []string
+	onOpenAbout       func()
+	onOpenPreferences func()
+	selectedReader    string
+	readerChanged     bool
 }
 
 type ToolbarRenderer struct {
@@ -24,10 +25,11 @@ type ToolbarRenderer struct {
 	readersSelect *widget.Select
 }
 
-func NewToolbar(onAbout func()) *Toolbar {
+func NewToolbar(onOpenAbout, onOpenPreferences func()) *Toolbar {
 	toolbar := &Toolbar{
-		readers: nil,
-		onAbout: onAbout,
+		readers:           nil,
+		onOpenAbout:       onOpenAbout,
+		onOpenPreferences: onOpenPreferences,
 	}
 	toolbar.ExtendBaseWidget(toolbar)
 	return toolbar
@@ -44,10 +46,13 @@ func (t *Toolbar) CreateRenderer() fyne.WidgetRenderer {
 	}
 	readersSelect := widget.NewSelect(t.readers, onChange)
 
-	aboutButton := widget.NewButtonWithIcon("", theme.InfoIcon(), t.onAbout)
+	settingsButton := widget.NewButtonWithIcon("", theme.SettingsIcon(), t.onOpenPreferences)
+	settingsButton.Importance = widget.LowImportance
+
+	aboutButton := widget.NewButtonWithIcon("", theme.InfoIcon(), t.onOpenAbout)
 	aboutButton.Importance = widget.LowImportance
 
-	container := container.New(layout.NewHBoxLayout(), label, readersSelect, layout.NewSpacer(), aboutButton)
+	container := container.New(layout.NewHBoxLayout(), label, readersSelect, layout.NewSpacer(), settingsButton, aboutButton)
 
 	return &ToolbarRenderer{
 		toolbar:       t,
