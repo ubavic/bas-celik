@@ -20,7 +20,7 @@ func pageID(doc *document.IdDocument) *fyne.Container {
 	personalNumberF := widgets.NewField("JMBG", doc.PersonalNumber, 200)
 	birthRow := container.New(layout.NewHBoxLayout(), sexF, birthDateF, personalNumberF)
 	birthPlaceF := widgets.NewField("Mesto rođenja, opština i država", doc.GetFullPlaceOfBirth(), 350)
-	addressF := widgets.NewField("Prebivalište i adresa stana", doc.GetFullAddress(), 350)
+	addressF := widgets.NewField("Prebivalište i adresa stana", doc.GetFullAddress(false), 350)
 	addressDateF := widgets.NewField("Datum promene adrese", doc.AddressDate, 10)
 
 	personalInformationGroupObjects = []fyne.CanvasObject{nameF, birthRow, birthPlaceF, addressF, addressDateF}

@@ -23,8 +23,10 @@ var documentId3 = document.IdDocument{
 	GivenName:        "Pablo Diego",
 	Surname:          "Ruiz Picasso",
 	HouseNumber:      "7",
+	HouseLetter:      "A",
 	Street:           "Rue des Grands-Augustins",
 	ApartmentNumber:  "21",
+	Floor:            "6",
 	Community:        "Saint-Germain-des-Prés",
 	Place:            "Paris",
 	PlaceOfBirth:     "Málaga",
@@ -61,27 +63,36 @@ func Test_GetFullName_ID(t *testing.T) {
 
 func Test_GetFullAddress_ID(t *testing.T) {
 	testCases := []struct {
-		value    document.IdDocument
-		expected string
+		value            document.IdDocument
+		expected         string
+		expectedReversed string
 	}{
 		{
-			value:    documentId1,
-			expected: "",
+			value:            documentId1,
+			expected:         "",
+			expectedReversed: "",
 		},
 		{
-			value:    documentId2,
-			expected: "Његошева 9Б, Подгорица",
+			value:            documentId2,
+			expected:         "Његошева 9Б, Подгорица",
+			expectedReversed: "Подгорица, Његошева 9Б",
 		},
 		{
-			value:    documentId3,
-			expected: "Rue des Grands-Augustins 7/21, Saint-Germain-des-Prés, Paris",
+			value:            documentId3,
+			expected:         "Rue des Grands-Augustins 7A/6/21, Saint-Germain-des-Prés, Paris",
+			expectedReversed: "Paris, Saint-Germain-des-Prés, Rue des Grands-Augustins 7A/6/21",
 		},
 	}
 
 	for _, testCase := range testCases {
-		result := testCase.value.GetFullAddress()
+		result := testCase.value.GetFullAddress(false)
 		if result != testCase.expected {
 			t.Errorf("Expected '%s' but got '%s'", testCase.expected, result)
+		}
+
+		resultReversed := testCase.value.GetFullAddress(true)
+		if resultReversed != testCase.expectedReversed {
+			t.Errorf("Expected '%s' but got '%s'", testCase.expectedReversed, resultReversed)
 		}
 	}
 }

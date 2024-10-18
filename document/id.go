@@ -63,18 +63,26 @@ func (doc *IdDocument) GetFullName() string {
 	return localization.JoinWithComma(doc.GivenName, doc.ParentGivenName, doc.Surname)
 }
 
-func (doc *IdDocument) GetFullAddress() string {
+func (doc *IdDocument) GetFullAddress(reverse bool) string {
 	var streetAndNumber = doc.Street
 
-	if doc.HouseNumber != "" || doc.HouseLetter != "" {
+	if doc.HouseNumber != "" || doc.HouseLetter != "" || doc.Entrance != "" {
 		streetAndNumber += " " + doc.HouseNumber + doc.HouseLetter
+
+		if doc.Floor != "" {
+			streetAndNumber += "/" + doc.Floor
+		}
 
 		if doc.ApartmentNumber != "" {
 			streetAndNumber += "/" + doc.ApartmentNumber
 		}
 	}
 
-	return localization.JoinWithComma(streetAndNumber, doc.Community, doc.Place)
+	if reverse {
+		return localization.JoinWithComma(doc.Place, doc.Community, streetAndNumber)
+	} else {
+		return localization.JoinWithComma(streetAndNumber, doc.Community, doc.Place)
+	}
 }
 
 func (doc *IdDocument) GetFullPlaceOfBirth() string {
@@ -246,11 +254,11 @@ func (doc *IdDocument) BuildPdf() (data []byte, fileName string, retErr error) {
 		putData("Državljanstvo:", doc.NationalityFull)
 	}
 	putData("Datum rođenja:", doc.DateOfBirth)
-	putData("Mesto rođenja, opština i država:", doc.GetFullPlaceOfBirth())
-	putData("Prebivalište:", doc.GetFullAddress())
+	putData("Mesto rođenja,\nopština i država:", doc.GetFullPlaceOfBirth())
+	putData("Prebivalište:", doc.GetFullAddress(true))
 	putData("Datum promene adrese:", doc.AddressDate)
 	if doc.DocumentType == ID_TYPE_RESIDENCE_PERMIT {
-		putData("Evidencijski broj stranca:", doc.PersonalNumber)
+		putData("Evidencijski broj\nstranca:", doc.PersonalNumber)
 	} else {
 		putData("JMBG:", doc.PersonalNumber)
 	}
