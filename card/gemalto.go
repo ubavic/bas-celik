@@ -113,8 +113,6 @@ func (card *Gemalto) InitCard() error {
 func (card *Gemalto) GetDocument() (document.Document, error) {
 	doc := document.IdDocument{}
 
-	fmt.Println(len(card.documentFile))
-
 	err := parseIdDocumentFile(card.documentFile, &doc)
 	if err != nil {
 		return nil, fmt.Errorf("parsing document file: %w", err)
