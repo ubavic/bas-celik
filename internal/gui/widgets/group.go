@@ -57,7 +57,11 @@ func (g *Group) CreateRenderer() fyne.WidgetRenderer {
 	}
 }
 
-func (r *GroupRenderer) Refresh() {}
+func (r *GroupRenderer) Refresh() {
+	r.backgroundRect.Refresh()
+	r.column.Refresh()
+	r.nameText.Refresh()
+}
 
 func (r *GroupRenderer) Layout(s fyne.Size) {
 	r.column.Move(fyne.Position{X: theme.Padding(), Y: 2 * theme.Padding()})
