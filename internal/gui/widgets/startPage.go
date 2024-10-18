@@ -40,13 +40,13 @@ func (sb *StartPage) SetStatus(status, explanation string, err bool) {
 }
 
 func (sb *StartPage) CreateRenderer() fyne.WidgetRenderer {
-	statusText := canvas.NewText(sb.status, theme.ForegroundColor())
+	statusText := canvas.NewText(sb.status, theme.Color(theme.ColorNameForeground))
 	statusText.TextSize = 16
-	statusText.Color = theme.ErrorColor()
+	statusText.Color = theme.Color(theme.ColorNameError)
 
-	explanationText := canvas.NewText(sb.status, theme.ForegroundColor())
+	explanationText := canvas.NewText(sb.status, theme.Color(theme.ColorNameForeground))
 	explanationText.TextSize = 11
-	explanationText.Color = theme.ForegroundColor()
+	explanationText.Color = theme.Color(theme.ColorNameForeground)
 
 	box := container.New(layout.NewVBoxLayout(), statusText, explanationText)
 	container := container.New(layout.NewCenterLayout(), box)
@@ -64,9 +64,9 @@ func (r *StartPageRenderer) Refresh() {
 	r.explanationText.Text = r.page.explanation
 
 	if r.page.err {
-		r.statusText.Color = theme.ErrorColor()
+		r.statusText.Color = theme.Color(theme.ColorNameError)
 	} else {
-		r.statusText.Color = theme.ForegroundColor()
+		r.statusText.Color = theme.Color(theme.ColorNameForeground)
 	}
 
 	r.statusText.Refresh()

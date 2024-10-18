@@ -33,9 +33,9 @@ func (sb *StatusBar) SetStatus(status string, err bool) {
 }
 
 func (sb *StatusBar) CreateRenderer() fyne.WidgetRenderer {
-	statusText := canvas.NewText(sb.status, theme.ForegroundColor())
+	statusText := canvas.NewText(sb.status, theme.Color(theme.ColorNameForeground))
 	statusText.TextSize = 11
-	statusText.Color = theme.ErrorColor()
+	statusText.Color = theme.Color(theme.ColorNameError)
 
 	return &StatusBarRenderer{
 		bar:        sb,
@@ -47,9 +47,9 @@ func (r *StatusBarRenderer) Refresh() {
 	r.statusText.Text = r.bar.status
 
 	if r.bar.err {
-		r.statusText.Color = theme.ErrorColor()
+		r.statusText.Color = theme.Color(theme.ColorNameError)
 	} else {
-		r.statusText.Color = theme.ForegroundColor()
+		r.statusText.Color = theme.Color(theme.ColorNameForeground)
 	}
 
 	r.statusText.Refresh()

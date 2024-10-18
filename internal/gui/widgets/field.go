@@ -33,7 +33,7 @@ func NewField(name, value string, minWidth float32) *Field {
 }
 
 func (f *Field) CreateRenderer() fyne.WidgetRenderer {
-	nameText := canvas.NewText(f.name, theme.ForegroundColor())
+	nameText := canvas.NewText(f.name, theme.Color(theme.ColorNameForeground))
 	nameText.TextSize = 11
 
 	valueText := widget.NewLabelWithStyle(f.value, fyne.TextAlignLeading, fyne.TextStyle{Bold: true})

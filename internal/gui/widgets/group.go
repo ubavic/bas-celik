@@ -42,9 +42,9 @@ func (g *Group) CreateRenderer() fyne.WidgetRenderer {
 	column := container.New(layout.NewVBoxLayout(), g.objects...)
 	column.Move(fyne.NewPos(theme.Padding(), 0))
 
-	backgroundRect := canvas.NewRectangle(theme.OverlayBackgroundColor())
+	backgroundRect := canvas.NewRectangle(theme.Color(theme.ColorNameOverlayBackground))
 	backgroundRect.StrokeWidth = 1
-	backgroundRect.StrokeColor = theme.DisabledButtonColor()
+	backgroundRect.StrokeColor = theme.Color(theme.ColorNameDisabledButton)
 	backgroundRect.Move(fyne.NewPos(0, 2*theme.Padding()))
 	backgroundRect.Resize(fyne.NewSize(column.MinSize().Width+2*theme.Padding(), column.MinSize().Height+theme.Padding()))
 	backgroundRect.CornerRadius = 3
