@@ -284,9 +284,12 @@ func (doc *IdDocument) BuildPdf() (data []byte, fileName string, retErr error) {
 
 	cell("Datum štampe: " + time.Now().Format("02.01.2006."))
 
-	pdf.SetY(730.6)
-	if doc.DocumentType == ID_TYPE_RESIDENCE_PERMIT {
-		pdf.SetY(735)
+	moveY(19)
+
+	if doc.DocumentType == ID_TYPE_APOLLO || doc.DocumentType == ID_TYPE_ID {
+		if pdf.GetY() < 700 {
+			pdf.SetY(730.6)
+		}
 	}
 
 	line(0.83)
@@ -296,31 +299,49 @@ func (doc *IdDocument) BuildPdf() (data []byte, fileName string, retErr error) {
 		panic(err)
 	}
 
+	moveY(4)
+	if doc.DocumentType == ID_TYPE_APOLLO || doc.DocumentType == ID_TYPE_ID {
+		moveY(6)
+	}
+
+	pdf.SetX(leftMargin)
+
 	if doc.DocumentType == ID_TYPE_RESIDENCE_PERMIT {
-		pdf.SetXY(leftMargin, 741.7)
 		cell("1. U čipu dozvole za privremeni boravak i rad, podaci o imenu i prezimenu imaoca dozvole ispisani su onako")
-		pdf.SetXY(leftMargin, 751.9)
+		pdf.SetX(leftMargin)
+		moveY(9.7)
 		cell("kako su ispisani na samom obrascu dozvole za privremeni boravak latiničnim pismom.")
-		pdf.SetXY(leftMargin, 761.7)
+		pdf.SetX(leftMargin)
+		moveY(9.7)
 		cell("2. Ako se ime ili prezime stranca sastoji od dve ili više reči čija dužina prelazi 30 karaktera za ime,")
-		pdf.SetXY(leftMargin, 771.4)
+		pdf.SetX(leftMargin)
+		moveY(9.7)
 		cell("odnosno 36 karaktera za prezime u čip se upisuje puno ime stranca, a na obrascu dozvole za privremeni boravak")
-		pdf.SetXY(leftMargin, 781.1)
+		pdf.SetX(leftMargin)
+		moveY(9.7)
 		cell("se upisuje do 30 karaktera za ime, odnosno 36 karaktera za prezime.")
 	} else {
-		pdf.SetXY(leftMargin, 739.7)
 		cell("1. U čipu lične karte, podaci o imenu i prezimenu imaoca lične karte ispisani su na nacionalnom pismu onako kako su")
-		pdf.SetXY(leftMargin, 749.9)
+		pdf.SetX(leftMargin)
+		moveY(9.7)
 		cell("ispisani na samom obrascu lične karte, dok su ostali podaci ispisani latiničkim pismom.")
-		pdf.SetXY(leftMargin, 759.7)
+		pdf.SetX(leftMargin)
+		moveY(9.7)
 		cell("2. Ako se ime lica sastoji od dve reči čija je ukupna dužina između 20 i 30 karaktera ili prezimena od dve reči čija je")
-		pdf.SetXY(leftMargin, 769.4)
+		pdf.SetX(leftMargin)
+		moveY(9.7)
 		cell("ukupna dužina između 30 i 36 karaktera, u čipu lične karte izdate pre 18.08.2014. godine, druga reč u imenu ili prezimenu")
-		pdf.SetXY(leftMargin, 779.1)
+		pdf.SetX(leftMargin)
+		moveY(9.7)
 		cell("skraćuje se na prva dva karaktera")
 	}
 
-	pdf.SetY(794.5)
+	moveY(9.7)
+
+	if doc.DocumentType == ID_TYPE_APOLLO || doc.DocumentType == ID_TYPE_ID {
+		moveY(6)
+	}
+
 	line(0)
 
 	fileName = strings.ToLower(doc.GivenName + "_" + doc.Surname + ".pdf")
