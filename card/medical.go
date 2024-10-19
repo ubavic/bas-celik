@@ -47,6 +47,22 @@ var MED_VARIABLE_PERSONAL_FILE_LOC = []byte{0x0D, 0x03}
 // Location of the file with variable administrative data.
 var MED_VARIABLE_ADMIN_FILE_LOC = []byte{0x0D, 0x04}
 
+func (card *MedicalCard) InitCard() error {
+	s1 := []byte{0xF3, 0x81, 0x00, 0x00, 0x02, 0x53, 0x45, 0x52, 0x56, 0x53, 0x5A, 0x4B, 0x01}
+	apu := buildAPDU(0x00, 0xA4, 0x04, 0x00, s1, 0)
+
+	rsp, err := card.smartCard.Transmit(apu)
+	if err != nil {
+		return err
+	}
+
+	if !responseOK(rsp) {
+		return fmt.Errorf("initializing card: response not OK")
+	}
+
+	return nil
+}
+
 func (card *MedicalCard) ReadCard() error {
 	var err error
 
@@ -97,6 +113,10 @@ func (card *MedicalCard) GetDocument() (document.Document, error) {
 	}
 
 	return &doc, nil
+}
+
+func (card *MedicalCard) Atr() Atr {
+	return card.atr
 }
 
 // Decodes UTF16 encoded data on medical cards.
@@ -179,26 +199,6 @@ func (card *MedicalCard) testMedicalCard() bool {
 	descramble(fields, 1553)
 
 	return strings.Compare(string(fields[1553]), "Републички фонд за здравствено осигурање") == 0
-}
-
-func (card *MedicalCard) Atr() Atr {
-	return card.atr
-}
-
-func (card *MedicalCard) InitCard() error {
-	s1 := []byte{0xF3, 0x81, 0x00, 0x00, 0x02, 0x53, 0x45, 0x52, 0x56, 0x53, 0x5A, 0x4B, 0x01}
-	apu := buildAPDU(0x00, 0xA4, 0x04, 0x00, s1, 0)
-
-	rsp, err := card.smartCard.Transmit(apu)
-	if err != nil {
-		return err
-	}
-
-	if !responseOK(rsp) {
-		return fmt.Errorf("initializing card: response not OK")
-	}
-
-	return nil
 }
 
 func parseMedicalDocumentFile(data []byte, doc *document.MedicalDocument) error {

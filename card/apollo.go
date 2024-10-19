@@ -82,6 +82,10 @@ func (card *Apollo) GetDocument() (document.Document, error) {
 	return &doc, nil
 }
 
+func (card *Apollo) Atr() Atr {
+	return card.atr
+}
+
 func (card *Apollo) readFile(name []byte) ([]byte, error) {
 	output := make([]byte, 0)
 
@@ -124,8 +128,4 @@ func (card *Apollo) selectFile(name []byte, ne uint) ([]byte, error) {
 	}
 
 	return rsp, nil
-}
-
-func (card *Apollo) Atr() Atr {
-	return card.atr
 }
