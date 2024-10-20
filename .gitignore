@@ -6,6 +6,11 @@ __debug_bin*
 *.xlsx
 *.tar.xz
 *.exe
+*.bin
+*.ber
+*.cert
+*.pub
+*.priv
 fyne-cross/
 bin/
 *.out
