@@ -37,7 +37,7 @@ func StartGui(verbose_ bool, version string) {
 	theme := celiktheme.NewTheme(app.Preferences().IntWithFallback(themePreferenceKey, 1))
 	app.Settings().SetTheme(theme)
 
-	showAboutBox := ShowAboutBox(win, version)
+	showAboutBox := showAboutBox(win, version)
 	showSettings := showSetupBox(win, app)
 
 	statusBar := widgets.NewStatusBar()
@@ -170,7 +170,7 @@ func savePdf(doc document.Document) func() {
 	}
 }
 
-func ShowAboutBox(win fyne.Window, version string) func() {
+func showAboutBox(win fyne.Window, version string) func() {
 	verLabel := widget.NewLabelWithStyle("Verzija: "+version, fyne.TextAlignLeading, fyne.TextStyle{Italic: true})
 	moreLabel := widget.NewLabel("Više o programu na adresi:")
 	url, _ := url.Parse("https://github.com/ubavic/bas-celik")
