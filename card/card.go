@@ -23,7 +23,7 @@ type Card interface {
 // Represents a smart card with a document.
 // All types of documents that Bas Celik can read should satisfy this interface
 type CardDocument interface {
-	readFile([]byte) ([]byte, error)
+	ReadFile([]byte) ([]byte, error)
 	InitCard() error
 	ReadCard() error
 	GetDocument() (doc.Document, error)

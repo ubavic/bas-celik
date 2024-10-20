@@ -109,7 +109,7 @@ func (card *VehicleCard) ReadCard() error {
 	var err error
 
 	for i := byte(0); i <= 3; i++ {
-		card.files[int(i)], err = card.readFile([]byte{0xD0, i*0x10 + 0x01})
+		card.files[int(i)], err = card.ReadFile([]byte{0xD0, i*0x10 + 0x01})
 		if err != nil {
 			return fmt.Errorf("reading document %d file: %w", i, err)
 		}
@@ -188,7 +188,7 @@ func (card *VehicleCard) Atr() Atr {
 	return card.atr
 }
 
-func (card *VehicleCard) readFile(name []byte) ([]byte, error) {
+func (card *VehicleCard) ReadFile(name []byte) ([]byte, error) {
 	output := make([]byte, 0)
 
 	_, err := card.selectFile(name)

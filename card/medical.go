@@ -66,22 +66,22 @@ func (card *MedicalCard) InitCard() error {
 func (card *MedicalCard) ReadCard() error {
 	var err error
 
-	card.medicalDocumentFile, err = card.readFile(MED_DOCUMENT_FILE_LOC)
+	card.medicalDocumentFile, err = card.ReadFile(MED_DOCUMENT_FILE_LOC)
 	if err != nil {
 		return fmt.Errorf("reading document file: %w", err)
 	}
 
-	card.fixedPersonalFile, err = card.readFile(MED_FIXED_PERSONAL_FILE_LOC)
+	card.fixedPersonalFile, err = card.ReadFile(MED_FIXED_PERSONAL_FILE_LOC)
 	if err != nil {
 		return fmt.Errorf("reading fixed personal file: %w", err)
 	}
 
-	card.variablePersonalFile, err = card.readFile(MED_VARIABLE_PERSONAL_FILE_LOC)
+	card.variablePersonalFile, err = card.ReadFile(MED_VARIABLE_PERSONAL_FILE_LOC)
 	if err != nil {
 		return fmt.Errorf("reading variable personal file: %w", err)
 	}
 
-	card.variableAdminFile, err = card.readFile(MED_VARIABLE_ADMIN_FILE_LOC)
+	card.variableAdminFile, err = card.ReadFile(MED_VARIABLE_ADMIN_FILE_LOC)
 	if err != nil {
 		return fmt.Errorf("reading variable administrative file: %w", err)
 	}
@@ -133,7 +133,7 @@ func descramble(fields map[uint][]byte, tag uint) {
 	fields[tag] = []byte{}
 }
 
-func (card *MedicalCard) readFile(name []byte) ([]byte, error) {
+func (card *MedicalCard) ReadFile(name []byte) ([]byte, error) {
 	output := make([]byte, 0)
 
 	_, err := card.selectFile(name)
@@ -187,7 +187,7 @@ func (card *MedicalCard) testMedicalCard() bool {
 		return false
 	}
 
-	rsp, err := card.readFile([]byte{0x0D, 0x01})
+	rsp, err := card.ReadFile([]byte{0x0D, 0x01})
 	if err != nil {
 		return false
 	}

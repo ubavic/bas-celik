@@ -85,22 +85,22 @@ func (card *Gemalto) InitCard() error {
 func (card *Gemalto) ReadCard() error {
 	var err error
 
-	card.documentFile, err = card.readFile(ID_DOCUMENT_FILE_LOC)
+	card.documentFile, err = card.ReadFile(ID_DOCUMENT_FILE_LOC)
 	if err != nil {
 		return fmt.Errorf("reading document file: %w", err)
 	}
 
-	card.personalFile, err = card.readFile(ID_PERSONAL_FILE_LOC)
+	card.personalFile, err = card.ReadFile(ID_PERSONAL_FILE_LOC)
 	if err != nil {
 		return fmt.Errorf("reading personal file: %w", err)
 	}
 
-	card.residenceFile, err = card.readFile(ID_RESIDENCE_FILE_LOC)
+	card.residenceFile, err = card.ReadFile(ID_RESIDENCE_FILE_LOC)
 	if err != nil {
 		return fmt.Errorf("reading residence file: %w", err)
 	}
 
-	rsp, err := card.readFile(ID_PHOTO_FILE_LOC)
+	rsp, err := card.ReadFile(ID_PHOTO_FILE_LOC)
 	if err != nil {
 		return fmt.Errorf("reading photo file: %w", err)
 	}
@@ -140,7 +140,7 @@ func (card *Gemalto) Atr() Atr {
 	return card.atr
 }
 
-func (card *Gemalto) readFile(name []byte) ([]byte, error) {
+func (card *Gemalto) ReadFile(name []byte) ([]byte, error) {
 	output := make([]byte, 0)
 
 	_, err := card.selectFile(name, 4)
@@ -190,6 +190,6 @@ func (card *Gemalto) testGemalto() bool {
 		return false
 	}
 
-	_, err = card.readFile(ID_DOCUMENT_FILE_LOC)
+	_, err = card.ReadFile(ID_DOCUMENT_FILE_LOC)
 	return err == nil
 }

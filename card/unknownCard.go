@@ -15,7 +15,7 @@ func (card *UnknownDocumentCard) Atr() Atr {
 	return card.atr
 }
 
-func (card *UnknownDocumentCard) readFile(_ []byte) ([]byte, error) {
+func (card *UnknownDocumentCard) ReadFile(_ []byte) ([]byte, error) {
 	return nil, errors.New("not implemented")
 }
 
