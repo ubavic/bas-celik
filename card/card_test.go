@@ -24,7 +24,7 @@ func Test_responseOK(t *testing.T) {
 				res := responseOK(testCase.value)
 
 				if res != testCase.result {
-					t.Errorf("Expected response to be %t, but it is %t", res, testCase.result)
+					t.Errorf("Expected %t, but got %t", testCase.result, res)
 				}
 			},
 		)
