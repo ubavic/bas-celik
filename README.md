@@ -121,7 +121,7 @@ Aplikacija je podeljena na sledeće pakete:
 
 Ostali direktorijumi u okviru projekta:
  + `embed` i `assets` - dodatne datoteke. Neke se linkuju u izvršnu verziju prilikom kompilacije.
- + `docs` - eksterna dokumentacija
+ + `docs` - interna i eksterna dokumentacija
 
 ## Doprinos
 
