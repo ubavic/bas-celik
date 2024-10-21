@@ -184,7 +184,7 @@ func (card *Gemalto) selectFile(name []byte, ne uint) ([]byte, error) {
 	return rsp, nil
 }
 
-func (card *Gemalto) testGemalto() bool {
+func (card *Gemalto) Test() bool {
 	err := card.InitCard()
 	if err != nil {
 		return false

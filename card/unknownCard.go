@@ -30,3 +30,7 @@ func (card *UnknownDocumentCard) ReadCard() error {
 func (card *UnknownDocumentCard) GetDocument() (document.Document, error) {
 	return nil, nil
 }
+
+func (card *UnknownDocumentCard) Test() bool {
+	return true
+}

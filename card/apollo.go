@@ -120,6 +120,10 @@ func (card *Apollo) ReadFile(name []byte) ([]byte, error) {
 	return output, nil
 }
 
+func (card *Apollo) Test() bool {
+	return true
+}
+
 func (card *Apollo) selectFile(name []byte, ne uint) ([]byte, error) {
 	apu := buildAPDU(0x00, 0xA4, 0x08, 0x00, name, ne)
 	rsp, err := card.smartCard.Transmit(apu)

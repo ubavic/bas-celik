@@ -178,8 +178,7 @@ func (card *MedicalCard) selectFile(name []byte) ([]byte, error) {
 }
 
 // Newer medical cards share ATR with the ID cards (GEMALTO_ATR_2)
-// Function testMedicalCard tests if s smart card is a medical card.
-func (card *MedicalCard) testMedicalCard() bool {
+func (card *MedicalCard) Test() bool {
 	s1 := []byte{0xF3, 0x81, 0x00, 0x00, 0x02, 0x53, 0x45, 0x52, 0x56, 0x53, 0x5A, 0x4B, 0x01}
 	apu := buildAPDU(0x00, 0xA4, 0x04, 0x00, s1, 0)
 	_, err := card.smartCard.Transmit(apu)

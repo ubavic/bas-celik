@@ -224,6 +224,15 @@ func (card *VehicleCard) ReadFile(name []byte) ([]byte, error) {
 	return output, nil
 }
 
+func (card VehicleCard) Test() bool {
+	err := card.InitCard()
+	if err != nil {
+		return false
+	}
+
+	return true
+}
+
 func parseVehicleCardFileSize(data []byte) (uint, uint, error) {
 	if len(data) < 1 {
 		return 0, 0, cardErrors.ErrInvalidLength

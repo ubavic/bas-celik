@@ -27,62 +27,64 @@ type CardDocument interface {
 	InitCard() error
 	ReadCard() error
 	GetDocument() (doc.Document, error)
+	Test() bool
 	Atr() Atr
 }
+
+// Represents a different types of smart card documents.
+// Each value of `CardDocumentType` is represented with a struct
+// that satisfies `CardDocument` interface.
+type CardDocumentType uint8
+
+const (
+	UnknownDocumentCardType = CardDocumentType(iota)
+	ApolloIdDocumentCardType
+	GemaltoIdDocumentCardType
+	MedicalDocumentCardType
+	VehicleDocumentCardType
+)
 
 var ErrUnknownCard = errors.New("unknown card")
 
 // Detects Card Document from card's ATR
 // Ambiguous cases are solved by reading specific card content
 func DetectCardDocument(sc Card) (CardDocument, error) {
-	var card CardDocument
-
 	smartCardStatus, err := sc.Status()
 	if err != nil {
-		return nil, fmt.Errorf("reading card %w", err)
+		return nil, fmt.Errorf("reading card status %w", err)
 	}
 
 	atr := Atr(smartCardStatus.Atr)
 
-	if atr.Is(GEMALTO_ATR_1) {
-		tempIdCard := Gemalto{smartCard: sc}
-		if tempIdCard.testGemalto() {
-			card = &Gemalto{atr: atr, smartCard: sc}
-		} else {
-			card = &VehicleCard{atr: atr, smartCard: sc}
+	possibleCardTypes := DetectCardDocumentByAtr(atr)
+
+	for _, cardType := range possibleCardTypes {
+		switch cardType {
+		case ApolloIdDocumentCardType:
+			card := &Apollo{atr: atr, smartCard: sc}
+			return card, nil
+		case GemaltoIdDocumentCardType:
+			card := Gemalto{atr: atr, smartCard: sc}
+			if card.Test() {
+				return &card, nil
+			}
+		case VehicleDocumentCardType:
+			card := VehicleCard{atr: atr, smartCard: sc}
+			if card.Test() {
+				return &card, nil
+			}
+		case MedicalDocumentCardType:
+			card := MedicalCard{atr: atr, smartCard: sc}
+			if card.Test() {
+				return &card, nil
+			}
+		default:
+			card := &UnknownDocumentCard{atr: atr, smartCard: sc}
+			return card, ErrUnknownCard
 		}
-	} else if atr.Is(GEMALTO_ATR_2) || atr.Is(GEMALTO_ATR_3) {
-		tempIdCard := Gemalto{smartCard: sc}
-		tmpMedCard := MedicalCard{smartCard: sc}
-		if tempIdCard.testGemalto() {
-			card = &Gemalto{smartCard: sc}
-		} else if tmpMedCard.testMedicalCard() {
-			card = &MedicalCard{atr: atr, smartCard: sc}
-		} else {
-			card = &VehicleCard{atr: atr, smartCard: sc}
-		}
-	} else if atr.Is(GEMALTO_ATR_4) {
-		card = &Gemalto{atr: atr, smartCard: sc}
-	} else if atr.Is(APOLLO_ATR) {
-		card = &Apollo{atr: atr, smartCard: sc}
-	} else if atr.Is(MEDICAL_ATR_1) {
-		card = &MedicalCard{atr: atr, smartCard: sc}
-	} else if atr.Is(MEDICAL_ATR_2) {
-		card = &MedicalCard{atr: atr, smartCard: sc}
-	} else if atr.Is(VEHICLE_ATR_0) {
-		card = &VehicleCard{atr: atr, smartCard: sc}
-	} else if atr.Is(VEHICLE_ATR_2) {
-		card = &VehicleCard{atr: atr, smartCard: sc}
-	} else if atr.Is(VEHICLE_ATR_3) {
-		card = &VehicleCard{atr: atr, smartCard: sc}
-	} else if atr.Is(VEHICLE_ATR_4) {
-		card = &VehicleCard{atr: atr, smartCard: sc}
-	} else {
-		card = &UnknownDocumentCard{atr: atr, smartCard: sc}
-		return card, ErrUnknownCard
 	}
 
-	return card, nil
+	return nil, errors.New("unexpected card type")
 }
 
 // Reads binary data from the card starting from the specified offset and with the specified length.
