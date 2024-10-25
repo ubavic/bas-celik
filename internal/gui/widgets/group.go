@@ -64,13 +64,13 @@ func (r *GroupRenderer) Refresh() {
 }
 
 func (r *GroupRenderer) Layout(s fyne.Size) {
-	r.column.Move(fyne.Position{X: theme.Padding(), Y: 2 * theme.Padding()})
-	bgSize := r.backgroundRect.Size()
-	r.backgroundRect.Resize(fyne.NewSize(s.Width, bgSize.Height))
+	r.column.Move(fyne.Position{X: theme.Padding(), Y: 3 * theme.Padding()})
+	r.column.Layout.Layout(r.group.objects, s.SubtractWidthHeight(2*theme.Padding(), 0))
+	r.backgroundRect.Resize(fyne.NewSize(s.Width, r.column.MinSize().Height+2*theme.Padding()))
 }
 
 func (r *GroupRenderer) MinSize() fyne.Size {
-	return fyne.NewSize(r.column.MinSize().Width+2*theme.Padding(), r.column.MinSize().Height+6*theme.Padding())
+	return fyne.NewSize(r.column.MinSize().Width+2*theme.Padding(), r.column.MinSize().Height+8*theme.Padding())
 }
 
 func (r *GroupRenderer) Objects() []fyne.CanvasObject {

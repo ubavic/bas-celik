@@ -5,6 +5,7 @@ import (
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/layout"
+	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 	"github.com/ubavic/bas-celik/document"
 	"github.com/ubavic/bas-celik/internal/gui/widgets"
@@ -14,10 +15,12 @@ import (
 func pageID(doc *document.IdDocument) *fyne.Container {
 	var personalInformationGroupObjects, docGroupObjects []fyne.CanvasObject
 
+	widthThird := (350 - 2*theme.Padding()) / 3
+
 	nameF := widgets.NewField("Ime, ime roditelja, prezime", doc.GetFullName(), 350)
-	birthDateF := widgets.NewField("Datum rođenja", doc.DateOfBirth, 100)
-	sexF := widgets.NewField("Pol", doc.Sex, 50)
-	personalNumberF := widgets.NewField("JMBG", doc.PersonalNumber, 200)
+	birthDateF := widgets.NewField("Datum rođenja", doc.DateOfBirth, widthThird)
+	sexF := widgets.NewField("Pol", doc.Sex, widthThird)
+	personalNumberF := widgets.NewField("JMBG", doc.PersonalNumber, widthThird)
 	birthRow := container.New(layout.NewHBoxLayout(), sexF, birthDateF, personalNumberF)
 	birthPlaceF := widgets.NewField("Mesto rođenja, opština i država", doc.GetFullPlaceOfBirth(), 350)
 	addressF := widgets.NewField("Prebivalište i adresa stana", doc.GetFullAddress(false), 350)
@@ -41,10 +44,11 @@ func pageID(doc *document.IdDocument) *fyne.Container {
 	if doc.DocumentType == document.ID_TYPE_RESIDENCE_PERMIT {
 		docGroupObjects = append(docGroupObjects, widgets.NewField("Naziv dokumenta", doc.DocumentName, 100))
 	}
-	docGroupObjects = append(docGroupObjects, widgets.NewField("Dokument izdaje", doc.IssuingAuthority, 10))
-	documentNumberF := widgets.NewField("Broj dokumenta", doc.DocRegNo, 100)
-	issueDateF := widgets.NewField("Datum izdavanja", doc.IssuingDate, 100)
-	expiryDateF := widgets.NewField("Važi do", doc.ExpiryDate, 100)
+
+	docGroupObjects = append(docGroupObjects, widgets.NewField("Dokument izdaje", doc.IssuingAuthority, 350))
+	documentNumberF := widgets.NewField("Broj dokumenta", doc.DocRegNo, widthThird)
+	issueDateF := widgets.NewField("Datum izdavanja", doc.IssuingDate, widthThird)
+	expiryDateF := widgets.NewField("Važi do", doc.ExpiryDate, widthThird)
 	docRow := container.New(layout.NewHBoxLayout(), documentNumberF, issueDateF, expiryDateF)
 	docGroupObjects = append(docGroupObjects, docRow)
 	docGroup := widgets.NewGroup("Podaci o dokumentu", docGroupObjects...)
@@ -73,9 +77,10 @@ func pageMedical(doc *document.MedicalDocument) *fyne.Container {
 	placeF := widgets.NewField("Mesto", doc.Place, 170)
 	street := widgets.NewField("Ulica", doc.Street, 170)
 	address2Row := container.New(layout.NewHBoxLayout(), placeF, street)
-	addressNumber := widgets.NewField("Broj", doc.Number, 76)
-	addressEntrance := widgets.NewField("Ulaz", doc.Apartment, 76)
-	addressApartmentNumber := widgets.NewField("Stan", doc.Apartment, 80)
+	halfWidth := (170 - 3*theme.Padding()) / 2
+	addressNumber := widgets.NewField("Broj", doc.Number, halfWidth)
+	addressEntrance := widgets.NewField("Ulaz", doc.Apartment, halfWidth)
+	addressApartmentNumber := widgets.NewField("Stan", doc.Apartment, 170)
 	address3Row := container.New(layout.NewHBoxLayout(), addressNumber, addressEntrance, addressApartmentNumber)
 
 	generalGroup := widgets.NewGroup("Opšti podaci", nameF, birthRow, idsRow, address1Row, address2Row, address3Row)
@@ -98,14 +103,13 @@ func pageMedical(doc *document.MedicalDocument) *fyne.Container {
 	carrierGroup := widgets.NewGroup("Podaci o nosiocu osiguranja", carrierNameF, carrierRow1, carrierRow2)
 
 	cardNumber := widgets.NewField("Broj zdravstvene isprave", doc.CardId, 270)
-	cardRow0 := container.New(layout.NewHBoxLayout(), cardNumber)
 	dateOfIssueF := widgets.NewField("Datum izdavanja", doc.DateOfIssue, 170)
 	dateOfExpiryF := widgets.NewField("Datum važenja", doc.DateOfExpiry, 170)
 	cardRow1 := container.New(layout.NewHBoxLayout(), dateOfIssueF, dateOfExpiryF)
 	validUntilF := widgets.NewField("Overena do*", doc.ValidUntil, 170)
 	permanentlyValidF := widgets.NewField("Trajna overa", localization.FormatYesNo(doc.PermanentlyValid, localization.Latin), 170)
 	cardRow2 := container.New(layout.NewHBoxLayout(), validUntilF, permanentlyValidF)
-	cardGroup := widgets.NewGroup("Podaci o kartici", cardRow0, cardRow1, cardRow2)
+	cardGroup := widgets.NewGroup("Podaci o kartici", cardNumber, cardRow1, cardRow2)
 
 	taxpayerNameF := widgets.NewField("Naziv / ime i prezime", doc.TaxpayerName, 350)
 	taxpayerActivityCodeF := widgets.NewField("Oznaka delatnosti", doc.TaxpayerActivityCode, 170)
