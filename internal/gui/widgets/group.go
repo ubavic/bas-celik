@@ -1,8 +1,6 @@
 package widgets
 
 import (
-	"image/color"
-
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
@@ -18,10 +16,9 @@ type Group struct {
 }
 
 type GroupRenderer struct {
-	group          *Group
-	nameText       *canvas.Text
-	backgroundRect *canvas.Rectangle
-	column         *fyne.Container
+	group    *Group
+	nameText *canvas.Text
+	column   *fyne.Container
 }
 
 func NewGroup(name string, objects ...fyne.CanvasObject) *Group {
@@ -34,47 +31,38 @@ func NewGroup(name string, objects ...fyne.CanvasObject) *Group {
 }
 
 func (g *Group) CreateRenderer() fyne.WidgetRenderer {
-	nameText := canvas.NewText(g.name, color.NRGBA{R: 0x60, G: 0x60, B: 0x60, A: 0xFF})
-	nameText.TextSize = 11
+	nameText := canvas.NewText(g.name, theme.Color(theme.ColorNameForeground))
+	nameText.TextStyle.Bold = true
+	nameText.TextSize = 12
 
-	nameText.Move(fyne.NewPos(theme.Padding(), -1.6*theme.Padding()))
+	nameText.Move(fyne.NewPos(2*theme.Padding(), theme.Padding()))
 
 	column := container.New(layout.NewVBoxLayout(), g.objects...)
-	column.Move(fyne.NewPos(theme.Padding(), 0))
-
-	backgroundRect := canvas.NewRectangle(theme.Color(theme.ColorNameOverlayBackground))
-	backgroundRect.StrokeWidth = 1
-	backgroundRect.StrokeColor = theme.Color(theme.ColorNameDisabledButton)
-	backgroundRect.Move(fyne.NewPos(0, 2*theme.Padding()))
-	backgroundRect.Resize(fyne.NewSize(column.MinSize().Width+2*theme.Padding(), column.MinSize().Height+theme.Padding()))
-	backgroundRect.CornerRadius = 3
+	column.Move(fyne.NewPos(theme.Padding(), 6*theme.Padding()))
 
 	return &GroupRenderer{
-		group:          g,
-		nameText:       nameText,
-		column:         column,
-		backgroundRect: backgroundRect,
+		group:    g,
+		nameText: nameText,
+		column:   column,
 	}
 }
 
 func (r *GroupRenderer) Refresh() {
-	r.backgroundRect.Refresh()
 	r.column.Refresh()
 	r.nameText.Refresh()
 }
 
 func (r *GroupRenderer) Layout(s fyne.Size) {
-	r.column.Move(fyne.Position{X: theme.Padding(), Y: 3 * theme.Padding()})
+	r.column.Move(fyne.Position{X: theme.Padding(), Y: 6 * theme.Padding()})
 	r.column.Layout.Layout(r.group.objects, s.SubtractWidthHeight(2*theme.Padding(), 0))
-	r.backgroundRect.Resize(fyne.NewSize(s.Width, r.column.MinSize().Height+2*theme.Padding()))
 }
 
 func (r *GroupRenderer) MinSize() fyne.Size {
-	return fyne.NewSize(r.column.MinSize().Width+2*theme.Padding(), r.column.MinSize().Height+8*theme.Padding())
+	return fyne.NewSize(r.column.MinSize().Width+2*theme.Padding(), r.column.MinSize().Height+10*theme.Padding())
 }
 
 func (r *GroupRenderer) Objects() []fyne.CanvasObject {
-	return []fyne.CanvasObject{r.backgroundRect, r.column, r.nameText}
+	return []fyne.CanvasObject{r.column, r.nameText}
 }
 
 func (r *GroupRenderer) Destroy() {}
