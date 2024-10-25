@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/url"
 	"sync"
+	"time"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
@@ -39,6 +40,8 @@ func StartGui(verbose_ bool, version string) {
 
 	showAboutBox := showAboutBox(win, version)
 	showSettings := showSetupBox(win, app)
+
+	widgets.SetClipboard(CopyToClipboard)
 
 	statusBar := widgets.NewStatusBar()
 	toolbar := widgets.NewToolbar(showAboutBox, showSettings)
@@ -200,4 +203,29 @@ func updateMedicalDocHandler(doc *document.MedicalDocument) func() {
 		setStatus("Ažuriranje podataka uspešno", nil)
 		setUI(doc)
 	}
+}
+
+func CopyToClipboard(str string) bool {
+	if state.window == nil {
+		return false
+	}
+
+	win := *state.window
+	clipboard := win.Clipboard()
+	if clipboard == nil {
+		return false
+	}
+
+	clipboard.SetContent(str)
+	state.statusBar.SetStatus("Sadržaj kopiran", false)
+	state.statusBar.Refresh()
+	go func() {
+		time.Sleep(2 * time.Second)
+		if state.statusBar.GetStatus() == "Sadržaj kopiran" {
+			state.statusBar.SetStatus("", false)
+			state.statusBar.Refresh()
+		}
+	}()
+
+	return true
 }

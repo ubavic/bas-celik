@@ -5,6 +5,7 @@ import (
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
+	"fyne.io/fyne/v2/driver/desktop"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 )
@@ -13,6 +14,8 @@ type Field struct {
 	widget.BaseWidget
 	name, value string
 	minWidth    float32
+	hovered     bool
+	copied      bool
 }
 
 type FieldRenderer struct {
@@ -40,17 +43,50 @@ func (f *Field) CreateRenderer() fyne.WidgetRenderer {
 	valueText.Wrapping = fyne.TextWrapWord
 	valueText.Resize(fyne.NewSize(f.minWidth, valueText.MinSize().Height))
 
+	background := canvas.NewRectangle(color.Transparent)
+	background.CornerRadius = theme.InputRadiusSize()
+
 	return &FieldRenderer{
 		field:      f,
-		background: canvas.NewRectangle(color.RGBA{A: 0x00}),
+		background: background,
 		nameText:   nameText,
 		valueLabel: valueText,
 	}
 }
 
+func (f *Field) Cursor() desktop.Cursor {
+	return desktop.PointerCursor
+}
+
+func (f *Field) MouseIn(*desktop.MouseEvent) {
+	f.copied = false
+	f.hovered = true
+	f.Refresh()
+}
+
+func (f *Field) MouseMoved(*desktop.MouseEvent) {
+}
+
+func (f *Field) MouseOut() {
+	f.hovered = false
+	f.Refresh()
+}
+
+func (f *Field) Tapped(*fyne.PointEvent) {
+	if copyToClipboard(f.value) {
+		f.copied = true
+	}
+	f.Refresh()
+}
+
 func (r *FieldRenderer) Refresh() {
-	r.background.Refresh()
+	if r.field.hovered && !r.field.copied {
+		r.background.FillColor = theme.Color(theme.ColorNameButton)
+	} else {
+		r.background.FillColor = color.Transparent
+	}
 	r.valueLabel.Refresh()
+	r.background.Refresh()
 }
 
 func (r *FieldRenderer) Layout(s fyne.Size) {

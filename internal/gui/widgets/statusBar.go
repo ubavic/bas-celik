@@ -32,6 +32,10 @@ func (sb *StatusBar) SetStatus(status string, err bool) {
 	sb.err = err
 }
 
+func (sb *StatusBar) GetStatus() string {
+	return sb.status
+}
+
 func (sb *StatusBar) CreateRenderer() fyne.WidgetRenderer {
 	statusText := canvas.NewText(sb.status, theme.Color(theme.ColorNameForeground))
 	statusText.TextSize = 11
