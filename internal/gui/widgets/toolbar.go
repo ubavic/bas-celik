@@ -18,11 +18,12 @@ type Toolbar struct {
 }
 
 type ToolbarRenderer struct {
-	toolbar       *Toolbar
-	aboutButton   *widget.Button
-	container     *fyne.Container
-	readersLabel  *widget.Label
-	readersSelect *widget.Select
+	toolbar           *Toolbar
+	aboutButton       *widget.Button
+	preferencesButton *widget.Button
+	container         *fyne.Container
+	readersLabel      *widget.Label
+	readersSelect     *widget.Select
 }
 
 func NewToolbar(onOpenAbout, onOpenPreferences func()) *Toolbar {
@@ -46,20 +47,21 @@ func (t *Toolbar) CreateRenderer() fyne.WidgetRenderer {
 	}
 	readersSelect := widget.NewSelect(t.readers, onChange)
 
-	settingsButton := widget.NewButtonWithIcon("", theme.SettingsIcon(), t.onOpenPreferences)
-	settingsButton.Importance = widget.LowImportance
+	preferencesButton := widget.NewButtonWithIcon("", theme.SettingsIcon(), t.onOpenPreferences)
+	preferencesButton.Importance = widget.LowImportance
 
 	aboutButton := widget.NewButtonWithIcon("", theme.InfoIcon(), t.onOpenAbout)
 	aboutButton.Importance = widget.LowImportance
 
-	container := container.New(layout.NewHBoxLayout(), label, readersSelect, layout.NewSpacer(), settingsButton, aboutButton)
+	container := container.New(layout.NewHBoxLayout(), label, readersSelect, layout.NewSpacer(), preferencesButton, aboutButton)
 
 	return &ToolbarRenderer{
-		toolbar:       t,
-		aboutButton:   aboutButton,
-		container:     container,
-		readersLabel:  label,
-		readersSelect: readersSelect,
+		toolbar:           t,
+		aboutButton:       aboutButton,
+		preferencesButton: preferencesButton,
+		container:         container,
+		readersLabel:      label,
+		readersSelect:     readersSelect,
 	}
 }
 
