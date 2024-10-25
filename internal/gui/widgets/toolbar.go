@@ -89,6 +89,12 @@ func (r *ToolbarRenderer) Refresh() {
 }
 
 func (r *ToolbarRenderer) Layout(s fyne.Size) {
+	availableWidth := s.Width
+	availableWidth -= r.aboutButton.Size().Width
+	availableWidth -= r.preferencesButton.MinSize().Width
+	availableWidth -= r.readersLabel.MinSize().Width
+	availableWidth -= 2 * theme.InnerPadding()
+	r.readersSelect.Resize(fyne.Size{Width: availableWidth, Height: s.Height})
 	r.container.Resize(s)
 }
 
