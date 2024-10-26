@@ -22,6 +22,8 @@ func main() {
 		return
 	}
 
+	cfg.EmbedDirectory = embedFS
+
 	err := document.SetData(embedFS)
 	if err != nil {
 		fmt.Println("Setup error:", err)

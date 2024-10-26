@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"embed"
 	"errors"
 	"fmt"
 	"os"
@@ -17,6 +18,7 @@ type LaunchConfig struct {
 	Verbose               bool
 	GetValidUntilFromRfzo bool
 	Reader                uint
+	EmbedDirectory        embed.FS
 }
 
 func readAndSave(cfg LaunchConfig) error {
