@@ -30,6 +30,6 @@ func main() {
 
 	err = internal.Run(cfg)
 	if err != nil {
-		fmt.Println("Error saving document:", err)
+		fmt.Println("Error:", err)
 	}
 }
