@@ -9,11 +9,13 @@ import (
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/dialog"
+	"fyne.io/fyne/v2/lang"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/storage"
 	"fyne.io/fyne/v2/widget"
 	"github.com/ubavic/bas-celik/document"
 	"github.com/ubavic/bas-celik/internal/gui/celiktheme"
+	"github.com/ubavic/bas-celik/internal/gui/translation"
 	"github.com/ubavic/bas-celik/internal/gui/widgets"
 )
 
@@ -36,6 +38,8 @@ func StartGui(verbose_ bool, version string) {
 
 	theme := celiktheme.NewTheme(app.Preferences().IntWithFallback(themePreferenceKey, 1))
 	app.Settings().SetTheme(theme)
+
+	translation.SetLanguage(app.Preferences().IntWithFallback(languagePreferenceKey, 1))
 
 	showAboutBox := showAboutBox(win, version)
 	showSettings := showSetupBox(win, app)
@@ -77,7 +81,7 @@ func setUI(doc document.Document) {
 	case *document.IdDocument:
 		page = pageID(doc)
 	case *document.MedicalDocument:
-		updateButton := widget.NewButton("Ažuriraj", updateMedicalDocHandler(doc))
+		updateButton := widget.NewButton(t("ui.update"), updateMedicalDocHandler(doc))
 		buttonBarObjects = append(buttonBarObjects, updateButton)
 		page = pageMedical(doc)
 	case *document.VehicleDocument:
@@ -85,7 +89,7 @@ func setUI(doc document.Document) {
 	}
 
 	pdfHandler := savePdf(doc)
-	saveButton := widget.NewButton("Sačuvaj PDF", pdfHandler)
+	saveButton := widget.NewButton(t("ui.savePdf"), pdfHandler)
 	buttonBarObjects = append(buttonBarObjects, saveButton)
 
 	buttonBar := container.New(layout.NewHBoxLayout(), buttonBarObjects...)
@@ -141,7 +145,7 @@ func savePdf(doc document.Document) func() {
 		pdf, fileName, err := doc.BuildPdf()
 
 		if err != nil {
-			setStatus("Greška pri generisanju PDF-a", fmt.Errorf("generating PDF: %w", err))
+			setStatus(t("error.generatingPdf"), fmt.Errorf("generating PDF: %w", err))
 			return
 		}
 
@@ -152,17 +156,17 @@ func savePdf(doc document.Document) func() {
 
 			_, err = w.Write(pdf)
 			if err != nil {
-				setStatus("Greška pri zapisivanju PDF-a", fmt.Errorf("writing PDF: %w", err))
+				setStatus(t("error.writingPdf"), fmt.Errorf("writing PDF: %w", err))
 				return
 			}
 
 			err = w.Close()
 			if err != nil {
-				setStatus("Greška pri zapisivanju PDF-a", fmt.Errorf("writing PDF: %w", err))
+				setStatus(t("error.writingPdf"), fmt.Errorf("writing PDF: %w", err))
 				return
 			}
 
-			setStatus("PDF sačuvan", nil)
+			setStatus(lang.X("ui.pdfSaved", "PDF sačuvan"), nil)
 		}, *state.window)
 
 		dialog.SetFilter(storage.NewExtensionFileFilter([]string{".pdf"}))
@@ -176,11 +180,11 @@ func updateMedicalDocHandler(doc *document.MedicalDocument) func() {
 	return func() {
 		err := doc.UpdateValidUntilDateFromRfzo()
 		if err != nil {
-			dialog.ShowInformation("Greška", "Greška prilikom ažuriranja podataka", *state.window)
+			dialog.ShowInformation(t("error.error"), t("error.dataUpdate"), *state.window)
 			return
 		}
 
-		setStatus("Ažuriranje podataka uspešno", nil)
+		setStatus(t("ui.updateSuccessful"), nil)
 		setUI(doc)
 	}
 }
@@ -196,16 +200,22 @@ func CopyToClipboard(str string) bool {
 		return false
 	}
 
+	label := t("ui.contentCopied")
+
 	clipboard.SetContent(str)
-	state.statusBar.SetStatus("Sadržaj kopiran", false)
+	state.statusBar.SetStatus(label, false)
 	state.statusBar.Refresh()
 	go func() {
 		time.Sleep(2 * time.Second)
-		if state.statusBar.GetStatus() == "Sadržaj kopiran" {
+		if state.statusBar.GetStatus() == label {
 			state.statusBar.SetStatus("", false)
 			state.statusBar.Refresh()
 		}
 	}()
 
 	return true
+}
+
+func t(id string) string {
+	return translation.Translate(id)
 }

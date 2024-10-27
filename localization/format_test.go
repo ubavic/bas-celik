@@ -48,21 +48,21 @@ func Test_FormatDateYMD(t *testing.T) {
 func Test_FormFormatYesNo(t *testing.T) {
 	testCases := []struct {
 		value    bool
-		script   localization.Script
+		script   localization.Language
 		expected string
 	}{
-		{true, localization.Latin, "Da"},
-		{true, localization.Cyrillic, "Да"},
-		{true, 10, "Да"},
-		{false, localization.Latin, "Ne"},
-		{false, localization.Cyrillic, "Не"},
-		{false, 155, "Не"},
+		{true, localization.SrLatin, "Da"},
+		{true, localization.SrCyrillic, "Да"},
+		{true, localization.En, "Yes"},
+		{false, localization.SrLatin, "Ne"},
+		{false, localization.SrCyrillic, "Не"},
+		{false, localization.En, "No"},
 	}
 
 	for _, testCase := range testCases {
 		result := localization.FormatYesNo(testCase.value, testCase.script)
 		if result != testCase.expected {
-			t.Errorf("Got '%s' for value %t and script %d, but expected '%s'", result, testCase.value, testCase.script, testCase.expected)
+			t.Errorf("Got '%s' for value %t and script %s, but expected '%s'", result, testCase.value, testCase.script, testCase.expected)
 		}
 	}
 }

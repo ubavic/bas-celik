@@ -11,8 +11,8 @@ import (
 )
 
 func showAboutBox(win fyne.Window, version string) func() {
-	verLabel := widget.NewLabelWithStyle("Verzija: "+version, fyne.TextAlignLeading, fyne.TextStyle{Italic: true})
-	moreLabel := widget.NewLabel("Više o programu na adresi:")
+	verLabel := widget.NewLabelWithStyle(t("about.version")+": "+version, fyne.TextAlignLeading, fyne.TextStyle{Italic: true})
+	moreLabel := widget.NewLabel(t("about.moreAboutProgram"))
 	url, _ := url.Parse("https://github.com/ubavic/bas-celik")
 	linkLabel := widget.NewHyperlink("github.com/ubavic/bas-celik", url)
 	spacer := widgets.NewSpacer()
@@ -21,8 +21,8 @@ func showAboutBox(win fyne.Window, version string) func() {
 
 	return func() {
 		dialog.ShowCustom(
-			"Baš Čelik - program za očitavanje elektronskih dokumenata",
-			"Zatvori",
+			t("about.title"),
+			t("about.close"),
 			vBox,
 			win,
 		)

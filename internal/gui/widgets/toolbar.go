@@ -6,6 +6,7 @@ import (
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
+	"github.com/ubavic/bas-celik/internal/gui/translation"
 )
 
 type Toolbar struct {
@@ -37,7 +38,7 @@ func NewToolbar(onOpenAbout, onOpenPreferences func()) *Toolbar {
 }
 
 func (t *Toolbar) CreateRenderer() fyne.WidgetRenderer {
-	label := widget.NewLabel("Čitač:")
+	label := widget.NewLabel(translation.Translate("ui.reader"))
 
 	onChange := func(s string) {
 		if s != t.selectedReader {

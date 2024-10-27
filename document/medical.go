@@ -211,7 +211,7 @@ func (doc *MedicalDocument) BuildPdf() (data []byte, fileName string, retErr err
 
 	putData("Оверена до:", doc.ValidUntil)
 
-	putData("Трајно оверена:", localization.FormatYesNo(doc.PermanentlyValid, localization.Cyrillic))
+	putData("Трајно оверена:", localization.FormatYesNo(doc.PermanentlyValid, localization.SrCyrillic))
 
 	section("Подаци о носиоцу осигурања")
 
@@ -223,7 +223,7 @@ func (doc *MedicalDocument) BuildPdf() (data []byte, fileName string, retErr err
 
 	putData("ЈМБГ:", doc.CarrierIdNumber)
 
-	putData("Члан породице:", localization.FormatYesNo(doc.CarrierFamilyMember, localization.Cyrillic))
+	putData("Члан породице:", localization.FormatYesNo(doc.CarrierFamilyMember, localization.SrCyrillic))
 
 	putData("Сродство:", doc.CarrierRelationship)
 

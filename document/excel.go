@@ -44,7 +44,7 @@ func CreateExcel(document any) ([]byte, error) {
 		case reflect.String:
 			putData(field.Name, structVal.FieldByName(field.Name).String())
 		case reflect.Bool:
-			str := localization.FormatYesNo(structVal.FieldByName(field.Name).Bool(), localization.Latin)
+			str := localization.FormatYesNo(structVal.FieldByName(field.Name).Bool(), localization.En)
 			putData(field.Name, str)
 		}
 	}

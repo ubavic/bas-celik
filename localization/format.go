@@ -2,18 +2,24 @@ package localization
 
 import "strings"
 
-func FormatYesNo(a bool, script Script) string {
-	if script == Latin {
+func FormatYesNo(a bool, script Language) string {
+	if script == SrLatin {
 		if a {
 			return "Da"
 		} else {
 			return "Ne"
 		}
-	} else {
+	} else if script == SrCyrillic {
 		if a {
 			return "Да"
 		} else {
 			return "Не"
+		}
+	} else {
+		if a {
+			return "Yes"
+		} else {
+			return "No"
 		}
 	}
 }

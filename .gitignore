@@ -17,3 +17,5 @@ bin/
 *.cov
 .idea
 .DS_Store
+
+!/embed/translation/*.json

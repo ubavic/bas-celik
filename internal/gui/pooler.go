@@ -10,13 +10,13 @@ import (
 )
 
 func establishContextAndStartPooler() {
-	setStartPage("Konekcija sa čitačem...", "", nil)
+	setStartPage(t("pooler.connectingReader"), "", nil)
 
 	ctx, err := scard.EstablishContext()
 	if err != nil {
 		setStartPage(
-			"Greška pri upotrebi drajvera za pametne kartice.",
-			"Da li program ima neophodne dozvole? Restartujte aplikaciju.",
+			t("error.driver"),
+			t("error.driverExplanation"),
 			fmt.Errorf("establishing context: %w", err))
 	} else {
 		pooler(ctx)
@@ -38,8 +38,8 @@ func pooler(ctx *scard.Context) {
 		if err != nil {
 			loaded = false
 			setStartPage(
-				"Greška pri pretrazi dostupnih čitača",
-				"Da li je čitač povezan za računar?",
+				t("error.reader"),
+				t("error.readerExplanation"),
 				fmt.Errorf("listing readers: %w", err))
 
 			time.Sleep(1000 * time.Millisecond)
@@ -48,8 +48,8 @@ func pooler(ctx *scard.Context) {
 		} else if len(readersNames) == 0 {
 			loaded = false
 			setStartPage(
-				"Nijedan čitač nije detektovan",
-				"Da li je čitač povezan za računar?",
+				t("error.noReader"),
+				t("error.noReaderExplanation"),
 				fmt.Errorf("no reader found"))
 
 			time.Sleep(1000 * time.Millisecond)
@@ -71,27 +71,27 @@ func pooler(ctx *scard.Context) {
 			sCard, err := ctx.Connect(readersNames[selectedReaderIndex], scard.ShareShared, scard.ProtocolAny)
 			if err == nil {
 				if !loaded {
-					setStartPage("Čitam sa kartice...", "", nil)
+					setStartPage(t("pooler.readingFromCard"), "", nil)
 
 					cardDoc, err := card.DetectCardDocument(sCard)
 					if err != nil {
 						message := ""
 						if err == card.ErrUnknownCard {
-							message = "Nepoznata kartica: " + cardDoc.Atr().String()
+							message = t("error.unknownCard") + ": " + cardDoc.Atr().String()
 						}
 						setStartPage(
-							"Greška pri čitanju kartice",
+							t("error.readingCard"),
 							message,
 							fmt.Errorf("reading from card: %w", err))
 					} else {
 						doc, err := initCardAndReadDoc(cardDoc)
 						if err != nil {
 							setStartPage(
-								"Greška pri čitanju kartice",
+								t("error.readingCard"),
 								"",
 								fmt.Errorf("reading from card: %w", err))
 						} else {
-							setStatus("Dokument uspešno pročitan", nil)
+							setStatus(t("pooler.documentRead"), nil)
 							setUI(doc)
 							loaded = true
 						}
@@ -102,8 +102,8 @@ func pooler(ctx *scard.Context) {
 			} else {
 				loaded = false
 				setStartPage(
-					"Greška pri čitanju kartice",
-					"Da li je kartica prisutna?",
+					t("error.readingCard"),
+					t("error.isCardPresent"),
 					fmt.Errorf("connecting reader %s: %w", readersNames[selectedReaderIndex], err))
 			}
 
@@ -117,7 +117,7 @@ func pooler(ctx *scard.Context) {
 		}
 
 		setStartPage(
-			"Povezivanje se čitačem u toku...",
+			t("pooler.connectingReader"),
 			"",
 			nil)
 	}
