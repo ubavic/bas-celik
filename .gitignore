@@ -17,5 +17,6 @@ bin/
 *.cov
 .idea
 .DS_Store
+todo.md
 
 !/embed/translation/*.json
