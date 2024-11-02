@@ -1,23 +1,35 @@
-package document
+package document_test
 
 import (
 	"os"
 	"testing"
+
+	"github.com/ubavic/bas-celik/document"
 )
 
 // Should be used only for testing
-func SetDataFromLocalFiles(t *testing.T) {
-	var err1, err2, err3 error
-	fontRegular, err1 = os.ReadFile("../embed/liberationSansRegular.ttf")
-	fontBold, err2 = os.ReadFile("../embed/liberationSansBold.ttf")
-	rfzoLogo, err3 = os.ReadFile("../embed/rfzo.png")
-	if err1 != nil || err2 != nil || err3 != nil {
-		t.Fatalf("Cant open file")
+func setDocumentConfigFromLocalFiles(t *testing.T) {
+	documentConfig := document.DocumentConfig{}
+	var err error
+
+	documentConfig.FontRegular, err = os.ReadFile("../embed/liberationSansRegular.ttf")
+	if err != nil {
+		t.Fatal(err.Error())
 	}
+
+	documentConfig.FontBold, err = os.ReadFile("../embed/liberationSansBold.ttf")
+	if err != nil {
+		t.Fatal(err.Error())
+	}
+
+	documentConfig.RfzoLogo, err = os.ReadFile("../embed/rfzo.png")
+	if err != nil {
+		t.Fatal(err.Error())
+	}
+
+	document.Configure(documentConfig)
 }
 
-func UnsetData(t *testing.T) {
-	fontRegular = nil
-	fontBold = nil
-	rfzoLogo = nil
+func unsetDocumentConfig() {
+	document.Configure(document.DocumentConfig{})
 }

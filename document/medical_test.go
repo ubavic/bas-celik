@@ -115,7 +115,7 @@ func Test_GetFullPlaceAddress_Medical(t *testing.T) {
 }
 
 func Test_BuildPdfMedical(t *testing.T) {
-	document.SetDataFromLocalFiles(t)
+	setDocumentConfigFromLocalFiles(t)
 
 	_, _, err := documentMedical1.BuildPdf()
 	if err != nil {

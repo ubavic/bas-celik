@@ -125,14 +125,14 @@ func Test_GetFullPlaceOfBirth_ID(t *testing.T) {
 }
 
 func Test_BuildPdfID(t *testing.T) {
-	document.UnsetData(t)
+	unsetDocumentConfig()
 
 	_, _, err := documentId1.BuildPdf()
 	if err == nil {
 		t.Errorf("Expected error but got %v", err)
 	}
 
-	document.SetDataFromLocalFiles(t)
+	setDocumentConfigFromLocalFiles(t)
 
 	_, _, err = documentId1.BuildPdf()
 	if err == nil {

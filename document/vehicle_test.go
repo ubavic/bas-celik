@@ -27,14 +27,14 @@ var documentVehicle2 = document.VehicleDocument{
 }
 
 func Test_BuildPdfVehicle(t *testing.T) {
-	document.UnsetData(t)
+	unsetDocumentConfig()
 
 	_, _, err := documentVehicle1.BuildPdf()
 	if err == nil {
 		t.Errorf("Expected error but got %v", err)
 	}
 
-	document.SetDataFromLocalFiles(t)
+	setDocumentConfigFromLocalFiles(t)
 
 	_, _, err = documentVehicle1.BuildPdf()
 	if err != nil {

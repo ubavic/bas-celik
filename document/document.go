@@ -1,9 +1,8 @@
+// Package provides type definitions fot different types of documents
+// present on smart cards, as well methods for exporting those documents to different file formats.
+// In order for `BuildPDF` methods to work properly,
+// this package must be (pre)configured with `Configure` function.
 package document
-
-import (
-	"embed"
-	"fmt"
-)
 
 // Represents any document handled by Bas Celik
 type Document interface {
@@ -13,30 +12,22 @@ type Document interface {
 }
 
 var (
-	fontRegular []byte // regular font used for PDF render
-	fontBold    []byte // bold font used for PDF render
-	rfzoLogo    []byte // logo used in PDF render of medical cards
+	fontRegular []byte
+	fontBold    []byte
+	rfzoLogo    []byte
 )
 
+type DocumentConfig struct {
+	FontRegular []byte // regular font used for PDF render
+	FontBold    []byte // bold font used for PDF render
+	RfzoLogo    []byte // logo used in PDF render of medical cards
+}
+
 // Sets fonts and graphics used for rendering PDF
-func SetData(embedFS embed.FS) error {
-	fontFile, err := embedFS.ReadFile("embed/liberationSansRegular.ttf")
-	if err != nil {
-		return fmt.Errorf("reading font: %w", err)
-	}
-	fontRegular = fontFile
-
-	fontFile, err = embedFS.ReadFile("embed/liberationSansBold.ttf")
-	if err != nil {
-		return fmt.Errorf("reading font: %w", err)
-	}
-	fontBold = fontFile
-
-	rfzoLogoFile, err := embedFS.ReadFile("embed/rfzo.png")
-	if err != nil {
-		return fmt.Errorf("reading font: %w", err)
-	}
-	rfzoLogo = rfzoLogoFile
+func Configure(config DocumentConfig) error {
+	fontRegular = config.FontRegular
+	fontBold = config.FontBold
+	rfzoLogo = config.RfzoLogo
 
 	return nil
 }
