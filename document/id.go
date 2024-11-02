@@ -352,7 +352,7 @@ func (doc *IdDocument) BuildPdf() (data []byte, fileName string, retErr error) {
 
 	line(0)
 
-	fileName = strings.ToLower(doc.GivenName + "_" + doc.Surname + ".pdf")
+	fileName = doc.formatFilename() + ".pdf"
 
 	pdf.SetInfo(gopdf.PdfInfo{
 		Title:        doc.GivenName + " " + doc.Surname,
@@ -381,6 +381,12 @@ func (doc *IdDocument) BuildJson() ([]byte, error) {
 	})
 }
 
-func (doc *IdDocument) BuildExcel() ([]byte, error) {
-	return CreateExcel(*doc)
+func (doc *IdDocument) BuildExcel() ([]byte, string, error) {
+	xlsx, err := CreateExcel(*doc)
+	filename := doc.formatFilename() + ".xlsx"
+	return xlsx, filename, err
+}
+
+func (doc *IdDocument) formatFilename() string {
+	return strings.ToLower(doc.GivenName + "_" + doc.Surname)
 }

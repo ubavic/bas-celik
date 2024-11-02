@@ -280,7 +280,7 @@ func (doc *VehicleDocument) BuildPdf() (data []byte, fileName string, retErr err
 	putData("Broj mesta za stajanje", doc.NumberOfStandingPlaces)
 	newLine()
 
-	fileName = strings.ToLower(doc.RegistrationNumberOfVehicle + "_" + doc.OwnersSurnameOrBusinessName + "_" + doc.OwnerName + ".pdf")
+	fileName = doc.formatFilename() + ".pdf"
 
 	pdf.SetInfo(gopdf.PdfInfo{
 		Title:        doc.VehicleMake + " " + doc.CommercialDescription,
@@ -296,6 +296,12 @@ func (doc *VehicleDocument) BuildJson() ([]byte, error) {
 	return json.Marshal(doc)
 }
 
-func (doc *VehicleDocument) BuildExcel() ([]byte, error) {
-	return CreateExcel(*doc)
+func (doc *VehicleDocument) BuildExcel() ([]byte, string, error) {
+	xlsx, err := CreateExcel(*doc)
+	fileName := doc.formatFilename() + ".xlsx"
+	return xlsx, fileName, err
+}
+
+func (doc *VehicleDocument) formatFilename() string {
+	return strings.ToLower(doc.RegistrationNumberOfVehicle + "_" + doc.OwnersSurnameOrBusinessName + "_" + doc.OwnerName)
 }

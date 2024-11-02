@@ -7,9 +7,9 @@ import (
 
 // Represents any document handled by Bas Celik
 type Document interface {
-	BuildPdf() ([]byte, string, error) // Renders document to pdf
-	BuildJson() ([]byte, error)        // Renders document to json
-	BuildExcel() ([]byte, error)       // Renders document to xlsx
+	BuildPdf() ([]byte, string, error)   // Renders document to pdf
+	BuildJson() ([]byte, error)          // Renders document to json
+	BuildExcel() ([]byte, string, error) // Renders document to xlsx
 }
 
 var (

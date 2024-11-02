@@ -247,7 +247,7 @@ func (doc *MedicalDocument) BuildPdf() (data []byte, fileName string, retErr err
 
 	putData("Делатност:", doc.TaxpayerActivityCode)
 
-	fileName = strings.ToLower(doc.GivenNameLatin + "_" + doc.FamilyNameLatin + ".pdf")
+	fileName = doc.formatFilename() + ".pdf"
 
 	pdf.SetInfo(gopdf.PdfInfo{
 		Title:        doc.GivenNameLatin + " " + doc.FamilyNameLatin,
@@ -263,8 +263,14 @@ func (doc *MedicalDocument) BuildJson() ([]byte, error) {
 	return json.Marshal(doc)
 }
 
-func (doc *MedicalDocument) BuildExcel() ([]byte, error) {
-	return CreateExcel(*doc)
+func (doc *MedicalDocument) BuildExcel() ([]byte, string, error) {
+	xlsx, err := CreateExcel(*doc)
+	name := doc.formatFilename() + ".xlsx"
+	return xlsx, name, err
+}
+
+func (doc *MedicalDocument) formatFilename() string {
+	return strings.ToLower(doc.GivenNameLatin + "_" + doc.FamilyNameLatin)
 }
 
 func (doc *MedicalDocument) UpdateValidUntilDateFromRfzo() error {

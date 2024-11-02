@@ -9,9 +9,7 @@ import (
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/dialog"
-	"fyne.io/fyne/v2/lang"
 	"fyne.io/fyne/v2/layout"
-	"fyne.io/fyne/v2/storage"
 	"fyne.io/fyne/v2/widget"
 	"github.com/ubavic/bas-celik/document"
 	"github.com/ubavic/bas-celik/internal/gui/celiktheme"
@@ -88,9 +86,9 @@ func setUI(doc document.Document) {
 		page = pageVehicle(doc)
 	}
 
-	pdfHandler := savePdf(doc)
-	saveButton := widget.NewButton(t("ui.savePdf"), pdfHandler)
-	buttonBarObjects = append(buttonBarObjects, saveButton)
+	savePdfButton := widget.NewButton(t("ui.savePdf"), savePdf(doc))
+	saveXlsxButton := widget.NewButton(t("ui.saveXlsx"), saveXlsx(doc))
+	buttonBarObjects = append(buttonBarObjects, saveXlsxButton, savePdfButton)
 
 	buttonBar := container.New(layout.NewHBoxLayout(), buttonBarObjects...)
 
@@ -138,42 +136,6 @@ func setStatus(status string, err error) {
 
 	state.statusBar.SetStatus(status, isError)
 	state.statusBar.Refresh()
-}
-
-func savePdf(doc document.Document) func() {
-	return func() {
-		pdf, fileName, err := doc.BuildPdf()
-
-		if err != nil {
-			setStatus(t("error.generatingPdf"), fmt.Errorf("generating PDF: %w", err))
-			return
-		}
-
-		dialog := dialog.NewFileSave(func(w fyne.URIWriteCloser, err error) {
-			if w == nil || err != nil {
-				return
-			}
-
-			_, err = w.Write(pdf)
-			if err != nil {
-				setStatus(t("error.writingPdf"), fmt.Errorf("writing PDF: %w", err))
-				return
-			}
-
-			err = w.Close()
-			if err != nil {
-				setStatus(t("error.writingPdf"), fmt.Errorf("writing PDF: %w", err))
-				return
-			}
-
-			setStatus(lang.X("ui.pdfSaved", "PDF sačuvan"), nil)
-		}, *state.window)
-
-		dialog.SetFilter(storage.NewExtensionFileFilter([]string{".pdf"}))
-		dialog.SetFileName(fileName)
-
-		dialog.Show()
-	}
 }
 
 func updateMedicalDocHandler(doc *document.MedicalDocument) func() {
