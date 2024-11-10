@@ -63,7 +63,7 @@ func lightTheme(c fyne.ThemeColorName) color.Color {
 	case theme.ColorNameDisabledButton:
 		return color.NRGBA{R: 0xD0, G: 0xD0, B: 0xD0, A: 0xFF}
 	case theme.ColorNameDisabled:
-		return color.NRGBA{R: 0x30, G: 0x30, B: 0x30, A: 0xFF}
+		return color.NRGBA{R: 0x60, G: 0x60, B: 0x60, A: 0xFF}
 	case theme.ColorNameError:
 		return color.NRGBA{R: 0xF0, G: 0x47, B: 0x3B, A: 0xFF}
 	case theme.ColorNameFocus:
