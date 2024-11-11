@@ -9,8 +9,8 @@ import (
 	"github.com/ubavic/bas-celik/document"
 )
 
-func establishContextAndStartPooler() {
-	setStartPage(t("pooler.connectingReader"), "", nil)
+func establishContextAndStartPoller() {
+	setStartPage(t("poller.connectingReader"), "", nil)
 
 	ctx, err := scard.EstablishContext()
 	if err != nil {
@@ -19,11 +19,11 @@ func establishContextAndStartPooler() {
 			t("error.driverExplanation"),
 			fmt.Errorf("establishing context: %w", err))
 	} else {
-		pooler(ctx)
+		poller(ctx)
 	}
 }
 
-func pooler(ctx *scard.Context) {
+func poller(ctx *scard.Context) {
 	loaded := false
 	breakCardLoop := false
 	selectedReader := ""
@@ -96,7 +96,7 @@ func pooler(ctx *scard.Context) {
 		}
 
 		setStartPage(
-			t("pooler.connectingReader"),
+			t("poller.connectingReader"),
 			"",
 			nil)
 	}
@@ -105,7 +105,7 @@ func pooler(ctx *scard.Context) {
 func tryToProcessCard(sCard *scard.Card) bool {
 	loaded := false
 
-	setStartPage(t("pooler.readingFromCard"), "", nil)
+	setStartPage(t("poller.readingFromCard"), "", nil)
 
 	cardDoc, err := card.DetectCardDocument(sCard)
 	if err != nil {
@@ -129,7 +129,7 @@ func tryToProcessCard(sCard *scard.Card) bool {
 				"",
 				fmt.Errorf("reading from card: %w", err))
 		} else {
-			setStatus(t("pooler.documentRead"), nil)
+			setStatus(t("poller.documentRead"), nil)
 			setUI(doc)
 			loaded = true
 		}

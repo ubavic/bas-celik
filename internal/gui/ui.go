@@ -66,7 +66,7 @@ func StartGui(verbose_ bool, version string) {
 	rows := container.New(layout.NewVBoxLayout(), toolbar, spacer, startPage)
 	win.SetContent(container.New(layout.NewPaddedLayout(), rows))
 
-	go establishContextAndStartPooler()
+	go establishContextAndStartPoller()
 
 	win.ShowAndRun()
 }
