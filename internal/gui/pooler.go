@@ -71,35 +71,14 @@ func pooler(ctx *scard.Context) {
 			sCard, err := ctx.Connect(readersNames[selectedReaderIndex], scard.ShareShared, scard.ProtocolAny)
 			if err == nil {
 				if !loaded {
-					setStartPage(t("pooler.readingFromCard"), "", nil)
-
-					cardDoc, err := card.DetectCardDocument(sCard)
-					if err != nil {
-						message := ""
-						if err == card.ErrUnknownCard {
-							message = t("error.unknownCard") + ": " + cardDoc.Atr().String()
-						}
-						setStartPage(
-							t("error.readingCard"),
-							message,
-							fmt.Errorf("reading from card: %w", err))
-					} else {
-						doc, err := initCardAndReadDoc(cardDoc)
-						if err != nil {
-							setStartPage(
-								t("error.readingCard"),
-								"",
-								fmt.Errorf("reading from card: %w", err))
-						} else {
-							setStatus(t("pooler.documentRead"), nil)
-							setUI(doc)
-							loaded = true
-						}
-					}
-
+					loaded = tryToProcessCard(sCard)
 				}
-				_ = sCard.Disconnect(scard.LeaveCard)
 			} else {
+				state.mu.Lock()
+				state.cardDocument = nil
+				state.toolbar.DisablePinChange()
+				state.mu.Unlock()
+
 				loaded = false
 				setStartPage(
 					t("error.readingCard"),
@@ -121,6 +100,47 @@ func pooler(ctx *scard.Context) {
 			"",
 			nil)
 	}
+}
+
+func tryToProcessCard(sCard *scard.Card) bool {
+	loaded := false
+
+	setStartPage(t("pooler.readingFromCard"), "", nil)
+
+	cardDoc, err := card.DetectCardDocument(sCard)
+	if err != nil {
+		message := ""
+		if err == card.ErrUnknownCard {
+			message = t("error.unknownCard") + ": " + cardDoc.Atr().String()
+		}
+		setStartPage(
+			t("error.readingCard"),
+			message,
+			fmt.Errorf("reading from card: %w", err))
+	} else {
+		state.mu.Lock()
+		state.cardDocument = cardDoc
+		state.mu.Unlock()
+
+		doc, err := initCardAndReadDoc(cardDoc)
+		if err != nil {
+			setStartPage(
+				t("error.readingCard"),
+				"",
+				fmt.Errorf("reading from card: %w", err))
+		} else {
+			setStatus(t("pooler.documentRead"), nil)
+			setUI(doc)
+			loaded = true
+		}
+
+		switch cardDoc.(type) {
+		case *card.Gemalto:
+			state.toolbar.EnablePinChange()
+		}
+	}
+
+	return loaded
 }
 
 func initCardAndReadDoc(cardDoc card.CardDocument) (document.Document, error) {

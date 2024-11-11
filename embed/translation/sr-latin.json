@@ -122,5 +122,20 @@
   "vehicle.vehicleInformation": "Podaci o vozilu",
   "vehicle.vehicleMake": "Marka",
   "vehicle.vehicleMass": "Masa",
-  "vehicle.yearOfProduction": "Godina proizvodnje"
+  "vehicle.yearOfProduction": "Godina proizvodnje",
+  "pinChange.title": "Promena PIN-a",
+  "pinChange.note": "Ovo je eksperimentalna funkcionalnost programa koja može naneti trajnu štetu kartici. Da li želite da nastavite?.",
+  "pinChange.change": "Promeni",
+  "pinChange.cancel": "Odustani",
+  "pinChange.oldPin": "Stari PIN",
+  "pinChange.newPin": "Novi PIN",
+  "pinChange.confirmNewPin": "Potvrdi novi PIN",
+  "pinChange.errorNoCard": "Neuspela konekcija sa karticom.",
+  "pinChange.pinFormatExplanation": "PIN mora sadržati između 4 i 8 cifara.",
+  "pinChange.pinsNotEqual": "PIN vrednosti nisu jednake.",
+  "pinChange.oldPinFormatError": "Format starog PIN-a nije validan.",
+  "pinChange.newPinFormatError": "Format novog PIN-a nije validan.",
+  "pinChange.confirmNewPinFormatError": "Format potvrđenog novog PIN-a nije validan.",
+  "pinChange.success": "Promena PIN-a uspešna.",
+  "pinChange.error": "Došlo je do greške. Ne pokušavajte više da promenite PIN sa Baš Čelikom."
 }

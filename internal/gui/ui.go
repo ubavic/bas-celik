@@ -11,6 +11,7 @@ import (
 	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
+	"github.com/ubavic/bas-celik/card"
 	"github.com/ubavic/bas-celik/document"
 	"github.com/ubavic/bas-celik/internal/gui/celiktheme"
 	"github.com/ubavic/bas-celik/internal/gui/translation"
@@ -18,14 +19,15 @@ import (
 )
 
 type State struct {
-	mu          sync.Mutex
-	startPageOn bool
-	verbose     bool
-	window      *fyne.Window
-	startPage   *widgets.StartPage
-	toolbar     *widgets.Toolbar
-	spacer      *widgets.Spacer
-	statusBar   *widgets.StatusBar
+	mu           sync.Mutex
+	startPageOn  bool
+	verbose      bool
+	window       *fyne.Window
+	startPage    *widgets.StartPage
+	toolbar      *widgets.Toolbar
+	spacer       *widgets.Spacer
+	statusBar    *widgets.StatusBar
+	cardDocument card.CardDocument
 }
 
 var state State
@@ -41,11 +43,12 @@ func StartGui(verbose_ bool, version string) {
 
 	showAboutBox := showAboutBox(win, version)
 	showSettings := showSetupBox(win, app)
+	changePin := pinChange(win)
 
 	widgets.SetClipboard(CopyToClipboard)
 
 	statusBar := widgets.NewStatusBar()
-	toolbar := widgets.NewToolbar(showAboutBox, showSettings)
+	toolbar := widgets.NewToolbar(showAboutBox, showSettings, changePin)
 	spacer := widgets.NewSpacer()
 	startPage := widgets.NewStartPage()
 	startPage.SetStatus("", "", false)

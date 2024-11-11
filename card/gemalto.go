@@ -2,6 +2,7 @@ package card
 
 import (
 	"encoding/binary"
+	"errors"
 	"fmt"
 
 	"github.com/ubavic/bas-celik/document"
@@ -192,4 +193,64 @@ func (card *Gemalto) Test() bool {
 
 	_, err = card.ReadFile(ID_DOCUMENT_FILE_LOC)
 	return err == nil
+}
+
+// Initialize card's cryptography application
+func (card *Gemalto) InitCrypto() error {
+	data := []byte{0xA0, 0x00, 0x00, 0x00, 0x63, 0x50, 0x4B, 0x43, 0x53, 0x2D, 0x31, 0x35}
+	apu := buildAPDU(0x00, 0xA4, 0x04, 0x00, data, 0)
+
+	rsp, err := card.smartCard.Transmit(apu)
+	if err != nil {
+		return fmt.Errorf("initializing cryptography application %w", err)
+	}
+
+	if !responseOK(rsp) {
+		return errors.New("cryptography application not selected")
+	}
+
+	return nil
+}
+
+func (card *Gemalto) ChangePin(newPin, oldPin string) error {
+	err := card.InitCrypto()
+	if err != nil {
+		return err
+	}
+
+	oldPinValid := ValidatePin(oldPin)
+	if !oldPinValid {
+		return errors.New("old pin not valid")
+	}
+
+	newPinValid := ValidatePin(newPin)
+	if !newPinValid {
+		return errors.New("new pin not valid")
+	}
+
+	apu := buildAPDU(0x00, 0x20, 0x00, 0x80, PadPin(oldPin), 0)
+	rsp, err := card.smartCard.Transmit(apu)
+	if err != nil {
+		return fmt.Errorf("verifying old pin %w", err)
+	}
+
+	if !responseOK(rsp) {
+		return errors.New("verifying old pin")
+	}
+
+	data := make([]byte, 0, 8)
+	data = append(data, PadPin(oldPin)...)
+	data = append(data, PadPin(newPin)...)
+
+	apu = buildAPDU(0x00, 0x24, 0x00, 0x80, data, 0)
+	rsp, err = card.smartCard.Transmit(apu)
+	if err != nil {
+		return fmt.Errorf("changing pin %w", err)
+	}
+
+	if !responseOK(rsp) {
+		return errors.New("changing pin")
+	}
+
+	return nil
 }

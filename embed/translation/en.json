@@ -122,5 +122,20 @@
     "vehicle.vehicleInformation": "Vehicle information",
     "vehicle.vehicleMake": "Make",
     "vehicle.vehicleMass": "Mass",
-    "vehicle.yearOfProduction": "Production year"
+    "vehicle.yearOfProduction": "Production year",
+    "pinChange.title" : "Change PIN",
+    "pinChange.note": "This is an experimental action that can permanently damage your card. Are you sure you want to continue?",
+    "pinChange.change": "Change",
+    "pinChange.cancel": "Cancel",
+    "pinChange.oldPin": "Old PIN",
+    "pinChange.newPin": "New PIN",
+    "pinChange.confirmNewPin": "Confirm new PIN",
+    "pinChange.errorNoCard": "Couldn't connect to the card.",
+    "pinChange.pinFormatExplanation": "PIN must hold between 4 and 8 digits.",
+    "pinChange.pinsNotEqual": "PINs are not equal.",
+    "pinChange.oldPinFormatError": "Format of the old PIN is not valid.",
+    "pinChange.newPinFormatError": "Format of the new PIN is not valid.",
+    "pinChange.confirmNewPinFormatError": "Format of the confirmed new PIN is not valid.",
+    "pinChange.success": "Success",
+    "pinChange.error": "Error ocurred. Don't try to change PIN with Baš Čelik anymore."
 }

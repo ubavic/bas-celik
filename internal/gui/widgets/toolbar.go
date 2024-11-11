@@ -14,27 +14,41 @@ type Toolbar struct {
 	readers           []string
 	onOpenAbout       func()
 	onOpenPreferences func()
+	onPinChange       func()
 	selectedReader    string
 	readerChanged     bool
+	pinChangeEnabled  bool
 }
 
 type ToolbarRenderer struct {
 	toolbar           *Toolbar
 	aboutButton       *widget.Button
 	preferencesButton *widget.Button
+	pinChangeButton   *widget.Button
 	container         *fyne.Container
 	readersLabel      *widget.Label
 	readersSelect     *widget.Select
 }
 
-func NewToolbar(onOpenAbout, onOpenPreferences func()) *Toolbar {
+func NewToolbar(onOpenAbout, onOpenPreferences, onPinChange func()) *Toolbar {
 	toolbar := &Toolbar{
 		readers:           nil,
 		onOpenAbout:       onOpenAbout,
 		onOpenPreferences: onOpenPreferences,
+		onPinChange:       onPinChange,
 	}
 	toolbar.ExtendBaseWidget(toolbar)
 	return toolbar
+}
+
+func (t *Toolbar) EnablePinChange() {
+	t.pinChangeEnabled = true
+	t.Refresh()
+}
+
+func (t *Toolbar) DisablePinChange() {
+	t.pinChangeEnabled = false
+	t.Refresh()
 }
 
 func (t *Toolbar) CreateRenderer() fyne.WidgetRenderer {
@@ -48,18 +62,23 @@ func (t *Toolbar) CreateRenderer() fyne.WidgetRenderer {
 	}
 	readersSelect := widget.NewSelect(t.readers, onChange)
 
+	pinChangeButton := widget.NewButtonWithIcon("", theme.VisibilityOffIcon(), t.onPinChange)
+	pinChangeButton.Importance = widget.LowImportance
+	pinChangeButton.Disable()
+
 	preferencesButton := widget.NewButtonWithIcon("", theme.SettingsIcon(), t.onOpenPreferences)
 	preferencesButton.Importance = widget.LowImportance
 
 	aboutButton := widget.NewButtonWithIcon("", theme.InfoIcon(), t.onOpenAbout)
 	aboutButton.Importance = widget.LowImportance
 
-	container := container.New(layout.NewHBoxLayout(), label, readersSelect, layout.NewSpacer(), preferencesButton, aboutButton)
+	container := container.New(layout.NewHBoxLayout(), label, readersSelect, layout.NewSpacer(), pinChangeButton, preferencesButton, aboutButton)
 
 	return &ToolbarRenderer{
 		toolbar:           t,
 		aboutButton:       aboutButton,
 		preferencesButton: preferencesButton,
+		pinChangeButton:   pinChangeButton,
 		container:         container,
 		readersLabel:      label,
 		readersSelect:     readersSelect,
@@ -80,6 +99,12 @@ func (r *ToolbarRenderer) Refresh() {
 		r.readersSelect.Enable()
 	}
 
+	if r.toolbar.pinChangeEnabled {
+		r.pinChangeButton.Enable()
+	} else {
+		r.pinChangeButton.Disable()
+	}
+
 	if r.readersSelect.Selected == "" && len(r.toolbar.readers) > 0 {
 		r.toolbar.selectedReader = r.toolbar.readers[0]
 		r.readersSelect.Selected = r.toolbar.readers[0]
@@ -93,6 +118,7 @@ func (r *ToolbarRenderer) Layout(s fyne.Size) {
 	availableWidth := s.Width
 	availableWidth -= r.aboutButton.Size().Width
 	availableWidth -= r.preferencesButton.MinSize().Width
+	availableWidth -= r.pinChangeButton.MinSize().Width
 	availableWidth -= r.readersLabel.MinSize().Width
 	availableWidth -= 2 * theme.InnerPadding()
 	r.container.Resize(s)

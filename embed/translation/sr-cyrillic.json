@@ -122,5 +122,20 @@
   "vehicle.vehicleInformation": "Подаци о возилу",
   "vehicle.vehicleMake": "Марка",
   "vehicle.vehicleMass": "Маса",
-  "vehicle.yearOfProduction": "Година производње"
+  "vehicle.yearOfProduction": "Година производње",
+  "pinChange.title": "Промена PIN-а",
+  "pinChange.note": "Ово је експериментална функционалност програма која може нанети трајну штету картици. Да ли желите да наставите?.",
+  "pinChange.change": "Промени",
+  "pinChange.cancel": "Одустани",
+  "pinChange.oldPin": "Стари PIN",
+  "pinChange.newPin": "Нови PIN",
+  "pinChange.confirmNewPin": "Потврди нови PIN",
+  "pinChange.errorNoCard": "Конекција са картицом није успела.",
+  "pinChange.pinFormatExplanation": "PIN мора садржати између 4 i 8 цифара.",
+  "pinChange.pinsNotEqual": "PIN вредности нису једнаке.",
+  "pinChange.oldPinFormatError": "Формат старог PIN-а није валидан.",
+  "pinChange.newPinFormatError": "Формат новог PIN-а није валидан.",
+  "pinChange.confirmNewPinFormatError": "Формат потврђеног новог PIN-а није валидан.",
+  "pinChange.success": "Промена PIN-a успешна.",
+  "pinChange.error": "Дошло је до грешке. Не покушавајте више да промените PIN са Баш Челиком."
 }
