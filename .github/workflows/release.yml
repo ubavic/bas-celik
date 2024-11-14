@@ -57,6 +57,7 @@ jobs:
       - name: Build CLI version
         run: |
           echo -n "cli" >> assets/version
+          rm -R embed/translation
           go build -tags "cli" -ldflags "-s -w"  .
           mv bas-celik bas-celik-cli.linux.amd64
       - name: Upload CLI version
