@@ -136,8 +136,20 @@ func (r *ToolbarRenderer) Objects() []fyne.CanvasObject {
 func (r *ToolbarRenderer) Destroy() {}
 
 func (r *Toolbar) SetReaders(readers []string) {
+	selectFirstReader := false
+
+	if len(r.readers) == 0 && len(readers) > 0 {
+		selectFirstReader = true
+	}
+
 	r.readers = make([]string, len(readers))
 	copy(r.readers, readers)
+
+	if selectFirstReader {
+		r.selectedReader = r.readers[0]
+		r.readerChanged = true
+	}
+
 	r.Refresh()
 }
 
