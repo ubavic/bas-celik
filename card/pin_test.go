@@ -75,7 +75,7 @@ func Test_PadPin(t *testing.T) {
 
 	for _, testCase := range testCases {
 		paddedPin := card.PadPin(testCase.pin)
-		if slices.Equal[[]byte](paddedPin, testCase.expectedResult) {
+		if !slices.Equal[[]byte](paddedPin, testCase.expectedResult) {
 			t.Errorf("Expected %v but got %v.", testCase.expectedResult, paddedPin)
 		}
 	}
