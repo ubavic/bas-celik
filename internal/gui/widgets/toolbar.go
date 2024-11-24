@@ -15,8 +15,8 @@ type Toolbar struct {
 	onOpenAbout       func()
 	onOpenPreferences func()
 	onPinChange       func()
+	onReaderChange    func(string)
 	selectedReader    string
-	readerChanged     bool
 	pinChangeEnabled  bool
 }
 
@@ -37,8 +37,13 @@ func NewToolbar(onOpenAbout, onOpenPreferences, onPinChange func()) *Toolbar {
 		onOpenPreferences: onOpenPreferences,
 		onPinChange:       onPinChange,
 	}
+
 	toolbar.ExtendBaseWidget(toolbar)
 	return toolbar
+}
+
+func (t *Toolbar) HookReaderChange(hook func(string)) {
+	t.onReaderChange = hook
 }
 
 func (t *Toolbar) EnablePinChange() {
@@ -54,12 +59,12 @@ func (t *Toolbar) DisablePinChange() {
 func (t *Toolbar) CreateRenderer() fyne.WidgetRenderer {
 	label := widget.NewLabel(translation.Translate("ui.reader"))
 
-	onChange := func(s string) {
-		if s != t.selectedReader {
-			t.selectedReader = s
-			t.readerChanged = true
+	onChange := func(reader string) {
+		if t.onReaderChange != nil {
+			t.onReaderChange(reader)
 		}
 	}
+
 	readersSelect := widget.NewSelect(t.readers, onChange)
 
 	pinChangeButton := widget.NewButtonWithIcon("", theme.VisibilityOffIcon(), t.onPinChange)
@@ -87,13 +92,9 @@ func (t *Toolbar) CreateRenderer() fyne.WidgetRenderer {
 
 func (r *ToolbarRenderer) Refresh() {
 	r.readersSelect.SetOptions(r.toolbar.readers)
+	r.readersSelect.Selected = r.toolbar.selectedReader
 
-	if len(r.toolbar.readers) == 0 {
-		r.readersSelect.Selected = ""
-		r.readersSelect.PlaceHolder = "Nema"
-		r.readersSelect.Disable()
-	} else if len(r.toolbar.readers) == 1 {
-		r.readersSelect.Selected = r.toolbar.readers[0]
+	if len(r.toolbar.readers) <= 1 {
 		r.readersSelect.Disable()
 	} else {
 		r.readersSelect.Enable()
@@ -103,11 +104,6 @@ func (r *ToolbarRenderer) Refresh() {
 		r.pinChangeButton.Enable()
 	} else {
 		r.pinChangeButton.Disable()
-	}
-
-	if r.readersSelect.Selected == "" && len(r.toolbar.readers) > 0 {
-		r.toolbar.selectedReader = r.toolbar.readers[0]
-		r.readersSelect.Selected = r.toolbar.readers[0]
 	}
 
 	r.readersSelect.Refresh()
@@ -135,33 +131,11 @@ func (r *ToolbarRenderer) Objects() []fyne.CanvasObject {
 
 func (r *ToolbarRenderer) Destroy() {}
 
-func (r *Toolbar) SetReaders(readers []string) {
-	selectFirstReader := false
-
-	if len(r.readers) == 0 && len(readers) > 0 {
-		selectFirstReader = true
-	}
-
+func (r *Toolbar) SetReaders(readers []string, selectedReader string) {
 	r.readers = make([]string, len(readers))
 	copy(r.readers, readers)
 
-	if selectFirstReader {
-		r.selectedReader = r.readers[0]
-		r.readerChanged = true
-	}
+	r.selectedReader = selectedReader
 
 	r.Refresh()
-}
-
-func (r *Toolbar) ReaderChanged() bool {
-	if r.readerChanged {
-		r.readerChanged = false
-		return true
-	}
-
-	return false
-}
-
-func (r *Toolbar) GetReaderName() string {
-	return r.selectedReader
 }

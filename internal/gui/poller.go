@@ -9,105 +9,54 @@ import (
 	"github.com/ubavic/bas-celik/document"
 )
 
-func establishContextAndStartPollers() {
-	setStartPage(t("poller.connectingReader"), "", nil)
-
-	// if we don't sequentially establish contexts,
-	// they will not be established successfully
-
-	ctx1, err := scard.EstablishContext()
-	if err != nil {
-		setStartPage(
-			t("error.driver"),
-			t("error.driverExplanation"),
-			fmt.Errorf("establishing context: %w", err))
-	}
-
-	ctx2, err := scard.EstablishContext()
-	if err != nil {
-		setStartPage(
-			t("error.driver"),
-			t("error.driverExplanation"),
-			fmt.Errorf("establishing context: %w", err))
-	}
-
-	go pollReaders(ctx1)
-	go poller(ctx2)
-}
-
-func pollReaders(ctx *scard.Context) {
-	for {
-		readersNames, _ := ctx.ListReaders()
-
-		if len(readersNames) > 0 {
-			states := make([]scard.ReaderState, 0, len(readersNames))
-			for _, readerName := range readersNames {
-				states = append(states, scard.ReaderState{
-					Reader:       readerName,
-					CurrentState: scard.StateUnaware,
-				})
-			}
-
-			state.mu.Lock()
-			state.toolbar.SetReaders(readersNames)
-			state.mu.Unlock()
-
-			ctx.GetStatusChange(states, 0)
-			for i := range states {
-				states[i].CurrentState = states[i].EventState
-			}
-			ctx.GetStatusChange(states, 3*time.Second)
-
-		} else {
-			time.Sleep(3 * time.Second)
-		}
-	}
-}
-
-func poller(ctx *scard.Context) {
-	loaded := false
-	breakCardLoop := false
+func cardLoop(readerSelection <-chan string) {
 	selectedReader := ""
 
+	ctx, err := scard.EstablishContext()
+	if err != nil {
+		setStartPage(
+			t("error.driver"),
+			t("error.driverExplanation"),
+			fmt.Errorf("establishing context: %w", err))
+		select {}
+	}
+
 	for {
-		breakCardLoop = false
+		setStartPage(t("error.noReader"), t("error.noReaderExplanation"), nil)
 
-		state.mu.Lock()
-		selectedReader = state.toolbar.GetReaderName()
-		state.mu.Unlock()
+		for selectedReader == "" {
+			selectedReader = <-readerSelection
+		}
 
-		for !breakCardLoop {
+		setStartPage(t("poller.connectingReader"), "", nil)
+
+		for selectedReader != "" {
 			sCard, err := ctx.Connect(selectedReader, scard.ShareShared, scard.ProtocolAny)
 			if err == nil {
-				if !loaded {
-					loaded = tryToProcessCard(sCard)
-				}
+				time.Sleep(50 * time.Microsecond)
+				tryToProcessCard(sCard)
 			} else {
 				state.mu.Lock()
 				state.cardDocument = nil
 				state.toolbar.DisablePinChange()
 				state.mu.Unlock()
 
-				loaded = false
 				setStartPage(
 					t("error.readingCard"),
 					t("error.isCardPresent"),
 					fmt.Errorf("connecting reader %s: %w", selectedReader, err))
 			}
 
+			selectedReader = <-readerSelection
 			state.mu.Lock()
-			breakCardLoop = state.toolbar.ReaderChanged()
+			state.cardDocument = nil
+			state.toolbar.DisablePinChange()
 			state.mu.Unlock()
 
-			if !breakCardLoop {
-				time.Sleep(500 * time.Millisecond)
+			if selectedReader == "" {
+				break
 			}
 		}
-
-		setStartPage(
-			t("poller.connectingReader"),
-			"",
-			nil)
 	}
 }
 
@@ -145,7 +94,9 @@ func tryToProcessCard(sCard *scard.Card) bool {
 
 		switch cardDoc.(type) {
 		case *card.Gemalto:
+			state.mu.Lock()
 			state.toolbar.EnablePinChange()
+			state.mu.Unlock()
 		}
 	}
 
