@@ -43,6 +43,7 @@ func pinForm(win fyne.Window) {
 		OnSubmit: func() {
 			gemaltoCard, ok := state.cardDocument.(*card.Gemalto)
 			if !ok {
+				pinDialog.Hide()
 				return
 			}
 

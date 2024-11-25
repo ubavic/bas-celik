@@ -11,6 +11,10 @@ import (
 
 func savePdf(doc document.Document) func() {
 	return func() {
+		if doc == nil {
+			return
+		}
+
 		pdf, fileName, err := doc.BuildPdf()
 
 		if err != nil {
@@ -47,6 +51,10 @@ func savePdf(doc document.Document) func() {
 
 func saveXlsx(doc document.Document) func() {
 	return func() {
+		if doc == nil {
+			return
+		}
+
 		excel, fileName, err := doc.BuildExcel()
 
 		if err != nil {
