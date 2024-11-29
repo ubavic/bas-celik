@@ -3,7 +3,7 @@ package tlv
 import (
 	"encoding/binary"
 
-	"github.com/ubavic/bas-celik/card/cardErrors"
+	"github.com/ubavic/bas-celik/v2/card/cardErrors"
 )
 
 // Parses simple TLV-encoded data and returns a map of tags to values.

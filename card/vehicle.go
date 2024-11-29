@@ -3,10 +3,10 @@ package card
 import (
 	"fmt"
 
-	"github.com/ubavic/bas-celik/card/ber"
-	"github.com/ubavic/bas-celik/card/cardErrors"
-	"github.com/ubavic/bas-celik/document"
-	"github.com/ubavic/bas-celik/localization"
+	"github.com/ubavic/bas-celik/v2/card/ber"
+	"github.com/ubavic/bas-celik/v2/card/cardErrors"
+	"github.com/ubavic/bas-celik/v2/document"
+	"github.com/ubavic/bas-celik/v2/localization"
 )
 
 // Represents a smart card that contains a Serbian vehicle document.

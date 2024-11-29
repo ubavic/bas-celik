@@ -4,7 +4,7 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/widget"
-	"github.com/ubavic/bas-celik/internal/gui/widgets"
+	"github.com/ubavic/bas-celik/v2/internal/gui/widgets"
 )
 
 const themePreferenceKey = "color-theme"

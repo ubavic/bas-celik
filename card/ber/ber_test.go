@@ -4,7 +4,7 @@ import (
 	"encoding/binary"
 	"testing"
 
-	"github.com/ubavic/bas-celik/card/cardErrors"
+	"github.com/ubavic/bas-celik/v2/card/cardErrors"
 )
 
 func Test_parseBerLength(t *testing.T) {

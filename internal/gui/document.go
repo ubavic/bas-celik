@@ -7,10 +7,10 @@ import (
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
-	"github.com/ubavic/bas-celik/document"
-	"github.com/ubavic/bas-celik/internal/gui/translation"
-	"github.com/ubavic/bas-celik/internal/gui/widgets"
-	"github.com/ubavic/bas-celik/localization"
+	"github.com/ubavic/bas-celik/v2/document"
+	"github.com/ubavic/bas-celik/v2/internal/gui/translation"
+	"github.com/ubavic/bas-celik/v2/internal/gui/widgets"
+	"github.com/ubavic/bas-celik/v2/localization"
 )
 
 func pageID(doc *document.IdDocument) *fyne.Container {

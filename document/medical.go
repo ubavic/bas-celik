@@ -14,7 +14,7 @@ import (
 	"time"
 
 	"github.com/signintech/gopdf"
-	"github.com/ubavic/bas-celik/localization"
+	"github.com/ubavic/bas-celik/v2/localization"
 )
 
 const rfzoServiceUrl = "https://www.rfzo.rs/proveraUplateDoprinosa2.php"

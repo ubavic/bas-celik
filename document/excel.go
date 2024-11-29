@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/ubavic/bas-celik/localization"
+	"github.com/ubavic/bas-celik/v2/localization"
 	"github.com/xuri/excelize/v2"
 )
 

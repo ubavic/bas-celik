@@ -1,4 +1,4 @@
-module github.com/ubavic/bas-celik
+module github.com/ubavic/bas-celik/v2
 
 go 1.21
 

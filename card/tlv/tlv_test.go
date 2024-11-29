@@ -6,8 +6,8 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/ubavic/bas-celik/card/cardErrors"
-	"github.com/ubavic/bas-celik/card/tlv"
+	"github.com/ubavic/bas-celik/v2/card/cardErrors"
+	"github.com/ubavic/bas-celik/v2/card/tlv"
 )
 
 func Test_parseTLV(t *testing.T) {

@@ -7,8 +7,8 @@ import (
 	"os"
 
 	"github.com/ebfe/scard"
-	"github.com/ubavic/bas-celik/card"
-	"github.com/ubavic/bas-celik/document"
+	"github.com/ubavic/bas-celik/v2/card"
+	"github.com/ubavic/bas-celik/v2/document"
 )
 
 type LaunchConfig struct {

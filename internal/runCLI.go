@@ -2,7 +2,7 @@
 
 package internal
 
-import "github.com/ubavic/bas-celik/internal/logger"
+import "github.com/ubavic/bas-celik/v2/internal/logger"
 
 func Run(cfg LaunchConfig) error {
 	if len(cfg.PdfPath) == 0 && len(cfg.JsonPath) == 0 && len(cfg.ExcelPath) == 0 {

@@ -5,7 +5,7 @@ import (
 	"slices"
 	"testing"
 
-	"github.com/ubavic/bas-celik/card"
+	"github.com/ubavic/bas-celik/v2/card"
 )
 
 func Test_DetectCardDocumentByAtr(t *testing.T) {

@@ -4,9 +4,9 @@ import (
 	"fmt"
 
 	"github.com/ebfe/scard"
-	"github.com/ubavic/bas-celik/card"
-	"github.com/ubavic/bas-celik/document"
-	"github.com/ubavic/bas-celik/internal/logger"
+	"github.com/ubavic/bas-celik/v2/card"
+	"github.com/ubavic/bas-celik/v2/document"
+	"github.com/ubavic/bas-celik/v2/internal/logger"
 )
 
 func cardLoop(readerSelection <-chan string) {

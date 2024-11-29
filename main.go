@@ -3,9 +3,9 @@ package main
 import (
 	"os"
 
-	"github.com/ubavic/bas-celik/document"
-	"github.com/ubavic/bas-celik/internal"
-	"github.com/ubavic/bas-celik/internal/logger"
+	"github.com/ubavic/bas-celik/v2/document"
+	"github.com/ubavic/bas-celik/v2/internal"
+	"github.com/ubavic/bas-celik/v2/internal/logger"
 
 	"embed"
 	"fmt"

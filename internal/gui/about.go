@@ -7,7 +7,7 @@ import (
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/widget"
-	"github.com/ubavic/bas-celik/internal/gui/widgets"
+	"github.com/ubavic/bas-celik/v2/internal/gui/widgets"
 )
 
 func showAboutBox(win fyne.Window, version string) func() {

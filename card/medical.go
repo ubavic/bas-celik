@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/ubavic/bas-celik/card/tlv"
-	"github.com/ubavic/bas-celik/document"
-	"github.com/ubavic/bas-celik/localization"
+	"github.com/ubavic/bas-celik/v2/card/tlv"
+	"github.com/ubavic/bas-celik/v2/document"
+	"github.com/ubavic/bas-celik/v2/localization"
 	"golang.org/x/text/encoding/unicode"
 	"golang.org/x/text/transform"
 )

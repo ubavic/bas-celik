@@ -4,7 +4,7 @@ import (
 	"image"
 	"testing"
 
-	"github.com/ubavic/bas-celik/document"
+	"github.com/ubavic/bas-celik/v2/document"
 )
 
 var documentId1 = document.IdDocument{}

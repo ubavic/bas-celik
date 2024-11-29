@@ -9,7 +9,7 @@ import (
 	"slices"
 
 	"github.com/ebfe/scard"
-	doc "github.com/ubavic/bas-celik/document"
+	doc "github.com/ubavic/bas-celik/v2/document"
 )
 
 // Represents a physical or virtual smart card.

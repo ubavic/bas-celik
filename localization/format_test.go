@@ -3,7 +3,7 @@ package localization_test
 import (
 	"testing"
 
-	"github.com/ubavic/bas-celik/localization"
+	"github.com/ubavic/bas-celik/v2/localization"
 )
 
 func Test_FormatDate(t *testing.T) {

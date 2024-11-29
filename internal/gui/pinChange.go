@@ -6,9 +6,9 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/widget"
-	"github.com/ubavic/bas-celik/card"
-	"github.com/ubavic/bas-celik/internal/gui/widgets"
-	"github.com/ubavic/bas-celik/internal/logger"
+	"github.com/ubavic/bas-celik/v2/card"
+	"github.com/ubavic/bas-celik/v2/internal/gui/widgets"
+	"github.com/ubavic/bas-celik/v2/internal/logger"
 )
 
 func pinChange(win fyne.Window) func() {

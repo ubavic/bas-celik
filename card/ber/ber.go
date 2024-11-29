@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/ubavic/bas-celik/card/cardErrors"
+	"github.com/ubavic/bas-celik/v2/card/cardErrors"
 )
 
 // Represents a node (or a tree) of a BER structure.

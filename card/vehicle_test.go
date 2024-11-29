@@ -4,7 +4,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/ubavic/bas-celik/card/cardErrors"
+	"github.com/ubavic/bas-celik/v2/card/cardErrors"
 )
 
 func Test_parseVehicleCardFileSize(t *testing.T) {

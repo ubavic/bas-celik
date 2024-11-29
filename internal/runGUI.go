@@ -3,9 +3,9 @@
 package internal
 
 import (
-	"github.com/ubavic/bas-celik/internal/gui"
-	"github.com/ubavic/bas-celik/internal/gui/translation"
-	"github.com/ubavic/bas-celik/internal/logger"
+	"github.com/ubavic/bas-celik/v2/internal/gui"
+	"github.com/ubavic/bas-celik/v2/internal/gui/translation"
+	"github.com/ubavic/bas-celik/v2/internal/logger"
 )
 
 func Run(cfg LaunchConfig) error {

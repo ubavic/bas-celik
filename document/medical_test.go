@@ -3,7 +3,7 @@ package document_test
 import (
 	"testing"
 
-	"github.com/ubavic/bas-celik/document"
+	"github.com/ubavic/bas-celik/v2/document"
 )
 
 var documentMedical1 = document.MedicalDocument{}

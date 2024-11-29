@@ -6,7 +6,7 @@ import (
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
-	"github.com/ubavic/bas-celik/internal/gui/translation"
+	"github.com/ubavic/bas-celik/v2/internal/gui/translation"
 )
 
 type Toolbar struct {

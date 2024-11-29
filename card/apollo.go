@@ -4,7 +4,7 @@ import (
 	"encoding/binary"
 	"fmt"
 
-	"github.com/ubavic/bas-celik/document"
+	"github.com/ubavic/bas-celik/v2/document"
 )
 
 // Apollo is the type of the first smart ID cards.

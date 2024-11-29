@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/ubavic/bas-celik/localization"
+	"github.com/ubavic/bas-celik/v2/localization"
 )
 
 var translations map[localization.Language]map[string]string

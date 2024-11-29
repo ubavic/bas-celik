@@ -6,7 +6,7 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/storage"
-	"github.com/ubavic/bas-celik/document"
+	"github.com/ubavic/bas-celik/v2/document"
 )
 
 func savePdf(doc document.Document) func() {

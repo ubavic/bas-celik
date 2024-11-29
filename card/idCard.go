@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"image"
 
-	"github.com/ubavic/bas-celik/card/tlv"
-	"github.com/ubavic/bas-celik/document"
-	"github.com/ubavic/bas-celik/localization"
+	"github.com/ubavic/bas-celik/v2/card/tlv"
+	"github.com/ubavic/bas-celik/v2/document"
+	"github.com/ubavic/bas-celik/v2/localization"
 )
 
 // Location of the file with document data.
