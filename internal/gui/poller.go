@@ -7,6 +7,7 @@ import (
 	"github.com/ebfe/scard"
 	"github.com/ubavic/bas-celik/card"
 	"github.com/ubavic/bas-celik/document"
+	"github.com/ubavic/bas-celik/internal/logger"
 )
 
 func cardLoop(readerSelection <-chan string) {
@@ -15,20 +16,20 @@ func cardLoop(readerSelection <-chan string) {
 	ctx, err := scard.EstablishContext()
 	if err != nil {
 		setStartPage(
-			t("error.driver"),
-			t("error.driverExplanation"),
+			"error.driver",
+			"error.driverExplanation",
 			fmt.Errorf("establishing context: %w", err))
 		select {}
 	}
 
 	for {
-		setStartPage(t("error.noReader"), t("error.noReaderExplanation"), nil)
+		setStartPage("error.noReader", "error.noReaderExplanation", nil)
 
 		for selectedReader == "" {
 			selectedReader = <-readerSelection
 		}
 
-		setStartPage(t("poller.connectingReader"), "", nil)
+		setStartPage("poller.connectingReader", "", nil)
 
 		for selectedReader != "" {
 			sCard, err := ctx.Connect(selectedReader, scard.ShareShared, scard.ProtocolAny)
@@ -42,8 +43,8 @@ func cardLoop(readerSelection <-chan string) {
 				state.mu.Unlock()
 
 				setStartPage(
-					t("error.readingCard"),
-					t("error.isCardPresent"),
+					"error.readingCard",
+					"error.isCardPresent",
 					fmt.Errorf("connecting reader %s: %w", selectedReader, err))
 			}
 
@@ -63,16 +64,17 @@ func cardLoop(readerSelection <-chan string) {
 func tryToProcessCard(sCard *scard.Card) bool {
 	loaded := false
 
-	setStartPage(t("poller.readingFromCard"), "", nil)
+	setStartPage("poller.readingFromCard", "", nil)
 
 	cardDoc, err := card.DetectCardDocument(sCard)
+	logger.Info("ATR read: " + cardDoc.Atr().String())
 	if err != nil {
 		message := ""
 		if err == card.ErrUnknownCard {
-			message = t("error.unknownCard") + ": " + cardDoc.Atr().String()
+			message = "error.unknownCard"
 		}
 		setStartPage(
-			t("error.readingCard"),
+			"error.readingCard",
 			message,
 			fmt.Errorf("reading from card: %w", err))
 	} else {
@@ -83,11 +85,11 @@ func tryToProcessCard(sCard *scard.Card) bool {
 		doc, err := initCardAndReadDoc(cardDoc)
 		if err != nil {
 			setStartPage(
-				t("error.readingCard"),
+				"error.readingCard",
 				"",
 				fmt.Errorf("reading from card: %w", err))
 		} else {
-			setStatus(t("poller.documentRead"), nil)
+			setStatus("poller.documentRead", nil)
 			setUI(doc)
 			loaded = true
 		}

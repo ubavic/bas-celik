@@ -52,3 +52,7 @@ func CurrentLanguage() localization.Language {
 func Translate(id string) string {
 	return translations[currentLanguage][id]
 }
+
+func EnglishTranslation(id string) string {
+	return translations[localization.En][id]
+}

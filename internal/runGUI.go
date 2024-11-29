@@ -5,6 +5,7 @@ package internal
 import (
 	"github.com/ubavic/bas-celik/internal/gui"
 	"github.com/ubavic/bas-celik/internal/gui/translation"
+	"github.com/ubavic/bas-celik/internal/logger"
 )
 
 func Run(cfg LaunchConfig) error {
@@ -14,9 +15,10 @@ func Run(cfg LaunchConfig) error {
 			return err
 		}
 
-		gui.StartGui(cfg.Verbose, version)
+		gui.StartGui(version)
 		return nil
 	}
 
+	logger.Info("output file detected")
 	return readAndSave(cfg)
 }

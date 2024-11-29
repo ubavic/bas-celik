@@ -1,8 +1,11 @@
 package main
 
 import (
+	"os"
+
 	"github.com/ubavic/bas-celik/document"
 	"github.com/ubavic/bas-celik/internal"
+	"github.com/ubavic/bas-celik/internal/logger"
 
 	"embed"
 	"fmt"
@@ -22,17 +25,22 @@ func main() {
 		return
 	}
 
+	if !cfg.Verbose {
+		logger.DisableLog()
+	}
+
 	cfg.EmbedDirectory = embedFS
 
 	err := configDocumentPackage()
 	if err != nil {
 		fmt.Println("Error:", err)
-		return
+		os.Exit(1)
 	}
 
 	err = internal.Run(cfg)
 	if err != nil {
 		fmt.Println("Error:", err)
+		os.Exit(2)
 	}
 }
 
@@ -57,8 +65,7 @@ func configDocumentPackage() error {
 
 	err = document.Configure(documentConfig)
 	if err != nil {
-		fmt.Println("Setup error:", err)
-		return err
+		return fmt.Errorf("setup error: %w", err)
 	}
 
 	return nil

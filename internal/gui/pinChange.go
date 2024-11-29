@@ -8,6 +8,7 @@ import (
 	"fyne.io/fyne/v2/widget"
 	"github.com/ubavic/bas-celik/card"
 	"github.com/ubavic/bas-celik/internal/gui/widgets"
+	"github.com/ubavic/bas-celik/internal/logger"
 )
 
 func pinChange(win fyne.Window) func() {
@@ -81,10 +82,12 @@ func pinForm(win fyne.Window) {
 			if err != nil {
 				pinDialog.Hide()
 				dialog.ShowInformation(t("pinChange.title"), t("pinChange.error"), win)
+				logger.Error(err)
 				return
 			} else {
 				pinDialog.Hide()
 				dialog.ShowInformation(t("pinChange.title"), t("pinChange.success"), win)
+				logger.Info("pin changed")
 			}
 		},
 		CancelText: t("pinChange.cancel"),

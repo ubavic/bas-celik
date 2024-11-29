@@ -17,11 +17,11 @@ import (
 	"github.com/ubavic/bas-celik/internal/gui/reader"
 	"github.com/ubavic/bas-celik/internal/gui/translation"
 	"github.com/ubavic/bas-celik/internal/gui/widgets"
+	"github.com/ubavic/bas-celik/internal/logger"
 )
 
 type State struct {
 	mu            sync.Mutex
-	verbose       bool
 	window        *fyne.Window
 	startPage     *widgets.StartPage
 	toolbar       *widgets.Toolbar
@@ -34,7 +34,7 @@ type State struct {
 
 var state State
 
-func StartGui(verbose_ bool, version string) {
+func StartGui(version string) {
 	app := app.New()
 	win := app.NewWindow("Baš Čelik")
 
@@ -66,7 +66,6 @@ func StartGui(verbose_ bool, version string) {
 	mainContainer := container.New(layout.NewPaddedLayout(), columns)
 
 	state = State{
-		verbose:       verbose_,
 		toolbar:       toolbar,
 		startPage:     startPage,
 		window:        &win,
@@ -117,17 +116,22 @@ func setUI(doc document.Document) {
 	(*state.window).Resize(state.mainContainer.MinSize())
 }
 
-func setStartPage(status, explanation string, err error) {
+func setStartPage(statusId, explanationId string, err error) {
 	state.mu.Lock()
 	defer state.mu.Unlock()
+
+	status := t(statusId)
+	explanation := t(explanationId)
 
 	isError := false
 	if err != nil {
 		isError = true
 	}
 
-	if state.verbose && isError {
-		fmt.Println(err)
+	if isError {
+		logger.Error(err)
+	} else {
+		logger.Info(translation.EnglishTranslation(statusId) + " " + translation.EnglishTranslation(explanationId))
 	}
 
 	state.startPage.SetStatus(status, explanation, isError)
@@ -141,16 +145,19 @@ func setStartPage(status, explanation string, err error) {
 	(*state.window).Resize(state.mainContainer.MinSize())
 }
 
-func setStatus(status string, err error) {
+func setStatus(statusId string, err error) {
 	isError := false
 	if err != nil {
 		isError = true
 	}
 
-	if state.verbose && isError {
-		fmt.Println(err)
+	if isError {
+		logger.Error(err)
+	} else {
+		logger.Info(translation.EnglishTranslation(statusId))
 	}
 
+	status := t(statusId)
 	state.statusBar.SetStatus(status, isError)
 	state.statusBar.Refresh()
 }
@@ -159,11 +166,12 @@ func updateMedicalDocHandler(doc *document.MedicalDocument) func() {
 	return func() {
 		err := doc.UpdateValidUntilDateFromRfzo()
 		if err != nil {
+			logger.Error(fmt.Errorf("updating medical information: %w", err))
 			dialog.ShowInformation(t("error.error"), t("error.dataUpdate"), *state.window)
 			return
 		}
 
-		setStatus(t("ui.updateSuccessful"), nil)
+		setStatus("ui.updateSuccessful", nil)
 		setUI(doc)
 	}
 }
