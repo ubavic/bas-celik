@@ -72,7 +72,7 @@ Za Linux operativni sistem su dostupne verzije sa i bez grafičkog interfejsa. V
 
 ### Izvršne datoteke za macOS
 
-Kako macOS ne dozvoljava (jednostavno) pokretanje izvršnih datoteka koje nisu potpisane sa sertifikatom izdatog od Apple-a, nema mnogo smisla pružati izvršne datoteke za mac. Korisnici Apple uređaja moraju sami instalirati Go (prema uputstvu sa [zvaničnog sajta](https://go.dev/doc/install)), a zatim kompajlirati Baš Čelik po gore navedenom uputstvu.
+Kako macOS ne dozvoljava (jednostavno) pokretanje izvršnih datoteka koje nisu potpisane sa sertifikatom izdatog od Apple-a, nema mnogo smisla pružati izvršne datoteke za mac. Korisnici Apple uređaja moraju sami instalirati Go (prema uputstvu sa [zvaničnog sajta](https://go.dev/doc/install)), a zatim kompajlirati Baš Čelik po uputstvu navedenom u nastavku.
 
 ## Kompilacija
 
