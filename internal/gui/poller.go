@@ -2,7 +2,6 @@ package gui
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/ebfe/scard"
 	"github.com/ubavic/bas-celik/card"
@@ -34,7 +33,6 @@ func cardLoop(readerSelection <-chan string) {
 		for selectedReader != "" {
 			sCard, err := ctx.Connect(selectedReader, scard.ShareShared, scard.ProtocolAny)
 			if err == nil {
-				time.Sleep(50 * time.Microsecond)
 				tryToProcessCard(sCard)
 			} else {
 				state.mu.Lock()
