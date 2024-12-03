@@ -102,8 +102,6 @@ Pregled svih poznatih problema je dostupan na [*Issues* stranici](https://github
 
 Unapred sam zahvalan za bilo kakvu povratnu informaciju o problemima. Za prijavljivanje problema, možete otvoriti novi *issue* ili mi poslati mejl (username `celik`, domen `ubavic.rs`).
 
-Eventualni bug u Baš Čelik aplikaciji ne utiče na "sigurnost" vašeg dokumenta. Baš Čelik isključivo čita podatke sa kartice.
-
 ### Ćirilica i latinica
 
 Program prikazuje i eksportuje podatke onako kako su zapisani na kartici. Ako na nekom dokumentu uočite podatke na oba pisma, u pitanju nije *bug* već stanje na kartici.
