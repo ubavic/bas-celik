@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"image"
 	"image/jpeg"
-	"math"
 	"strings"
 	"time"
 
@@ -116,241 +115,21 @@ func (doc *IdDocument) BuildPdf() (data []byte, fileName string, retErr error) {
 		panic(fmt.Errorf("setting font: %w", err))
 	}
 
-	const leftMargin = 58.8
-	const rightMargin = 535
-	const textLeftMargin = 67.3
-
-	line := func(width float64) {
-		if width > 0 {
-			pdf.SetLineWidth(width)
-		}
-
-		y := pdf.GetY()
-		pdf.Line(leftMargin, y, rightMargin, y)
+	ipw := IdPdfWriter{
+		pdf:            &pdf,
+		leftMargin:     58.8,
+		rightMargin:    535,
+		textLeftMargin: 67.3,
+		doc:            doc,
 	}
-
-	moveY := func(y float64) {
-		pdf.SetXY(pdf.GetX(), pdf.GetY()+y)
-	}
-
-	cell := func(s string) {
-		err := pdf.Cell(nil, s)
-		if err != nil {
-			panic(fmt.Errorf("putting text: %w", err))
-		}
-	}
-
-	putData := func(label, data string) {
-		y := pdf.GetY()
-
-		pdf.SetX(textLeftMargin)
-		texts, err := pdf.SplitTextWithWordWrap(label, 120)
-		if err != nil && err != gopdf.ErrEmptyString {
-			panic(err)
-		}
-
-		for i, text := range texts {
-			cell(text)
-			if i < len(texts)-1 {
-				pdf.SetXY(textLeftMargin, pdf.GetY()+12)
-			}
-		}
-
-		y1 := pdf.GetY()
-
-		pdf.SetXY(textLeftMargin+128, y)
-		texts, err = pdf.SplitTextWithWordWrap(data, 350)
-		if err != nil && err != gopdf.ErrEmptyString {
-			panic(err)
-		}
-
-		for i, text := range texts {
-			cell(text)
-			if i < len(texts)-1 {
-				pdf.SetXY(textLeftMargin+128, pdf.GetY()+12)
-			}
-		}
-
-		y2 := pdf.GetY()
-
-		pdf.SetXY(textLeftMargin, math.Max(y1, y2)+24.67)
-	}
-
-	pdf.SetLineType("solid")
-	pdf.SetY(59.041)
-	line(0.83)
-
-	pdf.SetXY(textLeftMargin+1.0, 68.5)
-	if doc.DocumentType == ID_TYPE_RESIDENCE_PERMIT {
-		pdf.SetY(64.95)
-	}
-
-	err = pdf.SetCharSpacing(-0.2)
-	if err != nil {
-		panic(err)
-	}
-	cell("ČITAČ ELEKTRONSKE LIČNE KARTE: ŠTAMPA PODATAKA")
-
-	err = pdf.SetCharSpacing(-0.1)
-	if err != nil {
-		panic(err)
-	}
-
-	pdf.SetY(88)
-	if doc.DocumentType == ID_TYPE_RESIDENCE_PERMIT {
-		pdf.SetY(79.8)
-	}
-
-	line(0)
-
-	imageY := 102.8
-	imageHeight := 159.0
-	if doc.DocumentType == ID_TYPE_RESIDENCE_PERMIT {
-		imageY = 86
-	}
-
-	err = pdf.ImageFrom(doc.Portrait, leftMargin, imageY, &gopdf.Rect{W: 119.9, H: imageHeight})
-	if err != nil {
-		panic(err)
-	}
-
-	pdf.SetLineWidth(0.48)
-	pdf.SetFillColor(255, 255, 255)
-	err = pdf.Rectangle(leftMargin, imageY, 179, imageY+imageHeight, "D", 0, 0)
-	if err != nil {
-		panic(err)
-	}
-
-	pdf.SetFillColor(0, 0, 0)
-
-	pdf.SetY(276)
-	if doc.DocumentType == ID_TYPE_RESIDENCE_PERMIT {
-		pdf.SetY(250)
-	}
-	line(1.08)
-	moveY(8)
-	pdf.SetX(textLeftMargin)
-	err = pdf.SetFontSize(11.1)
-	if err != nil {
-		panic(err)
-	}
-
-	if doc.DocumentType == ID_TYPE_RESIDENCE_PERMIT {
-		cell("Podaci o strancu")
-	} else {
-		cell("Podaci o građaninu")
-	}
-
-	moveY(16)
-	line(0)
-	moveY(9)
-
-	putData("Prezime:", doc.Surname)
-	putData("Ime:", doc.GivenName)
-
-	if doc.DocumentType != ID_TYPE_RESIDENCE_PERMIT {
-		putData("Ime jednog roditelja:", doc.ParentGivenName)
-	} else {
-		putData("Državljanstvo:", doc.NationalityFull)
-	}
-	putData("Datum rođenja:", doc.DateOfBirth)
-	putData("Mesto rođenja,\nopština i država:", doc.GetFullPlaceOfBirth())
-	putData("Prebivalište:", doc.GetFullAddress(true))
-	putData("Datum promene adrese:", doc.AddressDate)
-	if doc.DocumentType == ID_TYPE_RESIDENCE_PERMIT {
-		putData("Evidencijski broj\nstranca:", doc.PersonalNumber)
-	} else {
-		putData("JMBG:", doc.PersonalNumber)
-	}
-	putData("Pol:", doc.Sex)
-	if doc.DocumentType == ID_TYPE_RESIDENCE_PERMIT {
-		putData("Osnov boravka:", doc.PurposeOfStay)
-		putData("Napomena:", doc.ENote)
-	}
-
-	moveY(-8.67)
-	line(0)
-	moveY(9)
-	cell("Podaci o dokumentu")
-	moveY(16)
-
-	line(0)
-	moveY(9)
-	if doc.DocumentType == ID_TYPE_RESIDENCE_PERMIT {
-		putData("Naziv dokumenta:", doc.DocumentName)
-	}
-	putData("Dokument izdaje:", doc.IssuingAuthority)
-	putData("Broj dokumenta:", doc.DocRegNo)
-	putData("Datum izdavanja:", doc.IssuingDate)
-	putData("Važi do:", doc.ExpiryDate)
-
-	moveY(-8.67)
-	line(0)
-	moveY(3)
-	line(0)
-	moveY(9)
-
-	cell("Datum štampe: " + time.Now().Format("02.01.2006."))
-
-	moveY(19)
 
 	if doc.DocumentType == ID_TYPE_APOLLO || doc.DocumentType == ID_TYPE_ID {
-		if pdf.GetY() < 700 {
-			pdf.SetY(730.6)
-		}
+		ipw.printRegularId()
+	} else if doc.DocumentType == ID_TYPE_IDENTITY_FOREIGNER {
+		ipw.printForeignerId()
+	} else if doc.DocumentType == ID_TYPE_RESIDENCE_PERMIT {
+		ipw.printResidencePermit()
 	}
-
-	line(0.83)
-
-	err = pdf.SetFontSize(9)
-	if err != nil {
-		panic(err)
-	}
-
-	moveY(4)
-	if doc.DocumentType == ID_TYPE_APOLLO || doc.DocumentType == ID_TYPE_ID {
-		moveY(6)
-	}
-
-	pdf.SetX(leftMargin)
-
-	if doc.DocumentType == ID_TYPE_RESIDENCE_PERMIT {
-		cell("1. U čipu dozvole za privremeni boravak i rad, podaci o imenu i prezimenu imaoca dozvole ispisani su onako")
-		pdf.SetX(leftMargin)
-		moveY(9.7)
-		cell("kako su ispisani na samom obrascu dozvole za privremeni boravak latiničnim pismom.")
-		pdf.SetX(leftMargin)
-		moveY(9.7)
-		cell("2. Ako se ime ili prezime stranca sastoji od dve ili više reči čija dužina prelazi 30 karaktera za ime,")
-		pdf.SetX(leftMargin)
-		moveY(9.7)
-		cell("odnosno 36 karaktera za prezime u čip se upisuje puno ime stranca, a na obrascu dozvole za privremeni boravak")
-		pdf.SetX(leftMargin)
-		moveY(9.7)
-		cell("se upisuje do 30 karaktera za ime, odnosno 36 karaktera za prezime.")
-	} else {
-		cell("1. U čipu lične karte, podaci o imenu i prezimenu imaoca lične karte ispisani su na nacionalnom pismu onako kako su")
-		pdf.SetX(leftMargin)
-		moveY(9.7)
-		cell("ispisani na samom obrascu lične karte, dok su ostali podaci ispisani latiničkim pismom.")
-		pdf.SetX(leftMargin)
-		moveY(9.7)
-		cell("2. Ako se ime lica sastoji od dve reči čija je ukupna dužina između 20 i 30 karaktera ili prezimena od dve reči čija je")
-		pdf.SetX(leftMargin)
-		moveY(9.7)
-		cell("ukupna dužina između 30 i 36 karaktera, u čipu lične karte izdate pre 18.08.2014. godine, druga reč u imenu ili prezimenu")
-		pdf.SetX(leftMargin)
-		moveY(9.7)
-		cell("skraćuje se na prva dva karaktera")
-	}
-
-	moveY(9.7)
-
-	if doc.DocumentType == ID_TYPE_APOLLO || doc.DocumentType == ID_TYPE_ID {
-		moveY(6)
-	}
-
-	line(0)
 
 	fileName = doc.formatFilename() + ".pdf"
 
