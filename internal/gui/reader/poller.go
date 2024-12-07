@@ -67,6 +67,8 @@ func (rp *ReaderPoller) pollReaders() {
 	for {
 		newReaders, _ = rp.readerListerContext.ListReaders()
 
+		readersCount := len(newReaders)
+
 		if slices.Compare(rp.readers, newReaders) != 0 {
 			rp.readers = newReaders
 
@@ -84,7 +86,7 @@ func (rp *ReaderPoller) pollReaders() {
 			rp.SetReader(readerToSelect)
 		}
 
-		rp.waitForReaderChange()
+		rp.waitForReaderChange(readersCount)
 	}
 }
 
