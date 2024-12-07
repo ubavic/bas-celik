@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 
 	"fyne.io/fyne/v2"
@@ -16,6 +17,8 @@ import (
 )
 
 func showAboutBox(win fyne.Window, version string) func() {
+	version = strings.TrimSpace(version)
+
 	verLabel := widget.NewLabelWithStyle(t("about.version")+": "+version, fyne.TextAlignLeading, fyne.TextStyle{Italic: true})
 	moreLabel := widget.NewLabel(t("about.moreAboutProgram"))
 	url, _ := url.Parse("https://github.com/ubavic/bas-celik")
