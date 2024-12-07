@@ -3,6 +3,7 @@ package reader
 import (
 	"fmt"
 	"slices"
+	"sync/atomic"
 
 	"github.com/ebfe/scard"
 )
@@ -16,6 +17,7 @@ type ReaderPoller struct {
 	currentReader       string
 	readers             []string
 	readerStateChange   chan<- string
+	readerPollerStarted atomic.Bool
 }
 
 type ReaderLister interface {
@@ -97,7 +99,10 @@ func (rp *ReaderPoller) SetReader(newReader string) {
 
 	rp.currentReader = newReader
 	rp.readerStateChange <- newReader
-	rp.singleReaderContext.Cancel()
+	if rp.readerPollerStarted.Load() {
+		rp.readerPollerStarted.Store(false)
+		rp.singleReaderContext.Cancel()
+	}
 	go rp.readerPoller(newReader)
 }
 
@@ -119,6 +124,7 @@ func (rp *ReaderPoller) readerPoller(selectedReader string) {
 			states[i].CurrentState = states[i].EventState
 		}
 
+		rp.readerPollerStarted.Store(true)
 		err := rp.singleReaderContext.GetStatusChange(states, -1)
 		if err != nil {
 			return
