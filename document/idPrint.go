@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/signintech/gopdf"
-	"github.com/ubavic/bas-celik/localization"
+	"github.com/ubavic/bas-celik/v2/localization"
 )
 
 type IdPdfWriter struct {
