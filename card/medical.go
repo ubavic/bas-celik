@@ -158,6 +158,10 @@ func (card *MedicalCard) ReadFile(name []byte) ([]byte, error) {
 			return nil, fmt.Errorf("reading file: %w", err)
 		}
 
+		if len(data) == 0 {
+			return output, nil
+		}
+
 		output = append(output, data...)
 
 		offset += uint(len(data))
