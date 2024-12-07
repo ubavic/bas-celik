@@ -18,4 +18,4 @@ The following list contains ATR codes that were found on different cards. The da
 
 ID cards of type Apollo had ATR `3bb918008131fe9e8073ff614083000000df`.
 
-Help expand this table by running `bas-celik -atr` to see the ATR code of your card.
+Help expand this table by running `bas-celik -atr` to see the ATR code of your card. Report your card ATR with document release date if release date is earlier then date listed in the table.
