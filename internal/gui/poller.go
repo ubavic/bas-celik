@@ -65,7 +65,9 @@ func tryToProcessCard(sCard *scard.Card) bool {
 	setStartPage("poller.readingFromCard", "", nil)
 
 	cardDoc, err := card.DetectCardDocument(sCard)
+	if cardDoc != nil {
 	logger.Info("ATR read: " + cardDoc.Atr().String())
+	}
 	if err != nil {
 		message := ""
 		if err == card.ErrUnknownCard {
