@@ -16,8 +16,8 @@ type ReaderPoller struct {
 	readerLister        ReaderLister
 	currentReader       string
 	readers             []string
-	readerStateChange   chan<- string
 	readerPollerStarted atomic.Bool
+	onCardEvent         func(string, *scard.Context)
 }
 
 type ReaderLister interface {
@@ -25,7 +25,7 @@ type ReaderLister interface {
 	HookReaderChange(func(string))
 }
 
-func NewPoller(readerLister ReaderLister, readerStateChange chan<- string) (*ReaderPoller, error) {
+func NewPoller(readerLister ReaderLister, onCardEvent func(string, *scard.Context)) (*ReaderPoller, error) {
 	if created {
 		panic("you can create only single instance of ReaderPoller")
 	}
@@ -45,14 +45,17 @@ func NewPoller(readerLister ReaderLister, readerStateChange chan<- string) (*Rea
 		readerListerContext: readerListerContext,
 		singleReaderContext: singleReaderContext,
 		readerLister:        readerLister,
-		readerStateChange:   readerStateChange,
+		onCardEvent:         onCardEvent,
 	}
 
 	readerLister.HookReaderChange(poller.SetReader)
 
-	go poller.pollReaders()
-
 	return &poller, nil
+}
+
+func (rp *ReaderPoller) StartPoller() {
+	rp.onCardEvent("", rp.singleReaderContext)
+	go rp.pollReaders()
 }
 
 func (rp *ReaderPoller) pollReaders() {
@@ -98,7 +101,6 @@ func (rp *ReaderPoller) SetReader(newReader string) {
 	}
 
 	rp.currentReader = newReader
-	rp.readerStateChange <- newReader
 	if rp.readerPollerStarted.Load() {
 		rp.readerPollerStarted.Store(false)
 		rp.singleReaderContext.Cancel()
@@ -107,6 +109,9 @@ func (rp *ReaderPoller) SetReader(newReader string) {
 }
 
 func (rp *ReaderPoller) readerPoller(selectedReader string) {
+
+	rp.onCardEvent(selectedReader, rp.singleReaderContext)
+
 	for {
 		if selectedReader == "" {
 			return
@@ -130,6 +135,6 @@ func (rp *ReaderPoller) readerPoller(selectedReader string) {
 			return
 		}
 
-		rp.readerStateChange <- selectedReader
+		rp.onCardEvent(selectedReader, rp.singleReaderContext)
 	}
 }
