@@ -49,13 +49,14 @@ func StartGui(version string) {
 
 	widgets.SetClipboard(CopyToClipboard)
 
-	readerSelection := make(chan string)
-
 	statusBar := widgets.NewStatusBar()
 	toolbar := widgets.NewToolbar(showAboutBox, showSettings, changePin)
 	spacer := widgets.NewSpacer()
 
-	reader.NewPoller(toolbar, readerSelection)
+	poller, err := reader.NewPoller(toolbar, connectToCard)
+	if err != nil {
+		logger.Error(err)
+	}
 
 	startPage := widgets.NewStartPage()
 	startPage.SetStatus("", "", false)
@@ -77,7 +78,7 @@ func StartGui(version string) {
 
 	win.SetContent(mainContainer)
 
-	go cardLoop(readerSelection)
+	poller.StartPoller()
 
 	win.ShowAndRun()
 }

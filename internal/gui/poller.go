@@ -9,53 +9,28 @@ import (
 	"github.com/ubavic/bas-celik/internal/logger"
 )
 
-func cardLoop(readerSelection <-chan string) {
-	selectedReader := ""
-
-	ctx, err := scard.EstablishContext()
-	if err != nil {
-		setStartPage(
-			"error.driver",
-			"error.driverExplanation",
-			fmt.Errorf("establishing context: %w", err))
-		select {}
+func connectToCard(selectedReader string, ctx *scard.Context) {
+	readers, _ := ctx.ListReaders()
+	if selectedReader == "" || len(readers) == 0 {
+		setStartPage("error.noReader", "error.noReaderExplanation", nil)
+		return
 	}
 
-	for {
-		setStartPage("error.noReader", "error.noReaderExplanation", nil)
+	setStartPage("poller.connectingReader", "", nil)
 
-		for selectedReader == "" {
-			selectedReader = <-readerSelection
-		}
+	sCard, err := ctx.Connect(selectedReader, scard.ShareShared, scard.ProtocolAny)
+	if err == nil {
+		tryToProcessCard(sCard)
+	} else {
+		state.mu.Lock()
+		state.cardDocument = nil
+		state.toolbar.DisablePinChange()
+		state.mu.Unlock()
 
-		setStartPage("poller.connectingReader", "", nil)
-
-		for selectedReader != "" {
-			sCard, err := ctx.Connect(selectedReader, scard.ShareShared, scard.ProtocolAny)
-			if err == nil {
-				tryToProcessCard(sCard)
-			} else {
-				state.mu.Lock()
-				state.cardDocument = nil
-				state.toolbar.DisablePinChange()
-				state.mu.Unlock()
-
-				setStartPage(
-					"error.readingCard",
-					"error.isCardPresent",
-					fmt.Errorf("connecting reader %s: %w", selectedReader, err))
-			}
-
-			selectedReader = <-readerSelection
-			state.mu.Lock()
-			state.cardDocument = nil
-			state.toolbar.DisablePinChange()
-			state.mu.Unlock()
-
-			if selectedReader == "" {
-				break
-			}
-		}
+		setStartPage(
+			"error.readingCard",
+			"error.isCardPresent",
+			fmt.Errorf("connecting reader %s: %w", selectedReader, err))
 	}
 }
 
@@ -66,7 +41,7 @@ func tryToProcessCard(sCard *scard.Card) bool {
 
 	cardDoc, err := card.DetectCardDocument(sCard)
 	if cardDoc != nil {
-	logger.Info("ATR read: " + cardDoc.Atr().String())
+		logger.Info("ATR read: " + cardDoc.Atr().String())
 	}
 	if err != nil {
 		message := ""
