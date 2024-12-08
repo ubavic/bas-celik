@@ -7,6 +7,7 @@ import (
 	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/widget"
 	"github.com/ubavic/bas-celik/card"
+	"github.com/ubavic/bas-celik/internal/gui/reader"
 	"github.com/ubavic/bas-celik/internal/gui/widgets"
 	"github.com/ubavic/bas-celik/internal/logger"
 )
@@ -78,6 +79,7 @@ func pinForm(win fyne.Window) {
 				return
 			}
 
+			reader.CancelReaderPoler()
 			err := gemaltoCard.ChangePin(newPinEntry.Text, oldPinEntry.Text)
 			if err != nil {
 				pinDialog.Hide()
@@ -89,6 +91,7 @@ func pinForm(win fyne.Window) {
 				dialog.ShowInformation(t("pinChange.title"), t("pinChange.success"), win)
 				logger.Info("pin changed")
 			}
+			reader.RestartReaderPoler()
 		},
 		CancelText: t("pinChange.cancel"),
 		OnCancel: func() {

@@ -9,6 +9,7 @@ import (
 )
 
 var created = false
+var createdPoller *ReaderPoller
 
 type ReaderPoller struct {
 	readerListerContext *scard.Context
@@ -50,7 +51,9 @@ func NewPoller(readerLister ReaderLister, onCardEvent func(string, *scard.Contex
 
 	readerLister.HookReaderChange(poller.SetReader)
 
-	return &poller, nil
+	createdPoller = &poller
+
+	return createdPoller, nil
 }
 
 func (rp *ReaderPoller) StartPoller() {
@@ -105,13 +108,11 @@ func (rp *ReaderPoller) SetReader(newReader string) {
 		rp.readerPollerStarted.Store(false)
 		rp.singleReaderContext.Cancel()
 	}
+	rp.onCardEvent(newReader, rp.singleReaderContext)
 	go rp.readerPoller(newReader)
 }
 
 func (rp *ReaderPoller) readerPoller(selectedReader string) {
-
-	rp.onCardEvent(selectedReader, rp.singleReaderContext)
-
 	for {
 		if selectedReader == "" {
 			return
@@ -137,4 +138,15 @@ func (rp *ReaderPoller) readerPoller(selectedReader string) {
 
 		rp.onCardEvent(selectedReader, rp.singleReaderContext)
 	}
+}
+
+func CancelReaderPoler() {
+	if createdPoller.readerPollerStarted.Load() {
+		createdPoller.readerPollerStarted.Store(false)
+		createdPoller.singleReaderContext.Cancel()
+	}
+}
+
+func RestartReaderPoler() {
+	go createdPoller.readerPoller(createdPoller.currentReader)
 }
