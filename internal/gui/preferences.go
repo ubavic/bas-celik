@@ -9,6 +9,7 @@ import (
 
 const themePreferenceKey = "color-theme"
 const languagePreferenceKey = "language"
+const lastUsedDirectoryKey = "last-used-directory"
 
 func showSetupBox(win fyne.Window, app fyne.App) func() {
 	preferences := app.Preferences()

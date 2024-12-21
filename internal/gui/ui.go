@@ -22,7 +22,8 @@ import (
 
 type State struct {
 	mu            sync.Mutex
-	window        *fyne.Window
+	app           fyne.App
+	window        fyne.Window
 	startPage     *widgets.StartPage
 	toolbar       *widgets.Toolbar
 	spacer        *widgets.Spacer
@@ -64,9 +65,10 @@ func StartGui(version string) {
 	mainContainer := container.New(layout.NewPaddedLayout(), columns)
 
 	state = State{
+		app:           app,
+		window:        win,
 		toolbar:       toolbar,
 		startPage:     startPage,
-		window:        &win,
 		spacer:        spacer,
 		statusBar:     statusBar,
 		mainPage:      mainPage,
@@ -115,7 +117,7 @@ func setUI(doc document.Document) {
 	state.startPage.Hide()
 	state.mainPage.Show()
 
-	(*state.window).Resize(state.mainContainer.MinSize())
+	state.window.Resize(state.mainContainer.MinSize())
 }
 
 func setStartPage(statusId, explanationId string, err error) {
@@ -144,7 +146,7 @@ func setStartPage(statusId, explanationId string, err error) {
 	state.mainPage.Hide()
 	state.startPage.Show()
 
-	(*state.window).Resize(state.mainContainer.MinSize())
+	state.window.Resize(state.mainContainer.MinSize())
 }
 
 func setStatus(statusId string, err error) {
@@ -169,7 +171,7 @@ func updateMedicalDocHandler(doc *document.MedicalDocument) func() {
 		err := doc.UpdateValidUntilDateFromRfzo()
 		if err != nil {
 			logger.Error(fmt.Errorf("updating medical information: %w", err))
-			dialog.ShowInformation(t("error.error"), t("error.dataUpdate"), *state.window)
+			dialog.ShowInformation(t("error.error"), t("error.dataUpdate"), state.window)
 			return
 		}
 
@@ -183,8 +185,7 @@ func CopyToClipboard(str string) bool {
 		return false
 	}
 
-	win := *state.window
-	clipboard := win.Clipboard()
+	clipboard := state.window.Clipboard()
 	if clipboard == nil {
 		return false
 	}
