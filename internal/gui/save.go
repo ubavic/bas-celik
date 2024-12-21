@@ -25,8 +25,12 @@ func savePdf(doc document.Document) func() {
 		}
 
 		dialog := dialog.NewFileSave(func(w fyne.URIWriteCloser, err error) {
-			if w == nil || err != nil {
+			if err != nil {
 				setStatus("error.writingPdf", fmt.Errorf("writing PDF: %w", err))
+				return
+			}
+
+			if w == nil {
 				return
 			}
 
@@ -73,8 +77,12 @@ func saveXlsx(doc document.Document) func() {
 		}
 
 		dialog := dialog.NewFileSave(func(w fyne.URIWriteCloser, err error) {
-			if w == nil || err != nil {
+			if err != nil {
 				setStatus("error.writingXlsx", fmt.Errorf("writing xlsx: %w", err))
+				return
+			}
+
+			if w == nil {
 				return
 			}
 
