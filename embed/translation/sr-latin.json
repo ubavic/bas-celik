@@ -6,6 +6,7 @@
   "about.checkVersion": "Proveri verziju",
   "about.newVersionAvailable": "Nova verzija %s je dostupna.",
   "about.youHaveLatestVersion": "Posedujete najnoviju verziju programa.",
+  "error.contextFail": "Neuspešno povezivanje sa drajverom pametnih kartica",
   "error.dataUpdate": "Greška prilikom ažuriranja podataka",
   "error.driver": "Greška pri upotrebi drajvera za pametne kartice.",
   "error.driverExplanation": "Da li program ima neophodne dozvole? Restartujte aplikaciju.",

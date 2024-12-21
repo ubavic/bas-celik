@@ -6,6 +6,7 @@
     "about.checkVersion": "Check version",
     "about.newVersionAvailable": "New version %s is available.",
     "about.youHaveLatestVersion": "You have the latest version.",
+    "error.contextFail": "Failed to create smart card context",
     "error.dataUpdate": "Error updating data.",
     "error.driver": "Error with smart card driver.",
     "error.driverExplanation": "Does the program have the required permissions? Please restart the program.",

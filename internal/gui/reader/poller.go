@@ -34,12 +34,12 @@ func NewPoller(readerLister ReaderLister, onCardEvent func(string, *scard.Contex
 
 	readerListerContext, err := scard.EstablishContext()
 	if err != nil {
-		return nil, fmt.Errorf("creating reader poller: %w", err)
+		return nil, fmt.Errorf("creating reader list context: %w", err)
 	}
 
 	singleReaderContext, err := scard.EstablishContext()
 	if err != nil {
-		return nil, fmt.Errorf("creating reader poller: %w", err)
+		return nil, fmt.Errorf("creating single reader context: %w", err)
 	}
 
 	poller := ReaderPoller{
