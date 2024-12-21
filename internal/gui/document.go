@@ -157,18 +157,32 @@ func pageVehicle(doc *document.VehicleDocument) *fyne.Container {
 	idRow := container.New(layout.NewHBoxLayout(), docIdF, serialNumberF)
 	documentGroup := widgets.NewGroup(t("vehicle.documentInformation"), issueRow, dateRow, competentAuthorityF, idRow)
 
+	ownerNoLbl := ""
+	if len(doc.OwnersPersonalNo) > 9 {
+		ownerNoLbl = t("vehicle.ownersPersonalNo")
+	} else {
+		ownerNoLbl = t("vehicle.ownersCompanyNo")
+	}
+
 	ownerF := widgets.NewField(t("vehicle.ownersSurnameOrBusinessName"), doc.OwnersSurnameOrBusinessName, 220)
 	ownerNameF := widgets.NewField(t("vehicle.ownerName"), doc.OwnerName, 220)
 	ownerRow := container.New(layout.NewHBoxLayout(), ownerF, ownerNameF)
-	ownerNumberF := widgets.NewField(t("vehicle.ownersPersonalNo"), doc.OwnersPersonalNo, 350)
+	ownerNumberF := widgets.NewField(ownerNoLbl, doc.OwnersPersonalNo, 350)
 	ownerAddressF := widgets.NewField(t("vehicle.ownerAddress"), doc.OwnerAddress, 350)
 
 	userWidgets := []fyne.CanvasObject{ownerRow, ownerNumberF, ownerAddressF}
 	if doc.UsersSurnameOrBusinessName != "" || doc.UsersName != "" || doc.UsersAddress != "" {
+		userNoLbl := ""
+		if len(doc.OwnersPersonalNo) > 9 {
+			userNoLbl = t("vehicle.usersPersonalNo")
+		} else {
+			userNoLbl = t("vehicle.usersCompanyNo")
+		}
+
 		userF := widgets.NewField(t("vehicle.usersSurnameOrBusinessName"), doc.UsersSurnameOrBusinessName, 220)
 		userNameF := widgets.NewField(t("vehicle.usersName"), doc.UsersName, 220)
 		userRow := container.New(layout.NewHBoxLayout(), userF, userNameF)
-		userNumberF := widgets.NewField(t("vehicle.usersPersonalNo"), doc.UsersPersonalNo, 350)
+		userNumberF := widgets.NewField(userNoLbl, doc.UsersPersonalNo, 350)
 		userAddressF := widgets.NewField(t("vehicle.usersAddress"), doc.UsersAddress, 350)
 		userWidgets = append(userWidgets, userRow, userNumberF, userAddressF)
 	}
