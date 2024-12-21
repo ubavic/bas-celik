@@ -53,10 +53,7 @@ func StartGui(version string) {
 	toolbar := widgets.NewToolbar(showAboutBox, showSettings, changePin)
 	spacer := widgets.NewSpacer()
 
-	poller, err := reader.NewPoller(toolbar, connectToCard)
-	if err != nil {
-		logger.Error(err)
-	}
+	poller, pollerErr := reader.NewPoller(toolbar, connectToCard)
 
 	startPage := widgets.NewStartPage()
 	startPage.SetStatus("", "", false)
@@ -78,7 +75,11 @@ func StartGui(version string) {
 
 	win.SetContent(mainContainer)
 
-	poller.StartPoller()
+	if pollerErr == nil {
+		poller.StartPoller()
+	} else {
+		setStartPage("error.contextFail", "", pollerErr)
+	}
 
 	win.ShowAndRun()
 }
