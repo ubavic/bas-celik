@@ -292,19 +292,19 @@ func (ipw *IdPdfWriter) printForeignerId() {
 
 	ipw.pdf.SetX(ipw.leftMargin)
 
-	ipw.cell("1. U čipu lične karte, podaci o imenu i prezimenu imaoca lične karte ispisani su na nacionalnom pismu onako kako su")
+	ipw.cell("1. U čipu lične karte za strance, podaci o imenu i prezimenu stranca ispisani su onako kako su ispisani na samom")
 	ipw.pdf.SetX(ipw.leftMargin)
 	ipw.moveY(9.7)
-	ipw.cell("ispisani na samom obrascu lične karte, dok su ostali podaci ispisani latiničkim pismom.")
+	ipw.cell("obrascu lične karte za stranca latiničnim pismom.")
 	ipw.pdf.SetX(ipw.leftMargin)
 	ipw.moveY(9.7)
-	ipw.cell("2. Ako se ime lica sastoji od dve reči čija je ukupna dužina između 20 i 30 karaktera ili prezimena od dve reči čija je")
+	ipw.cell("2. Ako se ime ili prezime stranca sastoji od dve ili više reči čija dužina prelazi 30 karaktera za ime, odnosno 36")
 	ipw.pdf.SetX(ipw.leftMargin)
 	ipw.moveY(9.7)
-	ipw.cell("ukupna dužina između 30 i 36 karaktera, u čipu lične karte izdate pre 18.08.2014. godine, druga reč u imenu ili prezimenu")
+	ipw.cell("karaktera za prezime, u čip se upisuje puno ime i prezime stranca, a na obrascu lične karte za stranca se upisuje do")
 	ipw.pdf.SetX(ipw.leftMargin)
 	ipw.moveY(9.7)
-	ipw.cell("skraćuje se na prva dva karaktera")
+	ipw.cell("30 karaktera za ime, odnosno 36 karaktera za prezime.")
 
 	ipw.moveY(9.7)
 
