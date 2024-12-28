@@ -44,10 +44,10 @@ Baš Čelik prihvata sledeće opcije:
  + `-json PATH`: grafički interfejs neće biti pokrenut, a sadržaj dokumenta biće direktno sačuvan u JSON datoteku na `PATH` lokaciji.
  + `-list`: lista raspoloživih čitača biće prikazana u konzoli.
  + `-pdf PATH`: grafički interfejs neće biti pokrenut, a sadržaj dokumenta biće direktno sačuvan u PDF datoteku na `PATH` lokaciji.
+ + `-reader INDEX`: postavlja odabrani čitač za čitanje podataka. Parametar `INDEX` označava prirodan broj koji je naveden u ispisu `list` komande. Izbor utiče samo na čitanje sa `atr`, `excel`, `pdf` i `json` opcijama.
  + `-rfzoValidUntil`: informacija o trajanju zdravstvenog osiguranja biće preuzeta sa RFZO portala. Ne odnosi se na grafički interfejs niti na ostala dokumenta.
  + `-verbose`: tokom rada aplikacije detalji o greškama biće prikazani u konzoli.
  + `-version`: informacija o verziji programa biće prikazana u konzoli.
- + `-reader INDEX`: postavlja odabrani čitač za čitanje podataka. Parametar `INDEX` označava prirodan broj koji je naveden u ispisu `list` komande. Izbor utiče samo na čitanje sa `atr`, `excel`, `pdf` i `json` opcijama.
 
 U slučaju `excel`, `json` i `pdf` opcija, program ne dodaje ekstenziju na kraj lokacije koju je korisnik naveo.
 
@@ -57,7 +57,7 @@ Pri pokretanju sa `atr`, `help`, `list` ili `version` opcijama podaci sa kartice
 
 ### Komandna linija na Windows-u
 
-Izvršna datoteka za Windows koja je dostupna za preuzimanje, je kompajlirana kao GUI aplikacija. Takve aplikacije ne mogu da ispisuju tekst u terminal u kom su pokrenute. Zbog toga, ako želite da vidite ispis u konzoli, potrebno je da preusmerite izlaz aplikacije. Na primer, u powershell-u:
+Izvršna datoteka za Windows koja je dostupna za preuzimanje, je kompajlirana kao grafička aplikacija. Takve aplikacije ne mogu da ispisuju tekst u terminal u kom su pokrenute. Zbog toga, ako želite da vidite ispis u konzoli, potrebno je da preusmerite izlaz aplikacije. Na primer, u powershell-u:
 
 ```powershell
 bas-celik.exe -help | more
@@ -65,7 +65,7 @@ bas-celik.exe -help | more
 
 ### Čitači i drajveri
 
-Baš Čelik bi trebalo da funkcioniše sa svim čitačima pametnih kartica koji su trenutno dostupni u prodaji (Gemalto, Hama, Samtec...). Korisnici Windows (7, 8, 10, 11) i macOS operativnih sistema ne moraju da instaliraju ni jedan dodatni program (drajver).
+Baš Čelik bi trebalo da funkcioniše sa svim čitačima pametnih kartica koji su trenutno dostupni u prodaji (Gemalto, Hama, Samtec...). Korisnici Windows (7, 8, 10, 11) i macOS operativnih sistema ne moraju da instaliraju nijedan dodatni program (drajver).
 
 ## Preuzimanje 
 
@@ -96,7 +96,7 @@ Uz pomoć [fyne-cross](https://github.com/fyne-io/fyne-cross) programa moguće j
 
 ## Planirane nadogradnje
 
- + Prikaz detaljima o sertifikatima, i verifikacija podataka na karticama
+ + Prikaz detalja o sertifikatima, i verifikacija podataka na karticama
  + Podrška za dokumente iz susednih država (CG, BiH, HR...)
 
 ## Poznati problemi (bug-ovi)
@@ -119,7 +119,7 @@ Aplikacija je podeljena na sledeće pakete:
  + `localization` - skup pomoćnih funkcije da za formatiranje datuma, podršku za različita pisma, itd..
 
 Ostali direktorijumi u okviru projekta:
- + `embed` i `assets` - dodatne datoteke. Neke se linkuju u izvršnu verziju prilikom kompilacije.
+ + `embed` i `assets` - dodatne datoteke. Datoteke iz `embed` se linkuju u izvršnu verziju prilikom kompilacije.
  + `docs` - interna i eksterna dokumentacija
 
 ## Doprinos
@@ -134,6 +134,7 @@ Postoje i drugi projekti otvorenog koda koji imaju izvesne sličnosti sa *Baš �
  + [SerbianIdReader](https://github.com/lazarbankovic/serbianIdReader) Rust program za očitavanje ličnih karata.
  + [mup-rs-api-delphi](https://github.com/obucina/mup-rs-api-delphi), [BashChelik](https://github.com/neman/BashChelik) i [Saobracajna.NET](https://github.com/clearpath/Saobracajna.NET) wraperi u različitim jezicima za zvanične MUP-ove biblioteke (sličnost u nazivu sa jednom od biblioteka je slučajna).
  + [golksd](https://github.com/dkozic/golksd) stariji čitač ličnih i saobraćajnih napisan u Golangu.
+ + [LakatosCRSolution](https://github.com/MrMilanP/LakatosCRSolution) .NET 8 rešenje za čitanje ličnih, saobraćajnih i zdravstvenih
 
 ## Licenca 
 
