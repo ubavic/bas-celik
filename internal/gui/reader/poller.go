@@ -110,10 +110,7 @@ func (rp *ReaderPoller) SetReader(newReader string) {
 	logger.Debug("Setting reader: " + newReader)
 
 	rp.currentReader = newReader
-	if rp.readerPollerStarted.Load() {
-		rp.readerPollerStarted.Store(false)
-		rp.singleReaderContext.Cancel()
-	}
+	CancelReaderPoler()
 	rp.onCardEvent(newReader, rp.singleReaderContext)
 	go rp.readerPoller(newReader)
 }
