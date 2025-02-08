@@ -20,3 +20,7 @@ func Error(err error) {
 func Info(message string) {
 	log.Println("INFO", message)
 }
+
+func Debug(message string) {
+	log.Println("DEBUG", message)
+}

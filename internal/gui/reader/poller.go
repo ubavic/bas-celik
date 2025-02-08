@@ -6,6 +6,8 @@ import (
 	"sync/atomic"
 
 	"github.com/ebfe/scard"
+	"github.com/ubavic/bas-celik/v2/card"
+	"github.com/ubavic/bas-celik/v2/internal/logger"
 )
 
 var created = false
@@ -78,6 +80,8 @@ func (rp *ReaderPoller) pollReaders() {
 		readersCount := len(newReaders)
 
 		if slices.Compare(rp.readers, newReaders) != 0 {
+			logger.Debug("New readers list: " + fmt.Sprintf("%v", rp.readers))
+
 			rp.readers = newReaders
 
 			if slices.Contains(rp.readers, rp.currentReader) {
@@ -102,6 +106,8 @@ func (rp *ReaderPoller) SetReader(newReader string) {
 	if rp.currentReader == newReader {
 		return
 	}
+
+	logger.Debug("Setting reader: " + newReader)
 
 	rp.currentReader = newReader
 	if rp.readerPollerStarted.Load() {
@@ -130,17 +136,22 @@ func (rp *ReaderPoller) readerPoller(selectedReader string) {
 			states[i].CurrentState = states[i].EventState
 		}
 
+		logger.Debug("Reader poller event 1: " + card.FormatState(states[0].CurrentState))
+
 		rp.readerPollerStarted.Store(true)
 		err := rp.singleReaderContext.GetStatusChange(states, -1)
 		if err != nil {
 			return
 		}
 
+		logger.Debug("Reader poller event 2: " + card.FormatState(states[0].CurrentState))
+
 		rp.onCardEvent(selectedReader, rp.singleReaderContext)
 	}
 }
 
 func CancelReaderPoler() {
+	logger.Debug("Canceling reader poller...")
 	if createdPoller.readerPollerStarted.Load() {
 		createdPoller.readerPollerStarted.Store(false)
 		createdPoller.singleReaderContext.Cancel()
@@ -148,5 +159,6 @@ func CancelReaderPoler() {
 }
 
 func RestartReaderPoler() {
+	logger.Debug("Restarting reader poller...")
 	go createdPoller.readerPoller(createdPoller.currentReader)
 }

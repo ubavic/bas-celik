@@ -15,6 +15,7 @@ fyne-cross/
 bin/
 *.out
 *.cov
+*.log
 .idea
 .DS_Store
 todo.md
