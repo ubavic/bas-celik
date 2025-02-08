@@ -2,6 +2,7 @@ package gui
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/ebfe/scard"
 	"github.com/ubavic/bas-celik/v2/card"
@@ -20,7 +21,17 @@ func connectToCard(selectedReader string, ctx *scard.Context) {
 
 	sCard, err := ctx.Connect(selectedReader, scard.ShareShared, scard.ProtocolAny)
 	if err == nil {
-		tryToProcessCard(sCard)
+		loaded := tryToProcessCard(sCard)
+
+		if !loaded {
+			setStartPage("poller.tryingAgain3", "", nil)
+			time.Sleep(time.Second)
+			setStartPage("poller.tryingAgain2", "", nil)
+			time.Sleep(time.Second)
+			setStartPage("poller.tryingAgain1", "", nil)
+			time.Sleep(time.Second)
+			tryToProcessCard(sCard)
+		}
 	} else {
 		state.mu.Lock()
 		state.cardDocument = nil
