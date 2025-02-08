@@ -80,7 +80,7 @@ func (rp *ReaderPoller) pollReaders() {
 		readersCount := len(newReaders)
 
 		if slices.Compare(rp.readers, newReaders) != 0 {
-			logger.Debug("New readers list: " + fmt.Sprintf("%v", rp.readers))
+			logger.Debug("New readers list: " + fmt.Sprintf("%v", newReaders))
 
 			rp.readers = newReaders
 
@@ -99,6 +99,7 @@ func (rp *ReaderPoller) pollReaders() {
 		}
 
 		rp.waitForReaderChange(readersCount)
+		logger.Debug("Readers changed...")
 	}
 }
 
