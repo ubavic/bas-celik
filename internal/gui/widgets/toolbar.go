@@ -6,6 +6,7 @@ import (
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
+	"github.com/ubavic/bas-celik/v2/internal/gui/icon"
 	"github.com/ubavic/bas-celik/v2/internal/gui/translation"
 )
 
@@ -67,7 +68,7 @@ func (t *Toolbar) CreateRenderer() fyne.WidgetRenderer {
 
 	readersSelect := widget.NewSelect(t.readers, onChange)
 
-	pinChangeButton := widget.NewButtonWithIcon("", theme.VisibilityOffIcon(), t.onPinChange)
+	pinChangeButton := widget.NewButtonWithIcon("", icon.PinThemedResource, t.onPinChange)
 	pinChangeButton.Importance = widget.LowImportance
 	pinChangeButton.Disable()
 
