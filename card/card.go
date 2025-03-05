@@ -84,7 +84,7 @@ func DetectCardDocument(sc Card) (CardDocument, error) {
 		}
 	}
 
-	return nil, errors.New("unexpected card type")
+	return nil, fmt.Errorf("unexpected card type (ATR: %s)", atr)
 }
 
 // Reads binary data from the card starting from the specified offset and with the specified length.
