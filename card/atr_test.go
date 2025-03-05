@@ -35,7 +35,7 @@ func Test_DetectCardDocumentByAtr(t *testing.T) {
 		},
 		{
 			atr:            card.GEMALTO_ATR_4,
-			expectedResult: []card.CardDocumentType{card.GemaltoIdDocumentCardType},
+			expectedResult: []card.CardDocumentType{card.GemaltoIdDocumentCardType, card.VehicleDocumentCardType},
 		},
 		{
 			atr:            card.MEDICAL_ATR_1,
