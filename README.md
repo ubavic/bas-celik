@@ -96,16 +96,6 @@ Uz pomoć [fyne-cross](https://github.com/fyne-io/fyne-cross) programa moguće j
  + Prikaz detalja o sertifikatima, i verifikacija podataka na karticama
  + Podrška za dokumente iz susednih država (CG, BiH, HR...)
 
-## Poznati problemi (bug-ovi)
-
-Pregled svih poznatih problema je dostupan na [*Issues* stranici](https://github.com/ubavic/bas-celik/issues).
-
-Unapred sam zahvalan za bilo kakvu povratnu informaciju o problemima. Za prijavljivanje problema, možete otvoriti novi *issue* ili mi poslati mejl (username `celik`, domen `ubavic.rs`).
-
-### Ćirilica i latinica
-
-Program prikazuje i eksportuje podatke onako kako su zapisani na kartici. Ako na nekom dokumentu uočite podatke na oba pisma, u pitanju nije *bug* već stanje na kartici.
-
 ## Arhitektura aplikacije
 
 Aplikacija je podeljena na sledeće pakete:
