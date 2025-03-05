@@ -82,7 +82,7 @@ Nakon preuzimanja repozitorijuma, dovoljno je pokrenuti
 
 ```
 go mod download
-go build
+go build -v
 ```
 
 Prva kompilacija može potrajati nekoliko minuta (i do deset), jer je neophodno da se preuzmu i kompajliraju sve Golang biblioteke. Sve naredne kompilacije se izvršavaju u nekoliko sekundi.
