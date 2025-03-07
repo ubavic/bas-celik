@@ -6,9 +6,11 @@
 
 Baš Čelik je besplatan program, sa potpuno otvorenim kodom dostupnim na adresi [github.com/ubavic/bas-celik](https://github.com/ubavic/bas-celik).
 
+Dodatna dokumentacija se može naći u [wikiju](https://github.com/ubavic/bas-celik/wiki) projekta
+
 > [!NOTE]
 > Baš Čelik is software for reading smart-card documents issued by the government of Serbia. Supported cards include ID cards, vehicle registration cards, and medical insurance cards. The application is written completely from scratch in Go and supports Linux, macOS, and Windows.
-> The rest of this document is in Serbian, but the entire codebase is in English, and the interface includes English support.
+> The rest of this document is in Serbian, but the entire codebase is in English, and the interface includes English support. Additional information can be found in the project [wiki](https://github.com/ubavic/bas-celik/wiki).
 
 ![Interfejs](assets/ui.png)
 
@@ -52,14 +54,6 @@ Pri pokretanju sa `atr`, `excel`, `json` ili `pdf` opcijom, program očekuje da 
 
 Pri pokretanju sa `atr`, `help`, `list` ili `version` opcijama podaci sa kartice neće biti očitani (osim ATR koda u slučaju `atr` komande). Program će prestati izvršavanje nakon ispisa odgovarajuće informacije.
 
-### Komandna linija na Windows-u
-
-Izvršna datoteka za Windows koja je dostupna za preuzimanje, je kompajlirana kao grafička aplikacija. Takve aplikacije ne mogu da ispisuju tekst u terminal u kom su pokrenute. Zbog toga, ako želite da vidite ispis u konzoli, potrebno je da preusmerite izlaz aplikacije. Na primer, u powershell-u:
-
-```powershell
-bas-celik.exe -help | more
-```
-
 ### Čitači i drajveri
 
 Baš Čelik bi trebalo da funkcioniše sa svim čitačima pametnih kartica koji su trenutno dostupni u prodaji (Gemalto, Hama, Samtec...). Korisnici Windows (7, 8, 10, 11) i macOS operativnih sistema ne moraju da instaliraju nijedan dodatni program (drajver).
@@ -69,10 +63,6 @@ Baš Čelik bi trebalo da funkcioniše sa svim čitačima pametnih kartica koji 
 Izvršne datoteke poslednje verzije programa možete preuzeti sa [Releases](https://github.com/ubavic/bas-celik/releases) stranice.
 
 Za Linux operativni sistem su dostupne verzije sa i bez grafičkog interfejsa. Verzija sa grafičkim interfejsom je dostupna u okviru datoteke `bas-celik.linux.amd64.tar.xz`. Verzija bez grafičkog interfejsa je dostupna kao izvršna datoteka `bas-celik-cli.linux.amd64`. Obe verzije prihvataju gore navedene opcije komandne linije.
-
-### Izvršne datoteke za macOS
-
-Kako macOS ne dozvoljava (jednostavno) pokretanje izvršnih datoteka koje nisu potpisane sa sertifikatom izdatog od Apple-a, nema mnogo smisla pružati izvršne datoteke za mac. Korisnici Apple uređaja moraju sami instalirati Go (prema uputstvu sa [zvaničnog sajta](https://go.dev/doc/install)), a zatim kompajlirati Baš Čelik po uputstvu navedenom u nastavku.
 
 ## Kompilacija
 
@@ -86,15 +76,6 @@ go build -v
 ```
 
 Prva kompilacija može potrajati nekoliko minuta (i do deset), jer je neophodno da se preuzmu i kompajliraju sve Golang biblioteke. Sve naredne kompilacije se izvršavaju u nekoliko sekundi.
-
-### Kroskompilacija
-
-Uz pomoć [fyne-cross](https://github.com/fyne-io/fyne-cross) programa moguće je na jednom operativnom sistemu iskompajlirati program za sva tri operativna sistema. Ovaj program zahteva Docker na vašem operativnom sistemu.
-
-## Planirane nadogradnje
-
- + Prikaz detalja o sertifikatima, i verifikacija podataka na karticama
- + Podrška za dokumente iz susednih država (CG, BiH, HR...)
 
 ## Arhitektura aplikacije
 
@@ -112,16 +93,6 @@ Ostali direktorijumi u okviru projekta:
 ## Doprinos
 
 Pre kreiranja *issue*-a i *pull request*-ova, pročitati [CONTRIBUTING.md](CONTRIBUTING.md).
-
-## Slični projekti
-
-Postoje i drugi projekti otvorenog koda koji imaju izvesne sličnosti sa *Baš Čelikom*:
-
- + [JFreesteel](https://github.com/grakic/jfreesteel) i [jevrc](https://github.com/grakic/jevrc) Java programi za čitanje podata sa lične karte i saobraćajne dozvole.
- + [SerbianIdReader](https://github.com/lazarbankovic/serbianIdReader) Rust program za očitavanje ličnih karata.
- + [mup-rs-api-delphi](https://github.com/obucina/mup-rs-api-delphi), [BashChelik](https://github.com/neman/BashChelik) i [Saobracajna.NET](https://github.com/clearpath/Saobracajna.NET) wraperi u različitim jezicima za zvanične MUP-ove biblioteke (sličnost u nazivu sa jednom od biblioteka je slučajna).
- + [golksd](https://github.com/dkozic/golksd) stariji čitač ličnih i saobraćajnih napisan u Golangu.
- + [LakatosCRSolution](https://github.com/MrMilanP/LakatosCRSolution) .NET 8 rešenje za čitanje ličnih, saobraćajnih i zdravstvenih
 
 ## Licenca 
 
