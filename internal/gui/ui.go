@@ -15,6 +15,7 @@ type State struct {
 	mu            sync.Mutex
 	app           fyne.App
 	window        fyne.Window
+	version       string
 	startPage     *widgets.StartPage
 	toolbar       *widgets.Toolbar
 	spacer        *widgets.Spacer
@@ -25,11 +26,8 @@ type State struct {
 }
 
 var state State
-var version string
 
-func StartGui(_version string) {
-	version = _version
-
+func StartGui(version string) {
 	app := app.New()
 	win := app.NewWindow("Baš Čelik")
 
@@ -38,5 +36,11 @@ func StartGui(_version string) {
 
 	translation.SetLanguage(app.Preferences().IntWithFallback(languagePreferenceKey, 1))
 
-	startCardReaderUI(app, win)
+	state = State{
+		app:     app,
+		window:  win,
+		version: version,
+	}
+
+	startCardReaderUI()
 }

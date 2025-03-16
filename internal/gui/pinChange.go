@@ -3,7 +3,6 @@ package gui
 import (
 	"errors"
 
-	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/widget"
 	"github.com/ubavic/bas-celik/v2/card"
@@ -12,17 +11,17 @@ import (
 	"github.com/ubavic/bas-celik/v2/internal/logger"
 )
 
-func pinChange(win fyne.Window) func() {
+func pinChange() func() {
 	return func() {
 		dialog.ShowConfirm(t("pinChange.title"), t("pinChange.note"), func(changePinContinue bool) {
 			if changePinContinue {
-				pinForm(win)
+				pinForm()
 			}
-		}, win)
+		}, state.window)
 	}
 }
 
-func pinForm(win fyne.Window) {
+func pinForm() {
 	var pinDialog *dialog.CustomDialog
 
 	oldPinEntry := widget.NewPasswordEntry()
@@ -51,31 +50,31 @@ func pinForm(win fyne.Window) {
 
 			if newPinEntry.Text != confirmNewPinEntry.Text {
 				err := errors.New(t("pinChange.pinsNotEqual"))
-				dialog.ShowError(err, win)
+				dialog.ShowError(err, state.window)
 				return
 			}
 
 			if !card.ValidatePin(oldPinEntry.Text) {
 				err := errors.New(t("pinChange.oldPinFormatError") + " " + t("pinChange.pinFormatExplanation"))
-				dialog.ShowError(err, win)
+				dialog.ShowError(err, state.window)
 				return
 			}
 
 			if !card.ValidatePin(newPinEntry.Text) {
 				err := errors.New(t("pinChange.newPinFormatError") + " " + t("pinChange.pinFormatExplanation"))
-				dialog.ShowError(err, win)
+				dialog.ShowError(err, state.window)
 				return
 			}
 
 			if !card.ValidatePin(confirmNewPinEntry.Text) {
 				err := errors.New(t("pinChange.confirmNewPinFormatError") + " " + t("pinChange.pinFormatExplanation"))
-				dialog.ShowError(err, win)
+				dialog.ShowError(err, state.window)
 				return
 			}
 
 			if state.cardDocument == nil {
 				err := errors.New(t("pinChange.errorNoCard"))
-				dialog.ShowError(err, win)
+				dialog.ShowError(err, state.window)
 				return
 			}
 
@@ -83,12 +82,12 @@ func pinForm(win fyne.Window) {
 			err := gemaltoCard.ChangePin(newPinEntry.Text, oldPinEntry.Text)
 			if err != nil {
 				pinDialog.Hide()
-				dialog.ShowInformation(t("pinChange.title"), t("pinChange.error"), win)
+				dialog.ShowInformation(t("pinChange.title"), t("pinChange.error"), state.window)
 				logger.Error(err)
 				return
 			} else {
 				pinDialog.Hide()
-				dialog.ShowInformation(t("pinChange.title"), t("pinChange.success"), win)
+				dialog.ShowInformation(t("pinChange.title"), t("pinChange.success"), state.window)
 				logger.Info("pin changed")
 			}
 			reader.RestartReaderPoler()
@@ -99,6 +98,6 @@ func pinForm(win fyne.Window) {
 		},
 	}
 
-	pinDialog = dialog.NewCustomWithoutButtons(t("pinChange.title"), form, win)
+	pinDialog = dialog.NewCustomWithoutButtons(t("pinChange.title"), form, state.window)
 	pinDialog.Show()
 }

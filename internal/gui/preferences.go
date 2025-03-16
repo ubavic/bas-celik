@@ -1,7 +1,6 @@
 package gui
 
 import (
-	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/widget"
 	"github.com/ubavic/bas-celik/v2/internal/gui/widgets"
@@ -11,8 +10,8 @@ const themePreferenceKey = "color-theme"
 const languagePreferenceKey = "language"
 const lastUsedDirectoryKey = "last-used-directory"
 
-func showSetupBox(win fyne.Window, app fyne.App) func() {
-	preferences := app.Preferences()
+func showSetupBox() func() {
+	preferences := state.app.Preferences()
 
 	return func() {
 		colorTheme := preferences.IntWithFallback(themePreferenceKey, 0)
@@ -42,7 +41,7 @@ func showSetupBox(win fyne.Window, app fyne.App) func() {
 			preferences.SetInt(themePreferenceKey, themeSelect.SelectedIndex())
 			preferences.SetInt(languagePreferenceKey, languageSelect.SelectedIndex())
 
-			dialog.ShowInformation(t("preference.saved"), t("preference.startAgain"), win)
+			dialog.ShowInformation(t("preference.saved"), t("preference.startAgain"), state.window)
 		}
 
 		dialog.ShowForm(
@@ -51,6 +50,6 @@ func showSetupBox(win fyne.Window, app fyne.App) func() {
 			t("preference.exit"),
 			formItems,
 			onExit,
-			win)
+			state.window)
 	}
 }

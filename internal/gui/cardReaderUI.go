@@ -16,10 +16,10 @@ import (
 	"github.com/ubavic/bas-celik/v2/internal/logger"
 )
 
-func startCardReaderUI(app fyne.App, win fyne.Window) {
-	showAboutBox := showAboutBox(win, version)
-	showSettings := showSetupBox(win, app)
-	changePin := pinChange(win)
+func startCardReaderUI() {
+	showAboutBox := showAboutBox()
+	showSettings := showSetupBox()
+	changePin := pinChange()
 
 	widgets.SetClipboard(copyToClipboard)
 
@@ -37,18 +37,14 @@ func startCardReaderUI(app fyne.App, win fyne.Window) {
 	columns := container.New(layout.NewHBoxLayout(), layout.NewSpacer(), rows, layout.NewSpacer())
 	mainContainer := container.New(layout.NewPaddedLayout(), columns)
 
-	state = State{
-		app:           app,
-		window:        win,
-		toolbar:       toolbar,
-		startPage:     startPage,
-		spacer:        spacer,
-		statusBar:     statusBar,
-		mainPage:      mainPage,
-		mainContainer: mainContainer,
-	}
+	state.toolbar = toolbar
+	state.startPage = startPage
+	state.spacer = spacer
+	state.statusBar = statusBar
+	state.mainPage = mainPage
+	state.mainContainer = mainContainer
 
-	win.SetContent(mainContainer)
+	state.window.SetContent(mainContainer)
 
 	if pollerErr == nil {
 		poller.StartPoller()
@@ -56,7 +52,7 @@ func startCardReaderUI(app fyne.App, win fyne.Window) {
 		setStartPage("error.contextFail", "", pollerErr)
 	}
 
-	win.ShowAndRun()
+	state.window.ShowAndRun()
 }
 
 func setUI(doc document.Document) {

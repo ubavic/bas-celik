@@ -16,8 +16,8 @@ import (
 	"github.com/ubavic/bas-celik/v2/internal/logger"
 )
 
-func showAboutBox(win fyne.Window, version string) func() {
-	version = strings.TrimSpace(version)
+func showAboutBox() func() {
+	version := strings.TrimSpace(state.version)
 
 	verLabel := widget.NewLabelWithStyle(t("about.version")+": "+version, fyne.TextAlignLeading, fyne.TextStyle{Italic: true})
 	moreLabel := widget.NewLabel(t("about.moreAboutProgram"))
@@ -32,9 +32,9 @@ func showAboutBox(win fyne.Window, version string) func() {
 		}
 
 		if newVersion != "v"+version {
-			dialog.ShowInformation(t("about.version"), fmt.Sprintf(t("about.newVersionAvailable"), newVersion), win)
+			dialog.ShowInformation(t("about.version"), fmt.Sprintf(t("about.newVersionAvailable"), newVersion), state.window)
 		} else {
-			dialog.ShowInformation(t("about.version"), t("about.youHaveLatestVersion"), win)
+			dialog.ShowInformation(t("about.version"), t("about.youHaveLatestVersion"), state.window)
 		}
 	})
 
@@ -47,7 +47,7 @@ func showAboutBox(win fyne.Window, version string) func() {
 			t("about.title"),
 			t("about.close"),
 			vBox,
-			win,
+			state.window,
 		)
 	}
 }
