@@ -21,7 +21,7 @@ func startCardReaderUI(app fyne.App, win fyne.Window) {
 	showSettings := showSetupBox(win, app)
 	changePin := pinChange(win)
 
-	widgets.SetClipboard(CopyToClipboard)
+	widgets.SetClipboard(copyToClipboard)
 
 	statusBar := widgets.NewStatusBar()
 	toolbar := widgets.NewToolbar(showAboutBox, showSettings, changePin)
@@ -153,7 +153,7 @@ func updateMedicalDocHandler(doc *document.MedicalDocument) func() {
 	}
 }
 
-func CopyToClipboard(str string) bool {
+func copyToClipboard(str string) bool {
 	if state.window == nil {
 		return false
 	}
