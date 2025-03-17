@@ -80,3 +80,50 @@ func Test_PadPin(t *testing.T) {
 		}
 	}
 }
+
+func Test_TriesLeft(t *testing.T) {
+	testCases := []struct {
+		responseCode   []byte
+		expectedResult int
+	}{
+		{
+			responseCode:   []byte{0x63, 0xC0},
+			expectedResult: 0,
+		},
+		{
+			responseCode:   []byte{0x63, 0xC1},
+			expectedResult: 1,
+		},
+		{
+			responseCode:   []byte{0x63, 0xC2},
+			expectedResult: 2,
+		},
+		{
+			responseCode:   []byte{0x63, 0xC3},
+			expectedResult: 3,
+		},
+		{
+			responseCode:   []byte{},
+			expectedResult: -1,
+		},
+		{
+			responseCode:   []byte{0x63},
+			expectedResult: -1,
+		},
+		{
+			responseCode:   []byte{0x63, 0xAA},
+			expectedResult: -1,
+		},
+		{
+			responseCode:   []byte{0x63, 0xC2, 0x00},
+			expectedResult: -1,
+		},
+	}
+
+	for _, testCase := range testCases {
+		triesLeft := card.PinTriesLeft(testCase.responseCode)
+		if triesLeft != testCase.expectedResult {
+			t.Errorf("Expected %d but got %d.", testCase.expectedResult, triesLeft)
+		}
+	}
+}

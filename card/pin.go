@@ -1,6 +1,9 @@
 package card
 
-import "unicode"
+import (
+	"slices"
+	"unicode"
+)
 
 // Checks if the PIN consists only of digits,
 // and it's length is between 4 and 8.
@@ -30,4 +33,24 @@ func PadPin(pin string) []byte {
 	}
 
 	return data
+}
+
+func PinTriesLeft(rsp []byte) int {
+	if slices.Equal(rsp, []byte{0x63, 0xC0}) {
+		return 0
+	}
+
+	if slices.Equal(rsp, []byte{0x63, 0xC1}) {
+		return 1
+	}
+
+	if slices.Equal(rsp, []byte{0x63, 0xC2}) {
+		return 2
+	}
+
+	if slices.Equal(rsp, []byte{0x63, 0xC3}) {
+		return 3
+	}
+
+	return -1
 }

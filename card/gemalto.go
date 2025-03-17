@@ -213,35 +213,37 @@ func (card *Gemalto) InitCrypto() error {
 	return nil
 }
 
-func (card *Gemalto) ChangePin(newPin, oldPin string) error {
+// Returns number of tries left, and occurred error.
+// -1 signifies unknown number of tries left
+func (card *Gemalto) ChangePin(newPin, oldPin string) (int, error) {
 	err := card.smartCard.BeginTransaction()
 	if err != nil {
-		return err
+		return -1, err
 	}
 
 	err = card.InitCrypto()
 	if err != nil {
-		return err
+		return -1, err
 	}
 
 	oldPinValid := ValidatePin(oldPin)
 	if !oldPinValid {
-		return errors.New("old pin not valid")
+		return -1, errors.New("old pin not valid")
 	}
 
 	newPinValid := ValidatePin(newPin)
 	if !newPinValid {
-		return errors.New("new pin not valid")
+		return -1, errors.New("new pin not valid")
 	}
 
 	apu := buildAPDU(0x00, 0x20, 0x00, 0x80, PadPin(oldPin), 0)
 	rsp, err := card.smartCard.Transmit(apu)
 	if err != nil {
-		return fmt.Errorf("verifying old pin %w", err)
+		return -1, fmt.Errorf("verifying old pin: %w", err)
 	}
 
 	if !responseOK(rsp) {
-		return errors.New("verifying old pin")
+		return PinTriesLeft(rsp), errors.New("verifying old pin")
 	}
 
 	data := make([]byte, 0, 8)
@@ -251,17 +253,17 @@ func (card *Gemalto) ChangePin(newPin, oldPin string) error {
 	apu = buildAPDU(0x00, 0x24, 0x00, 0x80, data, 0)
 	rsp, err = card.smartCard.Transmit(apu)
 	if err != nil {
-		return fmt.Errorf("changing pin %w", err)
+		return -1, fmt.Errorf("changing pin: %w", err)
 	}
 
 	if !responseOK(rsp) {
-		return errors.New("changing pin")
+		return PinTriesLeft(rsp), errors.New("changing pin")
 	}
 
 	err = card.smartCard.EndTransaction(scard.LeaveCard)
 	if err != nil {
-		return err
+		return -1, err
 	}
 
-	return nil
+	return -1, nil
 }

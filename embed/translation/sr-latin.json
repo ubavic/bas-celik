@@ -145,6 +145,7 @@
   "pinChange.oldPinFormatError": "Format starog PIN-a nije validan.",
   "pinChange.newPinFormatError": "Format novog PIN-a nije validan.",
   "pinChange.confirmNewPinFormatError": "Format potvrđenog novog PIN-a nije validan.",
-  "pinChange.success": "Promena PIN-a uspešna.",
-  "pinChange.error": "Došlo je do greške. Ne pokušavajte više da promenite PIN sa Baš Čelikom."
+  "pinChange.success": "PIN je uspešno promenjen.",
+  "pinChange.error": "Došlo je do greške. Ne pokušavajte više da promenite PIN sa Baš Čelikom.",
+  "pinChange.triesLeft": "Preostalo pokušaja: %d."
 }

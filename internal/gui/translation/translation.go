@@ -49,8 +49,14 @@ func CurrentLanguage() localization.Language {
 	return currentLanguage
 }
 
-func Translate(id string) string {
-	return translations[currentLanguage][id]
+func Translate(id string, vals ...any) string {
+	translation := translations[currentLanguage][id]
+
+	if len(vals) == 0 {
+		return translation
+	} else {
+		return fmt.Sprintf(translation, vals...)
+	}
 }
 
 func EnglishTranslation(id string) string {

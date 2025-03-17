@@ -145,6 +145,7 @@
     "pinChange.oldPinFormatError": "Format of the old PIN is not valid.",
     "pinChange.newPinFormatError": "Format of the new PIN is not valid.",
     "pinChange.confirmNewPinFormatError": "Format of the confirmed new PIN is not valid.",
-    "pinChange.success": "Success",
-    "pinChange.error": "Error ocurred. Don't try to change PIN with Baš Čelik anymore."
+    "pinChange.success": "PIN changed successfully.",
+    "pinChange.error": "Error occurred. Don't try to change PIN with Baš Čelik anymore.",
+    "pinChange.triesLeft": "Tries left: %d."
 }

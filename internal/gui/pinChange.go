@@ -79,10 +79,14 @@ func pinForm() {
 			}
 
 			reader.CancelReaderPoler()
-			err := gemaltoCard.ChangePin(newPinEntry.Text, oldPinEntry.Text)
+			triesLeft, err := gemaltoCard.ChangePin(newPinEntry.Text, oldPinEntry.Text)
 			if err != nil {
 				pinDialog.Hide()
-				dialog.ShowInformation(t("pinChange.title"), t("pinChange.error"), state.window)
+				message := t("pinChange.error")
+				if triesLeft > -1 {
+					message += "\n" + t("pinChange.triesLeft", triesLeft)
+				}
+				dialog.ShowInformation(t("pinChange.title"), message, state.window)
 				logger.Error(err)
 				return
 			} else {
