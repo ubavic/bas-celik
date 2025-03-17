@@ -2,7 +2,6 @@ package gui
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/ebfe/scard"
 	"github.com/ubavic/bas-celik/v2/card"
@@ -21,28 +20,23 @@ func connectToCard(selectedReader string, ctx *scard.Context) {
 
 	sCard, err := ctx.Connect(selectedReader, scard.ShareShared, scard.ProtocolAny)
 	if err == nil {
-		loaded := tryToProcessCard(sCard)
-
-		if !loaded {
-			setStartPage("poller.tryingAgain3", "", nil)
-			time.Sleep(time.Second)
-			setStartPage("poller.tryingAgain2", "", nil)
-			time.Sleep(time.Second)
-			setStartPage("poller.tryingAgain1", "", nil)
-			time.Sleep(time.Second)
+		err = sCard.BeginTransaction()
+		if err == nil {
 			tryToProcessCard(sCard)
+			sCard.EndTransaction(scard.LeaveCard)
+			return
 		}
-	} else {
-		state.mu.Lock()
-		state.cardDocument = nil
-		state.toolbar.DisablePinChange()
-		state.mu.Unlock()
-
-		setStartPage(
-			"error.readingCard",
-			"error.isCardPresent",
-			fmt.Errorf("connecting reader %s: %w", selectedReader, err))
 	}
+
+	state.mu.Lock()
+	state.cardDocument = nil
+	state.toolbar.DisablePinChange()
+	state.mu.Unlock()
+
+	setStartPage(
+		"error.readingCard",
+		"error.isCardPresent",
+		fmt.Errorf("connecting reader %s: %w", selectedReader, err))
 }
 
 func tryToProcessCard(sCard *scard.Card) bool {

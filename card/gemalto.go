@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/ebfe/scard"
 	"github.com/ubavic/bas-celik/v2/document"
 )
 
@@ -213,7 +214,12 @@ func (card *Gemalto) InitCrypto() error {
 }
 
 func (card *Gemalto) ChangePin(newPin, oldPin string) error {
-	err := card.InitCrypto()
+	err := card.smartCard.BeginTransaction()
+	if err != nil {
+		return err
+	}
+
+	err = card.InitCrypto()
 	if err != nil {
 		return err
 	}
@@ -250,6 +256,11 @@ func (card *Gemalto) ChangePin(newPin, oldPin string) error {
 
 	if !responseOK(rsp) {
 		return errors.New("changing pin")
+	}
+
+	err = card.smartCard.EndTransaction(scard.LeaveCard)
+	if err != nil {
+		return err
 	}
 
 	return nil

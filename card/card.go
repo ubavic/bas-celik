@@ -18,6 +18,8 @@ import (
 type Card interface {
 	Status() (*scard.CardStatus, error)
 	Transmit([]byte) ([]byte, error)
+	BeginTransaction() error
+	EndTransaction(scard.Disposition) error
 }
 
 // Represents a smart card with a document.
