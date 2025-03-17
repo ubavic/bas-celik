@@ -7,6 +7,13 @@ __debug_bin*
 *.tar.xz
 *.exe
 *.bin
+*.o
+*.obj
+*.elf
+*.so
+*.so.*
+*.dll
+*.app
 *.ber
 *.cert
 *.pub

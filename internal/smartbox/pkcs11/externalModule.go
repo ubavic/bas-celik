@@ -1,0 +1,185 @@
+package pkcs11
+
+import (
+	"crypto"
+	"crypto/x509"
+	"errors"
+	"fmt"
+	"log"
+
+	"github.com/miekg/pkcs11"
+)
+
+type PkcsModule struct {
+	context *pkcs11.Ctx
+	session pkcs11.SessionHandle
+	cert    *x509.Certificate
+}
+
+func NewPkcsExternalModule(modulePath string) (PkcsModule, error) {
+	pkcsCtx := pkcs11.New(modulePath)
+
+	err := pkcsCtx.Initialize()
+	if err != nil {
+		return PkcsModule{}, fmt.Errorf("failed to initialize PKCS#11: %w", err)
+	}
+
+	module := PkcsModule{
+		context: pkcsCtx,
+	}
+
+	return module, nil
+}
+
+func (pm *PkcsModule) ListSlots() ([]uint, []string, error) {
+	slots, err := pm.context.GetSlotList(true)
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to get slot list: %w", err)
+	}
+
+	slotNames := make([]string, 0, len(slots))
+	for _, slot := range slots {
+		info, err := pm.context.GetTokenInfo(slot)
+		if err != nil {
+			continue
+		}
+
+		slotNames = append(slotNames, info.Label)
+	}
+
+	return slots, slotNames, nil
+}
+
+func (pm *PkcsModule) OpenSessionAndLogin(pin string, terminalIndex int) error {
+	slots, err := pm.context.GetSlotList(true)
+	if err != nil {
+		return fmt.Errorf("failed to get slot list: %w", err)
+	}
+
+	if len(slots) <= terminalIndex {
+		return fmt.Errorf("invalid terminal index: %d", terminalIndex)
+	}
+
+	session, err := pm.context.OpenSession(slots[terminalIndex], pkcs11.CKF_SERIAL_SESSION|pkcs11.CKF_RW_SESSION)
+	if err != nil {
+		pm.context.Destroy()
+		return fmt.Errorf("failed to open PKCS#11 session: %w", err)
+	}
+
+	err = pm.context.Login(session, pkcs11.CKU_USER, pin)
+	if err != nil {
+		pm.context.CloseSession(session)
+		pm.context.Destroy()
+		return fmt.Errorf("failed to login to smart card: %w", err)
+	}
+
+	pm.session = session
+
+	return nil
+}
+
+func (pm *PkcsModule) GetRawCertificates(pin string, terminalIndex int) ([][]byte, [][]byte, error) {
+	searchTemplate := []*pkcs11.Attribute{
+		pkcs11.NewAttribute(pkcs11.CKA_CLASS, pkcs11.CKO_CERTIFICATE),
+	}
+
+	getTemplate := []*pkcs11.Attribute{
+		pkcs11.NewAttribute(pkcs11.CKA_ID, nil),
+		pkcs11.NewAttribute(pkcs11.CKA_VALUE, nil),
+	}
+
+	err := pm.context.FindObjectsInit(pm.session, searchTemplate)
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to initialize object search: %w", err)
+	}
+
+	objects, _, err := pm.context.FindObjects(pm.session, 10)
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to find objects: %w", err)
+	}
+
+	err = pm.context.FindObjectsFinal(pm.session)
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to finalize object search: %w", err)
+	}
+
+	ids := make([][]byte, 0, len(objects))
+	certificates := make([][]byte, 0, len(objects))
+	allErrors := []error{}
+	for _, object := range objects {
+		attr, err := pm.context.GetAttributeValue(pm.session, object, getTemplate)
+		if err != nil {
+			allErrors = append(allErrors, err)
+			continue
+		}
+
+		ids = append(ids, attr[0].Value)
+		certificates = append(certificates, attr[1].Value)
+	}
+
+	return ids, certificates, errors.Join(allErrors...)
+}
+
+func (pm *PkcsModule) GetCertificates(pin string, terminalIndex int) ([][]byte, []*x509.Certificate, error) {
+	ids, rawCertificates, err := pm.GetRawCertificates(pin, terminalIndex)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	certificates := make([]*x509.Certificate, 0, len(rawCertificates))
+	allErrors := []error{}
+	for _, rawCertificate := range rawCertificates {
+		cert, err := x509.ParseCertificate(rawCertificate)
+		if err != nil {
+			allErrors = append(allErrors, err)
+		}
+
+		certificates = append(certificates, cert)
+	}
+
+	return ids, certificates, errors.Join(allErrors...)
+}
+
+func (pm *PkcsModule) CloseSession(terminalIndex int) error {
+	err1 := pm.context.Logout(pm.session)
+	err2 := pm.context.CloseSession(pm.session)
+	pm.context.Destroy()
+
+	return errors.Join(err1, err2)
+}
+
+func (pm *PkcsModule) Public() crypto.PublicKey {
+	return pm.cert.PublicKey
+}
+
+func (pm *PkcsModule) Sign(certId []byte, message []byte) ([]byte, error) {
+	err := pm.context.FindObjectsInit(pm.session, []*pkcs11.Attribute{
+		pkcs11.NewAttribute(pkcs11.CKA_CLASS, pkcs11.CKO_PRIVATE_KEY),
+		pkcs11.NewAttribute(pkcs11.CKA_ID, certId),
+	})
+	if err != nil {
+		log.Fatalf("Failed to initialize private key search: %v", err)
+	}
+
+	objects, _, err := pm.context.FindObjects(pm.session, 1)
+	if err != nil || len(objects) == 0 {
+		log.Fatalf("Private key not found")
+	}
+	pm.context.FindObjectsFinal(pm.session)
+
+	mech := []*pkcs11.Mechanism{
+		pkcs11.NewMechanism(pkcs11.CKM_SHA256_RSA_PKCS, nil),
+	}
+
+	err = pm.context.SignInit(pm.session, mech, objects[0])
+	if err != nil {
+		return nil, err
+	}
+
+	sig, err := pm.context.Sign(pm.session, message)
+	if err != nil {
+		return nil, err
+	}
+
+	return sig, nil
+}

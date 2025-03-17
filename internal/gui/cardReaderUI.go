@@ -23,28 +23,18 @@ func startCardReaderUI() {
 
 	widgets.SetClipboard(copyToClipboard)
 
-	statusBar := widgets.NewStatusBar()
 	toolbar := widgets.NewToolbar(showAboutBox, showSettings, changePin)
 	spacer := widgets.NewSpacer()
 
 	poller, pollerErr := reader.NewPoller(toolbar, connectToCard)
 
-	startPage := widgets.NewStartPage()
-	startPage.SetStatus("", "", false)
-
-	mainPage := container.New(layout.NewVBoxLayout())
-	rows := container.New(layout.NewVBoxLayout(), toolbar, spacer, startPage, mainPage)
+	rows := container.New(layout.NewVBoxLayout(), toolbar, spacer, state.startPage, state.mainPage)
 	columns := container.New(layout.NewHBoxLayout(), layout.NewSpacer(), rows, layout.NewSpacer())
-	mainContainer := container.New(layout.NewPaddedLayout(), columns)
+
+	state.mainContainer.Add(columns)
 
 	state.toolbar = toolbar
-	state.startPage = startPage
 	state.spacer = spacer
-	state.statusBar = statusBar
-	state.mainPage = mainPage
-	state.mainContainer = mainContainer
-
-	state.window.SetContent(mainContainer)
 
 	if pollerErr == nil {
 		poller.StartPoller()

@@ -1,14 +1,24 @@
 package gui
 
 import (
+	"runtime"
+
 	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/widget"
 	"github.com/ubavic/bas-celik/v2/internal/gui/widgets"
+	"github.com/ubavic/bas-celik/v2/internal/smartbox/pkcs11"
 )
 
 const themePreferenceKey = "color-theme"
 const languagePreferenceKey = "language"
+const smartboxModeKey = "smartbox-mode"
 const lastUsedDirectoryKey = "last-used-directory"
+
+const mupPkcsPathKey = "mup-pkcs-path"
+const pksPkcsPathKey = "pks-pkcs-path"
+const postaPkcsPathKey = "posta-pkcs-path"
+const halcomPkcsPathKey = "halcom-pkcs-path"
+const esmartPkcsPathKey = "esmart-pkcs-path"
 
 func showSetupBox() func() {
 	preferences := state.app.Preferences()
@@ -27,9 +37,64 @@ func showSetupBox() func() {
 		)
 		languageSelect.SetSelectedIndex(language)
 
+		mupPkcsEntry := widget.NewEntry()
+		mupPkcsEntry.SetText(preferences.String(mupPkcsPathKey))
+		pksPkcsEntry := widget.NewEntry()
+		pksPkcsEntry.SetText(preferences.String(pksPkcsPathKey))
+		postaPkcsEntry := widget.NewEntry()
+		postaPkcsEntry.SetText(preferences.String(postaPkcsPathKey))
+		halcomPkcsEntry := widget.NewEntry()
+		halcomPkcsEntry.SetText(preferences.String(halcomPkcsPathKey))
+		esmartPkcsEntry := widget.NewEntry()
+		esmartPkcsEntry.SetText(preferences.String(esmartPkcsPathKey))
+
+		var afterChangeSmartboxMode func()
+
+		changeSmartboxMode := func(mode bool) {
+			if mode {
+				mupPkcsEntry.Enable()
+				pksPkcsEntry.Enable()
+				postaPkcsEntry.Enable()
+				halcomPkcsEntry.Enable()
+				esmartPkcsEntry.Enable()
+
+				if mupPkcsEntry.Text+pksPkcsEntry.Text+postaPkcsEntry.Text+halcomPkcsEntry.Text+esmartPkcsEntry.Text == "" {
+					mupPkcsEntry.SetText(pkcs11.GetDefaultPath(pkcs11.CardVendorMup, runtime.GOOS))
+					pksPkcsEntry.SetText(pkcs11.GetDefaultPath(pkcs11.CardVendorPks, runtime.GOOS))
+					postaPkcsEntry.SetText(pkcs11.GetDefaultPath(pkcs11.CardVendorPosta, runtime.GOOS))
+					halcomPkcsEntry.SetText(pkcs11.GetDefaultPath(pkcs11.CardVendorHalcom, runtime.GOOS))
+					esmartPkcsEntry.SetText(pkcs11.GetDefaultPath(pkcs11.CardVendorEsmart, runtime.GOOS))
+				}
+			} else {
+				mupPkcsEntry.Disable()
+				pksPkcsEntry.Disable()
+				postaPkcsEntry.Disable()
+				halcomPkcsEntry.Disable()
+				esmartPkcsEntry.Disable()
+			}
+
+			if afterChangeSmartboxMode != nil {
+				afterChangeSmartboxMode()
+			}
+		}
+
+		smartboxMode := preferences.BoolWithFallback(smartboxModeKey, false)
+		smartboxModeCheck := widget.NewCheck("", changeSmartboxMode)
+		smartboxModeCheck.SetChecked(smartboxMode)
+
+		if !smartboxMode {
+			changeSmartboxMode(false)
+		}
+
 		formItems := []*widget.FormItem{
 			{Text: t("preference.theme"), Widget: themeSelect},
 			{Text: t("preference.language"), Widget: languageSelect},
+			{Text: t("preference.smartboxMode"), Widget: smartboxModeCheck},
+			{Text: "MUP", Widget: mupPkcsEntry},
+			{Text: "PKS", Widget: pksPkcsEntry},
+			{Text: "Pošta", Widget: postaPkcsEntry},
+			{Text: "Halcom", Widget: halcomPkcsEntry},
+			{Text: "E-Smart", Widget: esmartPkcsEntry},
 			{Text: "", Widget: &widgets.Spacer{}},
 		}
 
@@ -40,16 +105,27 @@ func showSetupBox() func() {
 
 			preferences.SetInt(themePreferenceKey, themeSelect.SelectedIndex())
 			preferences.SetInt(languagePreferenceKey, languageSelect.SelectedIndex())
+			preferences.SetBool(smartboxModeKey, smartboxModeCheck.Checked)
+			preferences.SetString(mupPkcsPathKey, mupPkcsEntry.Text)
+			preferences.SetString(pksPkcsPathKey, pksPkcsEntry.Text)
+			preferences.SetString(postaPkcsPathKey, postaPkcsEntry.Text)
+			preferences.SetString(halcomPkcsPathKey, halcomPkcsEntry.Text)
+			preferences.SetString(esmartPkcsPathKey, esmartPkcsEntry.Text)
 
 			dialog.ShowInformation(t("preference.saved"), t("preference.startAgain"), state.window)
 		}
 
-		dialog.ShowForm(
-			t("preference.title"),
+		formDialog := dialog.NewForm(t("preference.title"),
 			t("preference.save"),
 			t("preference.exit"),
 			formItems,
 			onExit,
 			state.window)
+
+		afterChangeSmartboxMode = func() {
+			formDialog.Refresh()
+		}
+
+		formDialog.Show()
 	}
 }

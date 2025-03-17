@@ -5,6 +5,8 @@ import (
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
+	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/layout"
 	"github.com/ubavic/bas-celik/v2/card"
 	"github.com/ubavic/bas-celik/v2/internal/gui/celiktheme"
 	"github.com/ubavic/bas-celik/v2/internal/gui/translation"
@@ -36,11 +38,29 @@ func StartGui(version string) {
 
 	translation.SetLanguage(app.Preferences().IntWithFallback(languagePreferenceKey, 1))
 
+	statusBar := widgets.NewStatusBar()
+
+	mainPage := container.New(layout.NewVBoxLayout())
+
+	startPage := widgets.NewStartPage()
+	startPage.SetStatus("", "", false)
+
+	mainContainer := container.New(layout.NewPaddedLayout())
+	win.SetContent(mainContainer)
+
 	state = State{
-		app:     app,
-		window:  win,
-		version: version,
+		app:           app,
+		window:        win,
+		version:       version,
+		mainContainer: mainContainer,
+		mainPage:      mainPage,
+		startPage:     startPage,
+		statusBar:     statusBar,
 	}
 
-	startCardReaderUI()
+	if app.Preferences().BoolWithFallback(smartboxModeKey, false) {
+		startSmartboxUI()
+	} else {
+		startCardReaderUI()
+	}
 }

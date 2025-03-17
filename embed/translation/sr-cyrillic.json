@@ -84,6 +84,7 @@
   "preference.language": "Језик",
   "preference.save": "Сачувај",
   "preference.saved": "Подешавања сачувана",
+  "preference.smartboxMode": "Smartbox режим",
   "preference.startAgain": "Поново покрените апликацију да бисте видели промене.",
   "preference.theme.alwaysDark": "Увек тамна",
   "preference.theme.alwaysLight": "Увек светла",
@@ -147,5 +148,7 @@
   "pinChange.confirmNewPinFormatError": "Формат потврђеног новог PIN-а није валидан.",
   "pinChange.success": "PIN је промењен успешно.",
   "pinChange.error": "Дошло је до грешке. Не покушавајте више да промените PIN са Баш Челиком.",
-  "pinChange.triesLeft": "Преостало покушаја: %d."
+  "pinChange.triesLeft": "Преостало покушаја: %d.",
+  "smartbox.error": "Грешка при покретању сервера",
+  "smartbox.running": "Smartbox сервер је покренут"
 }
