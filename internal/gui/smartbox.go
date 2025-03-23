@@ -1,6 +1,8 @@
 package gui
 
 import (
+	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/layout"
 	"github.com/ubavic/bas-celik/v2/internal/smartbox/pkcs11"
 	"github.com/ubavic/bas-celik/v2/internal/smartbox/server"
 )
@@ -31,15 +33,24 @@ func startSmartboxUI() {
 		}
 	}
 
-	state.mainContainer.Add(state.startPage)
+	rows := container.New(layout.NewVBoxLayout(), state.toolbar, state.startPage, state.statusBar)
+	state.documentUi = rows
+
+	state.mainContainer.Add(state.documentUi)
 
 	address, err := server.StartServer(modulePaths)
 
 	if err != nil {
 		setStartPage("smartbox.error", "", err)
+		state.statusBar.SetStatus(err.Error(), true)
+		state.statusBar.Refresh()
 	} else {
-		setStartPage("smartbox.running", address, nil)
+		setStartPage("smartbox.running", "", nil)
+		state.statusBar.SetStatus(address, false)
+		state.statusBar.Refresh()
 	}
+
+	resizeWindow(true)
 
 	state.window.ShowAndRun()
 }

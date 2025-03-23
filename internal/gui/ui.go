@@ -14,17 +14,17 @@ import (
 )
 
 type State struct {
-	mu            sync.Mutex
-	app           fyne.App
-	window        fyne.Window
-	version       string
-	startPage     *widgets.StartPage
-	toolbar       *widgets.Toolbar
-	spacer        *widgets.Spacer
-	mainPage      *fyne.Container
-	mainContainer *fyne.Container
-	statusBar     *widgets.StatusBar
-	cardDocument  card.CardDocument
+	version                 string
+	mu                      sync.Mutex
+	app                     fyne.App
+	window                  fyne.Window
+	mainContainer           *fyne.Container
+	documentUi              *fyne.Container
+	startPage               *widgets.StartPage
+	documentUiMainContainer *fyne.Container
+	toolbar                 *widgets.Toolbar
+	statusBar               *widgets.StatusBar
+	cardDocument            card.CardDocument
 }
 
 var state State
@@ -49,16 +49,25 @@ func StartGui(version string) {
 	win.SetContent(mainContainer)
 
 	state = State{
-		app:           app,
-		window:        win,
-		version:       version,
-		mainContainer: mainContainer,
-		mainPage:      mainPage,
-		startPage:     startPage,
-		statusBar:     statusBar,
+		app:                     app,
+		window:                  win,
+		version:                 version,
+		mainContainer:           mainContainer,
+		documentUiMainContainer: mainPage,
+		startPage:               startPage,
+		statusBar:               statusBar,
 	}
 
-	if app.Preferences().BoolWithFallback(smartboxModeKey, false) {
+	smartboxMode := app.Preferences().BoolWithFallback(smartboxModeKey, false)
+
+	showAboutBox := showAboutBox()
+	showSettings := showSetupBox()
+	changePin := pinChange()
+
+	toolbar := widgets.NewToolbar(showAboutBox, showSettings, changePin, !smartboxMode)
+	state.toolbar = toolbar
+
+	if smartboxMode {
 		startSmartboxUI()
 	} else {
 		startCardReaderUI()

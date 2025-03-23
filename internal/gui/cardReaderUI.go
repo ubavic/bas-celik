@@ -17,24 +17,18 @@ import (
 )
 
 func startCardReaderUI() {
-	showAboutBox := showAboutBox()
-	showSettings := showSetupBox()
-	changePin := pinChange()
-
 	widgets.SetClipboard(copyToClipboard)
 
-	toolbar := widgets.NewToolbar(showAboutBox, showSettings, changePin)
 	spacer := widgets.NewSpacer()
 
-	poller, pollerErr := reader.NewPoller(toolbar, connectToCard)
+	poller, pollerErr := reader.NewPoller(state.toolbar, connectToCard)
 
-	rows := container.New(layout.NewVBoxLayout(), toolbar, spacer, state.startPage, state.mainPage)
+	rows := container.New(layout.NewVBoxLayout(), state.toolbar, spacer, state.startPage, state.documentUiMainContainer)
 	columns := container.New(layout.NewHBoxLayout(), layout.NewSpacer(), rows, layout.NewSpacer())
 
-	state.mainContainer.Add(columns)
+	state.documentUi = columns
 
-	state.toolbar = toolbar
-	state.spacer = spacer
+	state.mainContainer.Add(state.documentUi)
 
 	if pollerErr == nil {
 		poller.StartPoller()
@@ -69,14 +63,14 @@ func setUI(doc document.Document) {
 
 	buttonBar := container.New(layout.NewHBoxLayout(), buttonBarObjects...)
 
-	state.mainPage.RemoveAll()
-	state.mainPage.Add(page)
-	state.mainPage.Add(buttonBar)
+	state.documentUiMainContainer.RemoveAll()
+	state.documentUiMainContainer.Add(page)
+	state.documentUiMainContainer.Add(buttonBar)
 
 	state.startPage.Hide()
-	state.mainPage.Show()
+	state.documentUiMainContainer.Show()
 
-	state.window.Resize(state.mainContainer.MinSize())
+	resizeWindow(false)
 }
 
 func setStartPage(statusId, explanationId string, err error) {
@@ -100,12 +94,12 @@ func setStartPage(statusId, explanationId string, err error) {
 	state.startPage.SetStatus(status, explanation, isError)
 	state.startPage.Refresh()
 
-	state.mainPage.RemoveAll()
+	state.documentUiMainContainer.RemoveAll()
 
-	state.mainPage.Hide()
+	state.documentUiMainContainer.Hide()
 	state.startPage.Show()
 
-	state.window.Resize(state.mainContainer.MinSize())
+	resizeWindow(true)
 }
 
 func setStatus(statusId string, err error) {
@@ -152,6 +146,12 @@ func copyToClipboard(str string) bool {
 	label := t("ui.contentCopied")
 
 	clipboard.SetContent(str)
+	setTimedStatus(label)
+
+	return true
+}
+
+func setTimedStatus(label string) {
 	state.statusBar.SetStatus(label, false)
 	state.statusBar.Refresh()
 	go func() {
@@ -161,6 +161,27 @@ func copyToClipboard(str string) bool {
 			state.statusBar.Refresh()
 		}
 	}()
+}
 
-	return true
+func showDocumentUI() {
+	state.mainContainer.RemoveAll()
+	state.mainContainer.Add(state.documentUi)
+}
+
+func resizeWindow(keepCurrentSize bool) {
+	minSize := state.documentUi.MinSize()
+
+	if keepCurrentSize {
+		currentSize := state.mainContainer.Size()
+
+		if currentSize.Height > minSize.Height {
+			minSize.Height = currentSize.Height
+		}
+
+		if currentSize.Width > minSize.Width {
+			minSize.Width = currentSize.Width
+		}
+	}
+
+	state.window.Resize(minSize)
 }

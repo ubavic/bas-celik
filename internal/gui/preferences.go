@@ -3,7 +3,11 @@ package gui
 import (
 	"runtime"
 
+	"fyne.io/fyne/v2/canvas"
+	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/dialog"
+	"fyne.io/fyne/v2/layout"
+	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 	"github.com/ubavic/bas-celik/v2/internal/gui/widgets"
 	"github.com/ubavic/bas-celik/v2/internal/smartbox/pkcs11"
@@ -98,11 +102,7 @@ func showSetupBox() func() {
 			{Text: "", Widget: &widgets.Spacer{}},
 		}
 
-		onExit := func(save bool) {
-			if !save {
-				return
-			}
-
+		save := func() {
 			preferences.SetInt(themePreferenceKey, themeSelect.SelectedIndex())
 			preferences.SetInt(languagePreferenceKey, languageSelect.SelectedIndex())
 			preferences.SetBool(smartboxModeKey, smartboxModeCheck.Checked)
@@ -115,17 +115,32 @@ func showSetupBox() func() {
 			dialog.ShowInformation(t("preference.saved"), t("preference.startAgain"), state.window)
 		}
 
-		formDialog := dialog.NewForm(t("preference.title"),
-			t("preference.save"),
-			t("preference.exit"),
-			formItems,
-			onExit,
-			state.window)
-
-		afterChangeSmartboxMode = func() {
-			formDialog.Refresh()
+		form := widget.Form{
+			Items:      formItems,
+			SubmitText: t("preference.save"),
+			CancelText: t("preference.exit"),
+			OnSubmit: func() {
+				save()
+				showDocumentUI()
+				setTimedStatus(t("preference.saved"))
+			},
+			OnCancel: func() {
+				showDocumentUI()
+				setTimedStatus("")
+			},
 		}
 
-		formDialog.Show()
+		afterChangeSmartboxMode = func() {
+			form.Refresh()
+		}
+
+		title := canvas.NewText(t("preference.title"), theme.Color(theme.ColorNameForeground))
+		title.TextStyle.Bold = true
+		title.TextSize = 20
+
+		rows := container.New(layout.NewVBoxLayout(), title, &form)
+
+		state.mainContainer.RemoveAll()
+		state.mainContainer.Add(rows)
 	}
 }
