@@ -133,7 +133,11 @@ func (ipw *IdPdfWriter) printRegularId() {
 	ipw.putData("Ime jednog roditelja:", ipw.doc.ParentGivenName)
 	ipw.putData("Datum rođenja:", ipw.doc.DateOfBirth)
 	ipw.putData("Mesto rođenja,\nopština i država:", ipw.doc.GetFullPlaceOfBirth())
-	ipw.putData("Prebivalište:", ipw.doc.GetFullAddress(true))
+	addressLabel := "Prebivalište\ni adresa stana:"
+	if ipw.doc.AddressLabel == "prebivalište" {
+		addressLabel = "Prebivalište:"
+	}
+	ipw.putData(addressLabel, ipw.doc.GetFullAddress(true))
 	ipw.putData("Datum promene adrese:", ipw.doc.AddressDate)
 	ipw.putData("JMBG:", ipw.doc.PersonalNumber)
 	ipw.putData("Pol:", ipw.doc.Sex)
@@ -253,7 +257,11 @@ func (ipw *IdPdfWriter) printForeignerId() {
 	ipw.putData("Državljanstvo:", ipw.doc.NationalityFull)
 	ipw.putData("Datum rođenja:", ipw.doc.DateOfBirth)
 	ipw.putData("Osnov boravka:", ipw.doc.PurposeOfStay)
-	ipw.putData("Prebivalište:", localization.JoinWithComma(ipw.doc.State, ipw.doc.GetFullAddress(true)))
+	addressLabel := "Prebivalište\ni adresa stana:"
+	if ipw.doc.AddressLabel == "prebivalište" {
+		addressLabel = "Prebivalište:"
+	}
+	ipw.putData(addressLabel, localization.JoinWithComma(ipw.doc.State, ipw.doc.GetFullAddress(true)))
 	ipw.putData("Datum promene adrese:", ipw.doc.AddressDate)
 	ipw.putData("Evidencijski broj\nstranca:", ipw.doc.PersonalNumber)
 	ipw.putData("Pol:", ipw.doc.Sex)
@@ -371,7 +379,11 @@ func (ipw *IdPdfWriter) printResidencePermit() {
 	ipw.putData("Državljanstvo:", ipw.doc.NationalityFull)
 	ipw.putData("Datum rođenja:", ipw.doc.DateOfBirth)
 	ipw.putData("Mesto rođenja,\nopština i država:", ipw.doc.GetFullPlaceOfBirth())
-	ipw.putData("Prebivalište:", ipw.doc.GetFullAddress(true))
+	addressLabel := "Prebivalište\ni adresa stana:"
+	if ipw.doc.AddressLabel == "prebivalište" {
+		addressLabel = "Prebivalište:"
+	}
+	ipw.putData(addressLabel, ipw.doc.GetFullAddress(true))
 	ipw.putData("Datum promene adrese:", ipw.doc.AddressDate)
 	ipw.putData("Evidencijski broj\nstranca:", ipw.doc.PersonalNumber)
 	ipw.putData("Pol:", ipw.doc.Sex)

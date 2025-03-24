@@ -81,6 +81,7 @@ func parseIdResidenceFile(data []byte, doc *document.IdDocument) error {
 	tlv.AssignField(fields, 1578, &doc.ApartmentNumber)
 	tlv.AssignField(fields, 1580, &doc.AddressDate)
 	localization.FormatDate(&doc.AddressDate)
+	tlv.AssignField(fields, 1581, &doc.AddressLabel)
 
 	return nil
 }
