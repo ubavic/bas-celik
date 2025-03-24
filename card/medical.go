@@ -159,7 +159,7 @@ func (card *MedicalCard) ReadFile(name []byte) ([]byte, error) {
 		}
 
 		if len(data) == 0 {
-			return output, nil
+			break
 		}
 
 		output = append(output, data...)

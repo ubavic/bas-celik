@@ -168,6 +168,10 @@ func (card *Gemalto) ReadFile(name []byte) ([]byte, error) {
 			return nil, fmt.Errorf("reading file: %w", err)
 		}
 
+		if len(data) == 0 {
+			break
+		}
+
 		output = append(output, data...)
 
 		offset += uint(len(data))
