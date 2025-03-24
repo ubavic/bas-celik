@@ -60,12 +60,12 @@ func (r *StatusBarRenderer) Refresh() {
 }
 
 func (r *StatusBarRenderer) Layout(s fyne.Size) {
-	r.statusText.Move(fyne.Position{X: theme.Padding(), Y: 3 * theme.Padding()})
+	r.statusText.Move(fyne.Position{X: theme.Padding(), Y: 2 * theme.Padding()})
 }
 
 func (r *StatusBarRenderer) MinSize() fyne.Size {
 	ts1 := fyne.MeasureText(r.statusText.Text, r.statusText.TextSize, r.statusText.TextStyle)
-	return fyne.NewSize(ts1.Width+theme.Padding(), ts1.Height)
+	return fyne.NewSize(ts1.Width+theme.Padding(), 2*ts1.Height)
 }
 
 func (r *StatusBarRenderer) Objects() []fyne.CanvasObject {
