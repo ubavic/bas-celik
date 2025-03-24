@@ -45,6 +45,7 @@ type Gemalto struct {
 	personalFile  []byte
 	residenceFile []byte
 	photoFile     []byte
+	signature     [2][]byte
 }
 
 func (card *Gemalto) InitCard() error {
@@ -266,4 +267,20 @@ func (card *Gemalto) ChangePin(newPin, oldPin string) (int, error) {
 	}
 
 	return -1, nil
+}
+
+func (card *Gemalto) ReadSignatures() error {
+	rsp, err := card.ReadFile([]byte{0x0F, 0x1C})
+	if err != nil {
+		return fmt.Errorf("reading signature 1: %w", err)
+	}
+	card.signature[0] = trim4b(rsp)
+
+	rsp, err = card.ReadFile([]byte{0x0F, 0x1D})
+	if err != nil {
+		return fmt.Errorf("reading signature 2: %w", err)
+	}
+	card.signature[1] = trim4b(rsp)
+
+	return nil
 }
