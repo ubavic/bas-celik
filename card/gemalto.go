@@ -146,7 +146,7 @@ func (card *Gemalto) Atr() Atr {
 func (card *Gemalto) ReadFile(name []byte) ([]byte, error) {
 	output := make([]byte, 0)
 
-	_, err := card.selectFile(name, 4)
+	_, err := card.selectFile(name, 0x08, 0x00, 4)
 	if err != nil {
 		return nil, fmt.Errorf("selecting file: %w", err)
 	}
@@ -181,8 +181,8 @@ func (card *Gemalto) ReadFile(name []byte) ([]byte, error) {
 	return output, nil
 }
 
-func (card *Gemalto) selectFile(name []byte, ne uint) ([]byte, error) {
-	apu := buildAPDU(0x00, 0xA4, 0x08, 0x00, name, ne)
+func (card *Gemalto) selectFile(name []byte, selectionMethod, selectionOption byte, ne uint) ([]byte, error) {
+	apu := buildAPDU(0x00, 0xA4, selectionMethod, selectionOption, name, ne)
 	rsp, err := card.smartCard.Transmit(apu)
 	if err != nil {
 		return nil, fmt.Errorf("selecting file: %w", err)
@@ -203,10 +203,9 @@ func (card *Gemalto) Test() bool {
 
 // Initialize card's cryptography application
 func (card *Gemalto) InitCrypto() error {
-	data := []byte{0xA0, 0x00, 0x00, 0x00, 0x63, 0x50, 0x4B, 0x43, 0x53, 0x2D, 0x31, 0x35}
-	apu := buildAPDU(0x00, 0xA4, 0x04, 0x00, data, 0)
+	aid := []byte{0xA0, 0x00, 0x00, 0x00, 0x63, 0x50, 0x4B, 0x43, 0x53, 0x2D, 0x31, 0x35}
 
-	rsp, err := card.smartCard.Transmit(apu)
+	rsp, err := card.selectFile(aid, 0x04, 0x00, 0)
 	if err != nil {
 		return fmt.Errorf("initializing cryptography application %w", err)
 	}
