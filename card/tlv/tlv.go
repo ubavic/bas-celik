@@ -2,6 +2,7 @@ package tlv
 
 import (
 	"encoding/binary"
+	"fmt"
 
 	"github.com/ubavic/bas-celik/v2/card/cardErrors"
 )
@@ -17,13 +18,17 @@ func ParseTLV(data []byte) (map[uint][]byte, error) {
 	offset := uint(0)
 
 	for {
+		if uint(len(data)) <= offset+4 {
+			return nil, fmt.Errorf("parsing TLV record tag and length: %w", cardErrors.ErrInvalidLength)
+		}
+
 		tag := uint(binary.LittleEndian.Uint16(data[offset:]))
 		length := uint(binary.LittleEndian.Uint16(data[offset+2:]))
 
 		offset += 4
 
 		if offset+length > uint(len(data)) {
-			return nil, cardErrors.ErrInvalidLength
+			return nil, fmt.Errorf("parsing TLV record data: %w", cardErrors.ErrInvalidLength)
 		}
 
 		value := data[offset : offset+length]

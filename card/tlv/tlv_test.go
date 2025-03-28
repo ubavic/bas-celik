@@ -32,6 +32,20 @@ func Test_parseTLV(t *testing.T) {
 			data:          []byte{0x01, 0x00, 0x05, 0x00, 0x48, 0x65},
 			expectedError: cardErrors.ErrInvalidLength,
 		},
+		{
+			data:          []byte{0x02, 0x00},
+			expectedError: cardErrors.ErrInvalidLength,
+		},
+		{
+			data:          []byte{0x02, 0x00, 0x01, 0x00},
+			expectedError: cardErrors.ErrInvalidLength,
+		},
+		{
+			data: []byte{0x02, 0x00, 0x01, 0x00, 0x01},
+			expectedResult: map[uint][]byte{
+				2: {0x01},
+			},
+		},
 	}
 
 	for i, testCase := range testCases {

@@ -158,14 +158,18 @@ func parseBERLayer(data []byte) (map[uint32][]byte, map[uint32][]byte, error) {
 	for {
 		tag, primitive, offsetDelta, err := ParseTag(data[offset:])
 		if err != nil {
-			return nil, nil, err
+			return nil, nil, fmt.Errorf("parsing BER record tag: %w", err)
 		}
 
 		offset += offsetDelta
 
 		length, offsetDelta, err := ParseLength(data[offset:])
 		if err != nil {
-			return nil, nil, err
+			return nil, nil, fmt.Errorf("parsing BER record length: %w", err)
+		}
+
+		if uint32(len(data)) <= offset+length {
+			return nil, nil, fmt.Errorf("parsing BER record data: %w", cardErrors.ErrInvalidLength)
 		}
 
 		offset += offsetDelta
