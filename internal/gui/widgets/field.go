@@ -12,10 +12,11 @@ import (
 
 type Field struct {
 	widget.BaseWidget
-	name, value string
-	minWidth    float32
-	hovered     bool
-	copied      bool
+	name, value  string
+	minWidth     float32
+	hovered      bool
+	copied       bool
+	valueChanged bool
 }
 
 type FieldRenderer struct {
@@ -79,12 +80,24 @@ func (f *Field) Tapped(*fyne.PointEvent) {
 	f.Refresh()
 }
 
+func (f *Field) SetValue(value string) {
+	f.value = value
+	f.valueChanged = true
+	f.Refresh()
+}
+
 func (r *FieldRenderer) Refresh() {
+	if r.field.valueChanged {
+		r.valueLabel.SetText(r.field.value)
+		r.field.valueChanged = false
+	}
+
 	if r.field.hovered && !r.field.copied {
 		r.background.FillColor = theme.Color(theme.ColorNameButton)
 	} else {
 		r.background.FillColor = color.Transparent
 	}
+
 	r.valueLabel.Refresh()
 	r.background.Refresh()
 }
