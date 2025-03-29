@@ -4,7 +4,9 @@ go 1.23
 
 require (
 	fyne.io/fyne/v2 v2.5.3
+	github.com/coder/websocket v1.8.12
 	github.com/ebfe/scard v0.0.0-20241214075232-7af069cabc25
+	github.com/miekg/pkcs11 v1.1.1
 	github.com/signintech/gopdf v0.29.0
 	github.com/xuri/excelize/v2 v2.9.0
 	golang.org/x/text v0.21.0
@@ -13,7 +15,6 @@ require (
 require (
 	fyne.io/systray v1.11.0 // indirect
 	github.com/BurntSushi/toml v1.4.0 // indirect
-	github.com/coder/websocket v1.8.12 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/fredbi/uri v1.1.0 // indirect
 	github.com/fsnotify/fsnotify v1.8.0 // indirect
@@ -28,7 +29,6 @@ require (
 	github.com/gopherjs/gopherjs v1.17.2 // indirect
 	github.com/jeandeaual/go-locale v0.0.0-20241217141322-fcc2cadd6f08 // indirect
 	github.com/jsummers/gobmp v0.0.0-20230614200233-a9de23ed2e25 // indirect
-	github.com/miekg/pkcs11 v1.1.1 // indirect
 	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826 // indirect
 	github.com/nicksnyder/go-i18n/v2 v2.4.1 // indirect
 	github.com/phpdave11/gofpdi v1.0.14-0.20240330204243-828e1936ebd9 // indirect
