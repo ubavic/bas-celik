@@ -40,7 +40,8 @@ func (f *Field) CreateRenderer() fyne.WidgetRenderer {
 	nameText := canvas.NewText(f.name, theme.Color(theme.ColorNameForeground))
 	nameText.TextSize = 11
 
-	valueText := widget.NewLabelWithStyle(f.value, fyne.TextAlignLeading, fyne.TextStyle{Bold: true})
+	valueText := widget.NewLabel(f.value)
+	valueText.Alignment = fyne.TextAlignLeading
 	valueText.Wrapping = fyne.TextWrapWord
 	valueText.Resize(fyne.NewSize(f.minWidth, valueText.MinSize().Height))
 
