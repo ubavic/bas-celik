@@ -230,11 +230,7 @@ func (card *VehicleCard) ReadFile(name []byte) ([]byte, error) {
 
 func (card VehicleCard) Test() bool {
 	err := card.InitCard()
-	if err != nil {
-		return false
-	}
-
-	return true
+	return err == nil
 }
 
 func parseVehicleCardFileSize(data []byte) (uint, uint, error) {
