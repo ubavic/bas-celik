@@ -11,7 +11,7 @@ import (
 
 func StartServer(modulePaths []ModulePath) (string, error) {
 	smartboxServer := SmartBoxServer{}
-	smartboxServer.sessions = make(map[string]Session)
+	smartboxServer.sessions = make(map[string]SmartboxSession)
 
 	modules := smartboxServer.setModulePaths(modulePaths)
 	if modules == 0 {

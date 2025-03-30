@@ -1,7 +1,6 @@
 package pkcs11
 
 import (
-	"crypto"
 	"crypto/x509"
 	"errors"
 	"fmt"
@@ -10,12 +9,17 @@ import (
 	"github.com/miekg/pkcs11"
 )
 
+type NamedCert struct {
+	Id          []byte
+	Certificate *x509.Certificate
+}
+
 // wrapper around pkcs11.SessionHandle
 // caches module certificates
 type PkcsModuleSession struct {
 	context *pkcs11.Ctx
 	session pkcs11.SessionHandle
-	cert    *x509.Certificate
+	certs   []NamedCert
 }
 
 // wrapper around pkcs11.Ctx
@@ -107,7 +111,7 @@ func (pm *PkcsModuleSession) OpenSessionAndLogin(pin string, terminalIndex int) 
 	return nil
 }
 
-func (pm *PkcsModuleSession) GetRawCertificates(pin string, terminalIndex int) ([][]byte, [][]byte, error) {
+func (pm *PkcsModuleSession) getRawCertificates() ([][]byte, [][]byte, error) {
 	searchTemplate := []*pkcs11.Attribute{
 		pkcs11.NewAttribute(pkcs11.CKA_CLASS, pkcs11.CKO_CERTIFICATE),
 	}
@@ -149,27 +153,32 @@ func (pm *PkcsModuleSession) GetRawCertificates(pin string, terminalIndex int) (
 	return ids, certificates, errors.Join(allErrors...)
 }
 
-func (pm *PkcsModuleSession) GetCertificates(pin string, terminalIndex int) ([][]byte, []*x509.Certificate, error) {
-	ids, rawCertificates, err := pm.GetRawCertificates(pin, terminalIndex)
-	if err != nil {
-		return nil, nil, err
+func (pm *PkcsModuleSession) GetCertificates() ([]NamedCert, error) {
+	if len(pm.certs) > 0 {
+		return pm.certs, nil
 	}
 
-	certificates := make([]*x509.Certificate, 0, len(rawCertificates))
+	ids, rawCertificates, err := pm.getRawCertificates()
+	if err != nil {
+		return nil, err
+	}
+
+	pm.certs = []NamedCert{}
 	allErrors := []error{}
-	for _, rawCertificate := range rawCertificates {
+	for i, rawCertificate := range rawCertificates {
 		cert, err := x509.ParseCertificate(rawCertificate)
 		if err != nil {
 			allErrors = append(allErrors, err)
+			continue
 		}
 
-		certificates = append(certificates, cert)
+		pm.certs = append(pm.certs, NamedCert{Certificate: cert, Id: ids[i]})
 	}
 
-	return ids, certificates, errors.Join(allErrors...)
+	return pm.certs, errors.Join(allErrors...)
 }
 
-func (pm *PkcsModuleSession) CloseSession(terminalIndex int) error {
+func (pm *PkcsModuleSession) CloseSession() error {
 	err1 := pm.context.Logout(pm.session)
 	err2 := pm.context.CloseSession(pm.session)
 
@@ -189,10 +198,6 @@ func (pm *PkcsModuleSession) CloseSession(terminalIndex int) error {
 	}
 
 	return errors.Join(err1, err2)
-}
-
-func (pm *PkcsModuleSession) Public() crypto.PublicKey {
-	return pm.cert.PublicKey
 }
 
 func (pm *PkcsModuleSession) Sign(certId []byte, message []byte) ([]byte, error) {

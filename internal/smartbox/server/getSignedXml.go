@@ -5,10 +5,12 @@ import (
 	"crypto/sha256"
 	"crypto/x509"
 	"encoding/base64"
+	"encoding/hex"
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
 	"io"
+	"slices"
 )
 
 type GetSignedXmlInput struct {
@@ -69,7 +71,7 @@ type signedInfo struct {
 	}
 }
 
-func (s *SmartBoxServer) handleGetSignedXml(session *Session, data []byte, w io.Writer) error {
+func (s *SmartBoxServer) handleGetSignedXml(session *SmartboxSession, data []byte, w io.Writer) error {
 	msg := Message[GetSignedXmlInput]{}
 	if err := json.Unmarshal(data, &msg); err != nil {
 		return err
@@ -79,7 +81,7 @@ func (s *SmartBoxServer) handleGetSignedXml(session *Session, data []byte, w io.
 		return fmt.Errorf("pkcs11 module not loaded")
 	}
 
-	signXML, err := signRequest(session.module, msg.Input.Certificate.Alias, session.terminalId, msg.Input.Pin, msg.Input.Xml)
+	signXML, err := signRequest(session.module, msg.Input.Certificate.Name, msg.Input.Xml)
 	if err != nil {
 		return err
 	}
@@ -94,10 +96,26 @@ func (s *SmartBoxServer) handleGetSignedXml(session *Session, data []byte, w io.
 	return json.NewEncoder(w).Encode(rsp)
 }
 
-func signRequest(module PkcsModule, certificateAlias string, terminalId int, pin string, base64XmlRequest string) ([]byte, error) {
-	ids, _, err := module.GetCertificates(pin, terminalId)
+func signRequest(module PkcsModuleSession, certificateName string, base64XmlRequest string) ([]byte, error) {
+	id, err := hex.DecodeString(certificateName)
 	if err != nil {
 		return nil, err
+	}
+
+	namedCerts, err := module.GetCertificates()
+	if err != nil {
+		return nil, err
+	}
+
+	var cert *x509.Certificate
+	for _, namedCert := range namedCerts {
+		if slices.Equal(namedCert.Id, id) {
+			cert = namedCert.Certificate
+		}
+	}
+
+	if cert == nil {
+		return nil, fmt.Errorf("certificate %s not found", certificateName)
 	}
 
 	xmlString, err := base64.StdEncoding.DecodeString(base64XmlRequest)
@@ -118,15 +136,14 @@ func signRequest(module PkcsModule, certificateAlias string, terminalId int, pin
 
 	marshaled := signedInfo.marshal()
 
-	//todo
-	signed, err := module.Sign(ids[0], marshaled)
+	signed, err := module.Sign(id, marshaled)
 	if err != nil {
 		return nil, err
 	}
 
-	module.CloseSession(terminalId)
+	module.CloseSession()
 
-	envelope := constructResponse(timestamp, signedInfo, signed)
+	envelope := constructResponse(nil, timestamp, signedInfo, signed)
 
 	buf := bytes.Buffer{}
 	enc := xml.NewEncoder(&buf)
@@ -146,13 +163,13 @@ func extractTimestamp(input []byte) (string, error) {
 	return env.Timestamp, nil
 }
 
-func constructResponse(timestamp string, signedInfo signedInfo, signatureValue []byte) envelope {
+func constructResponse(cert *x509.Certificate, timestamp string, signedInfo signedInfo, signatureValue []byte) envelope {
 	signatureValueBase64 := base64.StdEncoding.EncodeToString(signatureValue)
 
 	signedInfo.Xmlns = ""
 	signedInfo.Ns2 = ""
 
-	signature := signatureXML(nil, signedInfo, signatureValueBase64)
+	signature := signatureXML(cert, signedInfo, signatureValueBase64)
 
 	envelope := envelope{
 		XMLNS:     "urn:poreskauprava.gov.rs/zim",

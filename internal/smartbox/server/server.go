@@ -39,7 +39,7 @@ var operationGetCertificates = "GET_CERTIFICATES"
 var operationGetSignedXml = "GET_SIGNED_XML"
 
 type SmartBoxServer struct {
-	sessions    map[string]Session
+	sessions    map[string]SmartboxSession
 	modulePaths []ModulePath
 }
 

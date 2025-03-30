@@ -23,7 +23,7 @@ type Terminal struct {
 	Name string `json:"name"`
 }
 
-func (s *SmartBoxServer) handleGetTerminals(session *Session, data []byte, w io.Writer) error {
+func (s *SmartBoxServer) handleGetTerminals(session *SmartboxSession, data []byte, w io.Writer) error {
 	msg := Message[GetTerminalsInput]{}
 	if err := json.Unmarshal(data, &msg); err != nil {
 		return err

@@ -1,11 +1,13 @@
 package server
 
 import (
-	"crypto/x509"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io"
 	"time"
+
+	"github.com/ubavic/bas-celik/v2/internal/smartbox/pkcs11"
 )
 
 type GetCertificatesInput struct {
@@ -22,7 +24,7 @@ type CertificateAlias struct {
 	Name  string `json:"name"`
 }
 
-func (s *SmartBoxServer) handleGetCertificates(session *Session, data []byte, w io.Writer) error {
+func (s *SmartBoxServer) handleGetCertificates(session *SmartboxSession, data []byte, w io.Writer) error {
 	msg := Message[GetCertificatesInput]{}
 	if err := json.Unmarshal(data, &msg); err != nil {
 		return err
@@ -37,7 +39,7 @@ func (s *SmartBoxServer) handleGetCertificates(session *Session, data []byte, w 
 		return err
 	}
 
-	_, certs, err := session.module.GetCertificates(msg.Input.Pin, msg.Input.TerminalId)
+	certs, err := session.module.GetCertificates()
 	if err != nil {
 		return err
 	}
@@ -52,31 +54,31 @@ func (s *SmartBoxServer) handleGetCertificates(session *Session, data []byte, w 
 	return json.NewEncoder(w).Encode(rsp)
 }
 
-func GetValidCertificates(certs []*x509.Certificate) []*x509.Certificate {
+func GetValidCertificates(namedCerts []pkcs11.NamedCert) []pkcs11.NamedCert {
 	now := time.Now()
 
-	validCertificates := make([]*x509.Certificate, 0, len(certs))
-	for _, cert := range certs {
-		if now.Before(cert.NotBefore) {
+	validNamedCertificates := make([]pkcs11.NamedCert, 0, len(namedCerts))
+	for _, namedCert := range namedCerts {
+		if now.Before(namedCert.Certificate.NotBefore) {
 			continue
 		}
 
-		if now.After(cert.NotAfter) {
+		if now.After(namedCert.Certificate.NotAfter) {
 			continue
 		}
 
-		validCertificates = append(validCertificates, cert)
+		validNamedCertificates = append(validNamedCertificates, namedCert)
 	}
 
-	return validCertificates
+	return validNamedCertificates
 }
 
-func GetCertificateAliases(certs []*x509.Certificate) []CertificateAlias {
-	aliases := make([]CertificateAlias, 0, len(certs))
-	for _, cert := range certs {
+func GetCertificateAliases(namedCerts []pkcs11.NamedCert) []CertificateAlias {
+	aliases := make([]CertificateAlias, 0, len(namedCerts))
+	for _, namedCert := range namedCerts {
 		alias := CertificateAlias{
-			Alias: cert.Subject.String(),
-			Name:  cert.Subject.CommonName,
+			Alias: namedCert.Certificate.Subject.CommonName,
+			Name:  hex.EncodeToString(namedCert.Id),
 		}
 		aliases = append(aliases, alias)
 	}

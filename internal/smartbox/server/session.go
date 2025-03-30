@@ -1,23 +1,22 @@
 package server
 
 import (
-	"crypto/x509"
 	"os"
 
 	"github.com/ubavic/bas-celik/v2/internal/smartbox/pkcs11"
 )
 
-type PkcsModule interface {
+type PkcsModuleSession interface {
 	ListSlots() ([]uint, []string, error)
 	OpenSessionAndLogin(pin string, terminalIndex int) error
-	GetCertificates(pin string, terminalIndex int) ([][]byte, []*x509.Certificate, error)
+	GetCertificates() ([]pkcs11.NamedCert, error)
 	Sign(certId []byte, message []byte) ([]byte, error)
-	CloseSession(terminalIndex int) error
+	CloseSession() error
 }
 
-type Session struct {
+type SmartboxSession struct {
 	id            string
-	module        PkcsModule
+	module        PkcsModuleSession
 	terminalId    int
 	vendor        pkcs11.CardVendor
 	certificateId string

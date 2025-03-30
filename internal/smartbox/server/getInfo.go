@@ -30,7 +30,7 @@ func (s *SmartBoxServer) handleGetInfo(sessionId *string, data []byte, w io.Writ
 
 	session, ok := s.sessions[msg.Input.SbSession]
 	if !ok {
-		s.sessions[msg.Input.SbSession] = Session{
+		s.sessions[msg.Input.SbSession] = SmartboxSession{
 			id: msg.Input.SbSession,
 		}
 	}
