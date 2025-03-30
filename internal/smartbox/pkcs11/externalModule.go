@@ -10,28 +10,47 @@ import (
 	"github.com/miekg/pkcs11"
 )
 
-type PkcsModule struct {
+// wrapper around pkcs11.SessionHandle
+// caches module certificates
+type PkcsModuleSession struct {
 	context *pkcs11.Ctx
 	session pkcs11.SessionHandle
 	cert    *x509.Certificate
 }
 
-func NewPkcsExternalModule(modulePath string) (PkcsModule, error) {
-	pkcsCtx := pkcs11.New(modulePath)
-
-	err := pkcsCtx.Initialize()
-	if err != nil {
-		return PkcsModule{}, fmt.Errorf("failed to initialize PKCS#11: %w", err)
-	}
-
-	module := PkcsModule{
-		context: pkcsCtx,
-	}
-
-	return module, nil
+// wrapper around pkcs11.Ctx
+// it is used only for reference counting
+type pkcsModuleCtx struct {
+	context  *pkcs11.Ctx
+	refCount uint
 }
 
-func (pm *PkcsModule) ListSlots() ([]uint, []string, error) {
+var gModuleContexts map[string]pkcsModuleCtx
+
+func init() {
+	gModuleContexts = make(map[string]pkcsModuleCtx)
+}
+
+func NewPkcsExternalModule(modulePath string) (PkcsModuleSession, error) {
+	mc, ok := gModuleContexts[modulePath]
+	if !ok {
+		pkcsCtx := pkcs11.New(modulePath)
+
+		err := pkcsCtx.Initialize()
+		if err != nil {
+			return PkcsModuleSession{}, fmt.Errorf("failed to initialize PKCS#11: %w", err)
+		}
+
+		mc = pkcsModuleCtx{context: pkcsCtx}
+	}
+
+	mc.refCount += 1
+	gModuleContexts[modulePath] = mc
+
+	return PkcsModuleSession{context: mc.context}, nil
+}
+
+func (pm *PkcsModuleSession) ListSlots() ([]uint, []string, error) {
 	slots, err := pm.context.GetSlotList(true)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to get slot list: %w", err)
@@ -60,7 +79,7 @@ func (pm *PkcsModule) ListSlots() ([]uint, []string, error) {
 	return slotIds, slotNames, nil
 }
 
-func (pm *PkcsModule) OpenSessionAndLogin(pin string, terminalIndex int) error {
+func (pm *PkcsModuleSession) OpenSessionAndLogin(pin string, terminalIndex int) error {
 	slots, err := pm.context.GetSlotList(true)
 	if err != nil {
 		return fmt.Errorf("failed to get slot list: %w", err)
@@ -88,7 +107,7 @@ func (pm *PkcsModule) OpenSessionAndLogin(pin string, terminalIndex int) error {
 	return nil
 }
 
-func (pm *PkcsModule) GetRawCertificates(pin string, terminalIndex int) ([][]byte, [][]byte, error) {
+func (pm *PkcsModuleSession) GetRawCertificates(pin string, terminalIndex int) ([][]byte, [][]byte, error) {
 	searchTemplate := []*pkcs11.Attribute{
 		pkcs11.NewAttribute(pkcs11.CKA_CLASS, pkcs11.CKO_CERTIFICATE),
 	}
@@ -130,7 +149,7 @@ func (pm *PkcsModule) GetRawCertificates(pin string, terminalIndex int) ([][]byt
 	return ids, certificates, errors.Join(allErrors...)
 }
 
-func (pm *PkcsModule) GetCertificates(pin string, terminalIndex int) ([][]byte, []*x509.Certificate, error) {
+func (pm *PkcsModuleSession) GetCertificates(pin string, terminalIndex int) ([][]byte, []*x509.Certificate, error) {
 	ids, rawCertificates, err := pm.GetRawCertificates(pin, terminalIndex)
 	if err != nil {
 		return nil, nil, err
@@ -150,19 +169,33 @@ func (pm *PkcsModule) GetCertificates(pin string, terminalIndex int) ([][]byte, 
 	return ids, certificates, errors.Join(allErrors...)
 }
 
-func (pm *PkcsModule) CloseSession(terminalIndex int) error {
+func (pm *PkcsModuleSession) CloseSession(terminalIndex int) error {
 	err1 := pm.context.Logout(pm.session)
 	err2 := pm.context.CloseSession(pm.session)
-	pm.context.Destroy()
+
+	for modulePath, mc := range gModuleContexts {
+		if mc.context == pm.context {
+			mc.refCount = mc.refCount - 1
+
+			if mc.refCount > 0 {
+				gModuleContexts[modulePath] = mc
+			} else {
+				pm.context.Destroy()
+				delete(gModuleContexts, modulePath)
+			}
+
+			break
+		}
+	}
 
 	return errors.Join(err1, err2)
 }
 
-func (pm *PkcsModule) Public() crypto.PublicKey {
+func (pm *PkcsModuleSession) Public() crypto.PublicKey {
 	return pm.cert.PublicKey
 }
 
-func (pm *PkcsModule) Sign(certId []byte, message []byte) ([]byte, error) {
+func (pm *PkcsModuleSession) Sign(certId []byte, message []byte) ([]byte, error) {
 	err := pm.context.FindObjectsInit(pm.session, []*pkcs11.Attribute{
 		pkcs11.NewAttribute(pkcs11.CKA_CLASS, pkcs11.CKO_PRIVATE_KEY),
 		pkcs11.NewAttribute(pkcs11.CKA_ID, certId),
