@@ -47,8 +47,8 @@ func StartServer(modulePaths []ModulePath) (string, error) {
 func findAvailablePort(ports []uint) uint {
 	for _, port := range ports {
 		listener, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
-		listener.Close()
 		if err == nil {
+			listener.Close()
 			return port
 		}
 	}
