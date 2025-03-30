@@ -37,17 +37,27 @@ func (pm *PkcsModule) ListSlots() ([]uint, []string, error) {
 		return nil, nil, fmt.Errorf("failed to get slot list: %w", err)
 	}
 
+	slotIds := make([]uint, 0, len(slots))
 	slotNames := make([]string, 0, len(slots))
+
 	for _, slot := range slots {
-		info, err := pm.context.GetTokenInfo(slot)
+		info, err := pm.context.GetSlotInfo(slot)
 		if err != nil {
 			continue
 		}
 
-		slotNames = append(slotNames, info.Label)
+		// some modules (looking at you NetSet) don't properly set SlotInfo flags
+		// therefore this should be more reliable way to check ig slot has token
+		_, err = pm.context.GetTokenInfo(slot)
+		if err != nil {
+			continue
+		}
+
+		slotIds = append(slotIds, slot)
+		slotNames = append(slotNames, info.SlotDescription)
 	}
 
-	return slots, slotNames, nil
+	return slotIds, slotNames, nil
 }
 
 func (pm *PkcsModule) OpenSessionAndLogin(pin string, terminalIndex int) error {
