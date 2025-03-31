@@ -13,6 +13,8 @@ import (
 	"slices"
 )
 
+const xmlHeader = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>`
+
 type GetSignedXmlInput struct {
 	Certificate CertificateAlias `json:"certificate"`
 	Pin         string           `json:"pin"`
@@ -23,8 +25,14 @@ type GetSignedXmlPayload struct {
 	Xml string `json:"xml"`
 }
 
-type envelope struct {
-	XMLName   xml.Name   `xml:"envelopaEPrijave"`
+type envelopeReq struct {
+	XMLName   xml.Name `xml:"envelopaEPrijave"`
+	XMLNS     string   `xml:"xmlns:ns2,attr"`
+	Timestamp string   `xml:"timestamp"`
+}
+
+type envelopeResp struct {
+	XMLName   xml.Name   `xml:"ns2:envelopaEPrijave"`
 	XMLNS     string     `xml:"xmlns:ns2,attr"`
 	Timestamp string     `xml:"timestamp"`
 	Signature *signature `xml:"signature,omitempty"`
@@ -123,7 +131,7 @@ func signRequest(module PkcsModuleSession, id []byte, base64XmlRequest string) (
 		return nil, err
 	}
 
-	a := bytes.Replace(xmlString, []byte(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>`), []byte{}, 1)
+	a, _ := bytes.CutPrefix(xmlString, []byte(xmlHeader))
 
 	hash := sha256.Sum256(a)
 	hashBase64 := base64.StdEncoding.EncodeToString(hash[:])
@@ -146,6 +154,8 @@ func signRequest(module PkcsModuleSession, id []byte, base64XmlRequest string) (
 	envelope := constructResponse(cert, timestamp, signedInfo, signed)
 
 	buf := bytes.Buffer{}
+	buf.Write([]byte(xmlHeader))
+
 	enc := xml.NewEncoder(&buf)
 	enc.Indent("", "")
 	enc.Encode(envelope)
@@ -154,7 +164,7 @@ func signRequest(module PkcsModuleSession, id []byte, base64XmlRequest string) (
 }
 
 func extractTimestamp(input []byte) (string, error) {
-	var env envelope
+	var env envelopeReq
 	err := xml.Unmarshal(input, &env)
 	if err != nil {
 		return "", err
@@ -163,7 +173,7 @@ func extractTimestamp(input []byte) (string, error) {
 	return env.Timestamp, nil
 }
 
-func constructResponse(cert *x509.Certificate, timestamp string, signedInfo signedInfo, signatureValue []byte) envelope {
+func constructResponse(cert *x509.Certificate, timestamp string, signedInfo signedInfo, signatureValue []byte) envelopeResp {
 	signatureValueBase64 := base64.StdEncoding.EncodeToString(signatureValue)
 
 	signedInfo.Xmlns = ""
@@ -171,7 +181,7 @@ func constructResponse(cert *x509.Certificate, timestamp string, signedInfo sign
 
 	signature := signatureXML(cert, signedInfo, signatureValueBase64)
 
-	envelope := envelope{
+	envelope := envelopeResp{
 		XMLNS:     "urn:poreskauprava.gov.rs/zim",
 		Timestamp: timestamp,
 		Signature: &signature,
