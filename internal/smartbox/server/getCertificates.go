@@ -77,8 +77,8 @@ func GetCertificateAliases(namedCerts []pkcs11.NamedCert) []CertificateAlias {
 	aliases := make([]CertificateAlias, 0, len(namedCerts))
 	for _, namedCert := range namedCerts {
 		alias := CertificateAlias{
-			Alias: namedCert.Certificate.Subject.CommonName,
-			Name:  hex.EncodeToString(namedCert.Id),
+			Alias: hex.EncodeToString(namedCert.Id),
+			Name:  namedCert.Certificate.Subject.CommonName,
 		}
 		aliases = append(aliases, alias)
 	}

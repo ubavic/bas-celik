@@ -81,7 +81,12 @@ func (s *SmartBoxServer) handleGetSignedXml(session *SmartboxSession, data []byt
 		return fmt.Errorf("pkcs11 module not loaded")
 	}
 
-	signXML, err := signRequest(session.module, msg.Input.Certificate.Name, msg.Input.Xml)
+	certId, err := hex.DecodeString(msg.Input.Certificate.Alias)
+	if err != nil {
+		return err
+	}
+
+	signXML, err := signRequest(session.module, certId, msg.Input.Xml)
 	if err != nil {
 		return err
 	}
@@ -96,12 +101,7 @@ func (s *SmartBoxServer) handleGetSignedXml(session *SmartboxSession, data []byt
 	return json.NewEncoder(w).Encode(rsp)
 }
 
-func signRequest(module PkcsModuleSession, certificateName string, base64XmlRequest string) ([]byte, error) {
-	id, err := hex.DecodeString(certificateName)
-	if err != nil {
-		return nil, err
-	}
-
+func signRequest(module PkcsModuleSession, id []byte, base64XmlRequest string) ([]byte, error) {
 	namedCerts, err := module.GetCertificates()
 	if err != nil {
 		return nil, err
@@ -115,7 +115,7 @@ func signRequest(module PkcsModuleSession, certificateName string, base64XmlRequ
 	}
 
 	if cert == nil {
-		return nil, fmt.Errorf("certificate %s not found", certificateName)
+		return nil, fmt.Errorf("certificate %s not found", hex.EncodeToString(id))
 	}
 
 	xmlString, err := base64.StdEncoding.DecodeString(base64XmlRequest)
@@ -143,7 +143,7 @@ func signRequest(module PkcsModuleSession, certificateName string, base64XmlRequ
 
 	module.CloseSession()
 
-	envelope := constructResponse(nil, timestamp, signedInfo, signed)
+	envelope := constructResponse(cert, timestamp, signedInfo, signed)
 
 	buf := bytes.Buffer{}
 	enc := xml.NewEncoder(&buf)
