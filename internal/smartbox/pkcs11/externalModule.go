@@ -83,17 +83,12 @@ func (pm *PkcsModuleSession) ListSlots() ([]uint, []string, error) {
 	return slotIds, slotNames, nil
 }
 
-func (pm *PkcsModuleSession) OpenSessionAndLogin(pin string, terminalIndex int) error {
-	slots, err := pm.context.GetSlotList(true)
-	if err != nil {
-		return fmt.Errorf("failed to get slot list: %w", err)
+func (pm *PkcsModuleSession) OpenSessionAndLogin(pin string, slotId int) error {
+	if slotId < 0 {
+		return fmt.Errorf("invalid slot id: %d", slotId)
 	}
 
-	if len(slots) <= terminalIndex {
-		return fmt.Errorf("invalid terminal index: %d", terminalIndex)
-	}
-
-	session, err := pm.context.OpenSession(slots[terminalIndex], pkcs11.CKF_SERIAL_SESSION|pkcs11.CKF_RW_SESSION)
+	session, err := pm.context.OpenSession(uint(slotId), pkcs11.CKF_SERIAL_SESSION|pkcs11.CKF_RW_SESSION)
 	if err != nil {
 		pm.context.Destroy()
 		return fmt.Errorf("failed to open PKCS#11 session: %w", err)
