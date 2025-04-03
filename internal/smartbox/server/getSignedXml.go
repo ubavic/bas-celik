@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/sha256"
 	"crypto/x509"
+	"crypto/x509/pkix"
 	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
@@ -11,6 +12,7 @@ import (
 	"fmt"
 	"io"
 	"slices"
+	"strings"
 )
 
 const xmlHeader = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>`
@@ -215,7 +217,7 @@ func signatureXML(cert *x509.Certificate, signedInfo signedInfo, signatureValue 
 	sig.KeyInfo.X509Data.X509Certificate = base64.RawStdEncoding.EncodeToString(cert.Raw)
 	sig.KeyInfo.X509Data.X509IssuerSerial.X509IssuerName = cert.Issuer.String()
 	sig.KeyInfo.X509Data.X509IssuerSerial.X509SerialNumber = cert.SerialNumber.String()
-	sig.KeyInfo.X509Data.X509SubjectName = cert.Subject.String()
+	sig.KeyInfo.X509Data.X509SubjectName = formatSubject(cert.Subject)
 
 	return sig
 }
@@ -227,4 +229,43 @@ func (s *signedInfo) marshal() []byte {
 	enc.Encode(s)
 
 	return buf.Bytes()
+}
+
+func formatSubject(subject pkix.Name) string {
+	var serNo1, serNo2, givenName, surname, country string
+
+	for _, name := range subject.Names {
+		strB, ok := name.Value.(string)
+		if !ok {
+			continue
+		}
+
+		if slices.Equal(name.Type, []int{2, 5, 4, 5}) {
+			if serNo1 == "" {
+				serNo1 = string(strB)
+			} else {
+				serNo2 = string(strB)
+			}
+		} else if slices.Equal(name.Type, []int{2, 5, 4, 42}) {
+			givenName = string(strB)
+		} else if slices.Equal(name.Type, []int{2, 5, 4, 4}) {
+			surname = string(strB)
+		}
+	}
+
+	if strings.Contains(serNo2, "PNORS") {
+		serNo1, serNo2 = serNo2, serNo1
+	}
+
+	if len(subject.Country) > 0 {
+		country = subject.Country[0]
+	}
+
+	return fmt.Sprintf("CN=%s, GIVENNAME=%s, SURNAME=%s, SERIALNUMBER=%s, SERIALNUMBER=%s, C=%s",
+		subject.CommonName,
+		givenName,
+		surname,
+		serNo1,
+		serNo2,
+		country)
 }
