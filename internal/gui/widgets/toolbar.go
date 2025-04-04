@@ -6,7 +6,6 @@ import (
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
-	"github.com/ubavic/bas-celik/v2/internal/gui/icon"
 	"github.com/ubavic/bas-celik/v2/internal/gui/translation"
 )
 
@@ -15,10 +14,8 @@ type Toolbar struct {
 	readers           []string
 	onOpenAbout       func()
 	onOpenPreferences func()
-	onPinChange       func()
 	onReaderChange    func(string)
 	selectedReader    string
-	pinChangeEnabled  bool
 	showReaders       bool
 }
 
@@ -26,18 +23,16 @@ type ToolbarRenderer struct {
 	toolbar           *Toolbar
 	aboutButton       *widget.Button
 	preferencesButton *widget.Button
-	pinChangeButton   *widget.Button
 	container         *fyne.Container
 	readersLabel      *widget.Label
 	readersSelect     *widget.Select
 }
 
-func NewToolbar(onOpenAbout, onOpenPreferences, onPinChange func(), showReaders bool) *Toolbar {
+func NewToolbar(onOpenAbout, onOpenPreferences func(), showReaders bool) *Toolbar {
 	toolbar := &Toolbar{
 		readers:           nil,
 		onOpenAbout:       onOpenAbout,
 		onOpenPreferences: onOpenPreferences,
-		onPinChange:       onPinChange,
 		showReaders:       showReaders,
 	}
 
@@ -47,16 +42,6 @@ func NewToolbar(onOpenAbout, onOpenPreferences, onPinChange func(), showReaders 
 
 func (t *Toolbar) HookReaderChange(hook func(string)) {
 	t.onReaderChange = hook
-}
-
-func (t *Toolbar) EnablePinChange() {
-	t.pinChangeEnabled = true
-	t.Refresh()
-}
-
-func (t *Toolbar) DisablePinChange() {
-	t.pinChangeEnabled = false
-	t.Refresh()
 }
 
 func (t *Toolbar) CreateRenderer() fyne.WidgetRenderer {
@@ -70,10 +55,6 @@ func (t *Toolbar) CreateRenderer() fyne.WidgetRenderer {
 
 	readersSelect := widget.NewSelect(t.readers, onChange)
 
-	pinChangeButton := widget.NewButtonWithIcon("", icon.PinThemedResource, t.onPinChange)
-	pinChangeButton.Importance = widget.LowImportance
-	pinChangeButton.Disable()
-
 	preferencesButton := widget.NewButtonWithIcon("", theme.SettingsIcon(), t.onOpenPreferences)
 	preferencesButton.Importance = widget.LowImportance
 
@@ -82,7 +63,7 @@ func (t *Toolbar) CreateRenderer() fyne.WidgetRenderer {
 
 	var horizontalContainer *fyne.Container
 	if t.showReaders {
-		horizontalContainer = container.New(layout.NewHBoxLayout(), label, readersSelect, layout.NewSpacer(), pinChangeButton, preferencesButton, aboutButton)
+		horizontalContainer = container.New(layout.NewHBoxLayout(), label, readersSelect, layout.NewSpacer(), preferencesButton, aboutButton)
 	} else {
 		horizontalContainer = container.New(layout.NewHBoxLayout(), layout.NewSpacer(), preferencesButton, aboutButton)
 	}
@@ -91,7 +72,6 @@ func (t *Toolbar) CreateRenderer() fyne.WidgetRenderer {
 		toolbar:           t,
 		aboutButton:       aboutButton,
 		preferencesButton: preferencesButton,
-		pinChangeButton:   pinChangeButton,
 		container:         horizontalContainer,
 		readersLabel:      label,
 		readersSelect:     readersSelect,
@@ -110,12 +90,6 @@ func (r *ToolbarRenderer) Refresh() {
 		}
 
 		r.readersSelect.Refresh()
-
-		if r.toolbar.pinChangeEnabled {
-			r.pinChangeButton.Enable()
-		} else {
-			r.pinChangeButton.Disable()
-		}
 	}
 
 	r.aboutButton.Refresh()
@@ -126,7 +100,6 @@ func (r *ToolbarRenderer) Layout(s fyne.Size) {
 	availableWidth -= r.aboutButton.Size().Width
 	availableWidth -= r.preferencesButton.MinSize().Width
 	if r.toolbar.showReaders {
-		availableWidth -= r.pinChangeButton.MinSize().Width
 		availableWidth -= r.readersLabel.MinSize().Width
 	}
 	availableWidth -= 2 * theme.InnerPadding()
@@ -142,7 +115,7 @@ func (r *ToolbarRenderer) Objects() []fyne.CanvasObject {
 	objects := []fyne.CanvasObject{r.aboutButton, r.preferencesButton, r.container}
 
 	if r.toolbar.showReaders {
-		objects = append(objects, r.readersSelect, r.pinChangeButton)
+		objects = append(objects, r.readersSelect)
 	}
 
 	return objects

@@ -10,6 +10,16 @@ import (
 )
 
 func connectToCard(selectedReader string, ctx *scard.Context) {
+	state.mu.Lock()
+	state.cardDocument = nil
+	state.cryptoUi = nil
+	state.certs = nil
+	state.selectedCert = -1
+	state.mu.Unlock()
+
+	state.cryptoUiContainer.Hide()
+	state.cryptoUiContainer.RemoveAll()
+
 	readers, _ := ctx.ListReaders()
 	if selectedReader == "" || len(readers) == 0 {
 		setStartPage("error.noReader", "error.noReaderExplanation", nil)
@@ -27,11 +37,6 @@ func connectToCard(selectedReader string, ctx *scard.Context) {
 			return
 		}
 	}
-
-	state.mu.Lock()
-	state.cardDocument = nil
-	state.toolbar.DisablePinChange()
-	state.mu.Unlock()
 
 	setStartPage(
 		"error.readingCard",
@@ -77,7 +82,6 @@ func tryToProcessCard(sCard *scard.Card) bool {
 		switch cardDoc.(type) {
 		case *card.Gemalto:
 			state.mu.Lock()
-			state.toolbar.EnablePinChange()
 			state.mu.Unlock()
 		}
 	}

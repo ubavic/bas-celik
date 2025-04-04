@@ -1,6 +1,7 @@
 package gui
 
 import (
+	"crypto/x509"
 	"sync"
 
 	"fyne.io/fyne/v2"
@@ -20,11 +21,15 @@ type State struct {
 	window                  fyne.Window
 	mainContainer           *fyne.Container
 	documentUi              *fyne.Container
+	cryptoUiContainer       *fyne.Container
+	cryptoUi                *fyne.Container
 	startPage               *widgets.StartPage
 	documentUiMainContainer *fyne.Container
 	toolbar                 *widgets.Toolbar
 	statusBar               *widgets.StatusBar
 	cardDocument            card.CardDocument
+	selectedCert            int
+	certs                   []x509.Certificate
 }
 
 var state State
@@ -40,6 +45,7 @@ func StartGui(version string) {
 
 	statusBar := widgets.NewStatusBar()
 
+	cryptoContainer := container.New(layout.NewVBoxLayout())
 	mainPage := container.New(layout.NewVBoxLayout())
 
 	startPage := widgets.NewStartPage()
@@ -53,6 +59,7 @@ func StartGui(version string) {
 		window:                  win,
 		version:                 version,
 		mainContainer:           mainContainer,
+		cryptoUiContainer:       cryptoContainer,
 		documentUiMainContainer: mainPage,
 		startPage:               startPage,
 		statusBar:               statusBar,
@@ -62,9 +69,8 @@ func StartGui(version string) {
 
 	showAboutBox := showAboutBox()
 	showSettings := showSetupBox()
-	changePin := pinChange()
 
-	toolbar := widgets.NewToolbar(showAboutBox, showSettings, changePin, !smartboxMode)
+	toolbar := widgets.NewToolbar(showAboutBox, showSettings, !smartboxMode)
 	state.toolbar = toolbar
 
 	if smartboxMode {

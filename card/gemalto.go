@@ -1,9 +1,14 @@
 package card
 
 import (
+	"bytes"
+	"compress/zlib"
+	"crypto/x509"
 	"encoding/binary"
+	"encoding/hex"
 	"errors"
 	"fmt"
+	"io"
 
 	"github.com/ebfe/scard"
 	"github.com/ubavic/bas-celik/v2/document"
@@ -46,6 +51,7 @@ type Gemalto struct {
 	residenceFile []byte
 	photoFile     []byte
 	signature     [2][]byte
+	certificates  []*x509.Certificate
 }
 
 func (card *Gemalto) InitCard() error {
@@ -181,6 +187,42 @@ func (card *Gemalto) ReadFile(name []byte) ([]byte, error) {
 	return output, nil
 }
 
+func (card *Gemalto) ReadFile2(name []byte) ([]byte, error) {
+	output := make([]byte, 0)
+
+	_, err := card.selectFile(name, 0x00, 0x00, 0)
+	if err != nil {
+		return nil, fmt.Errorf("selecting file: %w", err)
+	}
+
+	data, err := read(card.smartCard, 0, 2)
+	if err != nil {
+		return nil, fmt.Errorf("reading file header: %w", err)
+	}
+
+	offset := uint(0)
+	length := uint(binary.LittleEndian.Uint16(data)) + 2
+
+	for length > 0 {
+		data, err := read(card.smartCard, offset, length)
+
+		if err != nil {
+			return nil, fmt.Errorf("reading file: %w", err)
+		}
+
+		if len(data) == 0 {
+			break
+		}
+
+		output = append(output, data...)
+
+		offset += uint(len(data))
+		length -= uint(len(data))
+	}
+
+	return output, nil
+}
+
 func (card *Gemalto) selectFile(name []byte, selectionMethod, selectionOption byte, ne uint) ([]byte, error) {
 	apu := buildAPDU(0x00, 0xA4, selectionMethod, selectionOption, name, ne)
 	rsp, err := card.smartCard.Transmit(apu)
@@ -286,4 +328,82 @@ func (card *Gemalto) ReadSignatures() error {
 	card.signature[1] = trim4b(rsp)
 
 	return nil
+}
+
+func (card *Gemalto) LoadCertificates() error {
+	if card.certificates != nil {
+		return nil
+	}
+
+	err := card.InitCrypto()
+	if err != nil {
+		return err
+	}
+
+	files := [][]byte{
+		//	{0x60, 0x04},
+		{0x71, 0x02},
+	}
+
+	var allErrors []error
+
+	for _, file := range files {
+		filename := hex.EncodeToString(file)
+
+		rsp, err := card.ReadFile2(file)
+		if err != nil {
+			allErrors = append(allErrors, fmt.Errorf("reading file %s: %w", filename, err))
+			continue
+		}
+
+		if len(rsp) < 8 {
+			allErrors = append(allErrors, fmt.Errorf("file %s too short", filename))
+			continue
+		}
+
+		byteReader := bytes.NewReader(rsp[6:])
+
+		zlibReader, err := zlib.NewReader(byteReader)
+		if err != nil {
+			allErrors = append(allErrors, fmt.Errorf("creating zlib reader for file %s: %w", filename, err))
+			continue
+		}
+
+		defer zlibReader.Close()
+
+		decompressed, err := io.ReadAll(zlibReader)
+		if err != nil {
+			allErrors = append(allErrors, fmt.Errorf("decompressing certificate from file %s: %w", filename, err))
+			continue
+		}
+
+		cert, err := x509.ParseCertificate(decompressed)
+		if err != nil {
+			allErrors = append(allErrors, fmt.Errorf("parsing certificate from file %s: %w", filename, err))
+			continue
+		}
+
+		card.certificates = append(card.certificates, cert)
+	}
+
+	return errors.Join(allErrors...)
+}
+
+func (card *Gemalto) GetCertificates() []x509.Certificate {
+	certs := make([]x509.Certificate, 0, len(card.certificates))
+
+	for _, c := range card.certificates {
+		if c == nil {
+			continue
+		}
+
+		newCert, err := x509.ParseCertificate(c.Raw)
+		if err != nil || newCert == nil {
+			continue
+		}
+
+		certs = append(certs, *newCert)
+	}
+
+	return certs
 }

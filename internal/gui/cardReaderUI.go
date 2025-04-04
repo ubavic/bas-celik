@@ -23,12 +23,14 @@ func startCardReaderUI() {
 
 	poller, pollerErr := reader.NewPoller(state.toolbar, connectToCard)
 
-	rows := container.New(layout.NewVBoxLayout(), state.toolbar, spacer, state.startPage, state.documentUiMainContainer)
+	rows := container.New(layout.NewVBoxLayout(), state.toolbar, spacer, state.startPage, state.documentUiMainContainer, state.cryptoUiContainer)
 	columns := container.New(layout.NewHBoxLayout(), layout.NewSpacer(), rows, layout.NewSpacer())
 
 	state.documentUi = columns
 
 	state.mainContainer.Add(state.documentUi)
+
+	state.cryptoUiContainer.Hide()
 
 	if pollerErr == nil {
 		poller.StartPoller()

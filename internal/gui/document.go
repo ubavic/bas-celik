@@ -65,9 +65,14 @@ func pageID(doc *document.IdDocument) *fyne.Container {
 	imgWidget := canvas.NewImageFromImage(doc.Portrait)
 	imgWidget.SetMinSize(fyne.Size{Width: 200, Height: 250})
 	imgWidget.FillMode = canvas.ImageFillContain
-	colLeft := container.New(layout.NewVBoxLayout(), imgWidget)
 
-	return container.New(layout.NewHBoxLayout(), colLeft, colRight)
+	cryptoButton := widget.NewButton(t("ui.crypto"), cryptoList)
+	cryptoButton.Alignment = widget.ButtonAlignLeading
+	cryptoButton.Importance = widget.LowImportance
+
+	colLeft := container.New(layout.NewVBoxLayout(), imgWidget, cryptoButton)
+
+	return container.New(layout.NewHBoxLayout(), colLeft, &widget.Separator{}, colRight)
 }
 
 func pageMedical(doc *document.MedicalDocument) *fyne.Container {
