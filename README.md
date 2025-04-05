@@ -20,6 +20,14 @@ Povežite čitač za računar i pokrenite Baš Čelik. Ubacite karticu u čitač
 
 Kreirani PDF dokument izgleda maksimalno približno dokumentu koji se dobija sa zvaničnim aplikacijama.
 
+### Kriptografski elementi
+
+Aplikacija dozvoljava čitanje sertifikata sa lične karte kao i promenu PIN-koda. Čitanje sertifikata sa ostalih dokumenata je u planu.
+
+### Smartbox mod
+
+Baš Čelik može da emulira aplikaciju Smartbox koja se koristi za prijavu na portal [ePorezi](https://eporezi.purs.gov.rs/user/login.html). Smartbox mod se aktivira ili deaktivira kroz korisnička podešavanja, nakon čega je potrebno restartovati aplikaciju.
+
 ### Podaci o overi zdravstvene knjižice
 
 Podatak o trajanju zdravstvenog osiguranja (*overena do*), ne zapisuje se na knjižicu prilikom overe. Zvanična RFZO aplikacija preuzima ovaj podatak sa web servisa, i zbog toga je ista funkcionalnost implementirana i u Baš Čeliku. Pritiskom na dugme *Ažuriraj*, preuzima se podatak o trajanju osiguranja. Pri ovom preuzimanju šalje se LBO broj i broj zdravstvene kartice.
