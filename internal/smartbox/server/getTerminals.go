@@ -5,13 +5,12 @@ import (
 	"fmt"
 	"io"
 	"slices"
-	"strconv"
 
 	"github.com/ubavic/bas-celik/v2/internal/smartbox/pkcs11"
 )
 
 type GetTerminalsInput struct {
-	ProviderId string `json:"providerId"`
+	ProviderId int `json:"providerId"`
 }
 
 type GetTerminalsPayload struct {
@@ -29,17 +28,14 @@ func (s *SmartBoxServer) handleGetTerminals(session *SmartboxSession, data []byt
 		return err
 	}
 
-	terminalID, err := strconv.Atoi(msg.Input.ProviderId)
-	if err != nil {
-		return err
-	}
+	providerID := msg.Input.ProviderId
 
-	if terminalID < 0 || terminalID > int(pkcs11.CardVendorPks) {
+	if providerID < 0 || providerID > int(pkcs11.CardVendorPks) {
 		return fmt.Errorf("invalid provider id")
 	}
 
 	moduleIndex := slices.IndexFunc(s.modulePaths, func(m ModulePath) bool {
-		return m.Vendor == pkcs11.CardVendor(terminalID)
+		return m.Vendor == pkcs11.CardVendor(providerID)
 	})
 
 	if moduleIndex < 0 {
@@ -51,7 +47,7 @@ func (s *SmartBoxServer) handleGetTerminals(session *SmartboxSession, data []byt
 		return err
 	}
 
-	session.vendor = pkcs11.CardVendor(terminalID)
+	session.vendor = pkcs11.CardVendor(providerID)
 	session.module = &module
 
 	slotIds, slotNames, err := module.ListSlots()
