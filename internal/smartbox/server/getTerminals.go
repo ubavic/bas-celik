@@ -10,7 +10,7 @@ import (
 )
 
 type GetTerminalsInput struct {
-	ProviderId int `json:"providerId"`
+	ProviderId stringOrInt `json:"providerId"`
 }
 
 type GetTerminalsPayload struct {
@@ -30,7 +30,7 @@ func (s *SmartBoxServer) handleGetTerminals(session *SmartboxSession, data []byt
 
 	providerID := msg.Input.ProviderId
 
-	if providerID < 0 || providerID > int(pkcs11.CardVendorPks) {
+	if providerID < 0 || int(providerID) > int(pkcs11.CardVendorPks) {
 		return fmt.Errorf("invalid provider id")
 	}
 
