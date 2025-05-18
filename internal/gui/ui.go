@@ -8,6 +8,7 @@ import (
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/layout"
+	"fyne.io/fyne/v2/widget"
 	"github.com/ubavic/bas-celik/v2/card"
 	"github.com/ubavic/bas-celik/v2/internal/gui/celiktheme"
 	"github.com/ubavic/bas-celik/v2/internal/gui/translation"
@@ -30,6 +31,7 @@ type State struct {
 	cardDocument            card.CardDocument
 	selectedCert            int
 	certs                   []x509.Certificate
+	certsSelectorButtons    []*widget.Button
 }
 
 var state State
