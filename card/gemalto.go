@@ -187,7 +187,7 @@ func (card *Gemalto) ReadFile(name []byte) ([]byte, error) {
 	return output, nil
 }
 
-func (card *Gemalto) ReadFile2(name []byte) ([]byte, error) {
+func (card *Gemalto) readCertificateFile(name []byte) ([]byte, error) {
 	output := make([]byte, 0)
 
 	_, err := card.selectFile(name, 0x00, 0x00, 0)
@@ -350,7 +350,7 @@ func (card *Gemalto) LoadCertificates() error {
 	for _, file := range files {
 		filename := hex.EncodeToString(file)
 
-		rsp, err := card.ReadFile2(file)
+		rsp, err := card.readCertificateFile(file)
 		if err != nil {
 			allErrors = append(allErrors, fmt.Errorf("reading file %s: %w", filename, err))
 			continue
