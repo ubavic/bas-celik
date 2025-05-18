@@ -3,6 +3,7 @@ package gui
 import (
 	"encoding/pem"
 	"fmt"
+	"regexp"
 	"strings"
 
 	"fyne.io/fyne/v2"
@@ -209,6 +210,8 @@ func renderCertInformationObjects() ([]fyne.CanvasObject, func(int)) {
 }
 
 func saveCert() {
+	cert := state.certs[state.selectedCert]
+
 	dialog := dialog.NewFileSave(func(w fyne.URIWriteCloser, err error) {
 		if err != nil {
 			setStatus("error.writingCert", fmt.Errorf("writing certificate: %w", err))
@@ -223,7 +226,6 @@ func saveCert() {
 			return
 		}
 
-		cert := state.certs[state.selectedCert]
 		pemBlock := pem.Block{
 			Type:  "CERTIFICATE",
 			Bytes: cert.Raw,
@@ -251,6 +253,8 @@ func saveCert() {
 		dialog.SetLocation(lastUsedDirectoryURI)
 	}
 
+	dialog.SetFileName(sanitizeFilename(cert.Subject.CommonName) + ".pem")
+
 	dialog.Show()
 }
 
@@ -260,4 +264,15 @@ func closeCryptoUi() {
 	state.documentUiMainContainer.Show()
 	state.cryptoUiContainer.RemoveAll()
 	state.mu.Unlock()
+}
+
+func sanitizeFilename(input string) string {
+	re := regexp.MustCompile(`[^a-zA-Z0-9._-а-шА-Ш]+`)
+	filename := re.ReplaceAllString(input, "_")
+
+	if filename == "" {
+		filename = "cert"
+	}
+
+	return filename
 }
