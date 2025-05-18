@@ -110,6 +110,7 @@
     "crypto.return": "Return",
     "crypto.saveCert": "Save certificate",
     "crypto.serialNumber": "Serial number",
+    "crypto.signatureAlgorithm": "Signature Algorithm",
     "crypto.subject": "Subject",
     "vehicle.authorityIssuing": "Issued by authority",
     "vehicle.colourOfVehicle": "Colour",

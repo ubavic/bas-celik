@@ -110,6 +110,7 @@
   "crypto.return": "Nazad",
   "crypto.saveCert": "Sačuvaj sertifikat",
   "crypto.serialNumber": "Serijski broj",
+  "crypto.signatureAlgorithm": "Algoritam potpisivanja",
   "crypto.subject": "Subjekat",
   "vehicle.authorityIssuing": "Dokument izdao",
   "vehicle.colourOfVehicle": "Boja",

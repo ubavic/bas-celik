@@ -138,7 +138,7 @@ func renderCertInformationObjects() ([]fyne.CanvasObject, func(int)) {
 	canvasObjects := []fyne.CanvasObject{}
 
 	fieldSerNo := widgets.NewField(t("crypto.serialNumber"), "", 280)
-	fieldSig := widgets.NewField(t("crypto.type"), "", 290)
+	fieldSig := widgets.NewField(t("crypto.signatureAlgorithm"), "", 290)
 	generalRow1 := container.New(layout.NewHBoxLayout(), fieldSerNo, fieldSig)
 	fieldNotBefore := widgets.NewField(t("crypto.notBefore"), "", 280)
 	fieldNotAfter := widgets.NewField(t("crypto.notAfter"), "", 290)
