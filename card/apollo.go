@@ -2,6 +2,7 @@ package card
 
 import (
 	"encoding/binary"
+	"encoding/hex"
 	"fmt"
 
 	"github.com/ubavic/bas-celik/v2/document"
@@ -132,7 +133,11 @@ func (card *Apollo) selectFile(name []byte, ne uint) ([]byte, error) {
 	apu := buildAPDU(0x00, 0xA4, 0x08, 0x00, name, ne)
 	rsp, err := card.smartCard.Transmit(apu)
 	if err != nil {
-		return nil, fmt.Errorf("selecting file: %w", err)
+		return nil, fmt.Errorf("selecting file %s: %w", hex.EncodeToString(name), err)
+	}
+
+	if !responseOK(rsp) {
+		return nil, fmt.Errorf("selecting file %s: response %s", hex.EncodeToString(name), hex.EncodeToString(rsp))
 	}
 
 	return rsp, nil

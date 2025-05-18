@@ -2,6 +2,7 @@ package card
 
 import (
 	"encoding/binary"
+	"encoding/hex"
 	"fmt"
 	"strings"
 
@@ -57,7 +58,7 @@ func (card *MedicalCard) InitCard() error {
 	}
 
 	if !responseOK(rsp) {
-		return fmt.Errorf("initializing card: response not OK")
+		return fmt.Errorf("initializing card: response %s", hex.EncodeToString(rsp))
 	}
 
 	return nil
@@ -175,7 +176,11 @@ func (card *MedicalCard) selectFile(name []byte) ([]byte, error) {
 	apu := buildAPDU(0x00, 0xA4, 0x00, 0x00, name, 0)
 	rsp, err := card.smartCard.Transmit(apu)
 	if err != nil {
-		return nil, fmt.Errorf("selecting file: %w", err)
+		return nil, fmt.Errorf("selecting file %s: %w", hex.EncodeToString(name), err)
+	}
+
+	if !responseOK(rsp) {
+		return nil, fmt.Errorf("selecting file %s: response %s", hex.EncodeToString(name), hex.EncodeToString(rsp))
 	}
 
 	return rsp, nil

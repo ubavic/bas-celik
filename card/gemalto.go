@@ -230,6 +230,10 @@ func (card *Gemalto) selectFile(name []byte, selectionMethod, selectionOption by
 		return nil, fmt.Errorf("selecting file: %w", err)
 	}
 
+	if !responseOK(rsp) {
+		return nil, fmt.Errorf("selecting file: response %s", hex.EncodeToString(rsp))
+	}
+
 	return rsp, nil
 }
 
@@ -253,7 +257,7 @@ func (card *Gemalto) InitCrypto() error {
 	}
 
 	if !responseOK(rsp) {
-		return errors.New("cryptography application not selected")
+		return fmt.Errorf("cryptography application not selected: response %s", hex.EncodeToString(rsp))
 	}
 
 	return nil
@@ -289,7 +293,7 @@ func (card *Gemalto) ChangePin(newPin, oldPin string) (int, error) {
 	}
 
 	if !responseOK(rsp) {
-		return PinTriesLeft(rsp), errors.New("verifying old pin")
+		return PinTriesLeft(rsp), fmt.Errorf("verifying old pin: response %s", hex.EncodeToString(rsp))
 	}
 
 	data := make([]byte, 0, 8)
@@ -303,7 +307,7 @@ func (card *Gemalto) ChangePin(newPin, oldPin string) (int, error) {
 	}
 
 	if !responseOK(rsp) {
-		return PinTriesLeft(rsp), errors.New("changing pin")
+		return PinTriesLeft(rsp), fmt.Errorf("verifying old pin: response %s", hex.EncodeToString(rsp))
 	}
 
 	err = card.smartCard.EndTransaction(scard.LeaveCard)

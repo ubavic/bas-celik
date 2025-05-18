@@ -1,6 +1,7 @@
 package card
 
 import (
+	"encoding/hex"
 	"fmt"
 
 	"github.com/ubavic/bas-celik/v2/card/ber"
@@ -268,7 +269,11 @@ func (card *VehicleCard) selectFile(name []byte) ([]byte, error) {
 
 	rsp, err := card.smartCard.Transmit(apu)
 	if err != nil {
-		return nil, fmt.Errorf("selecting file: %w", err)
+		return nil, fmt.Errorf("selecting file %s: %w", hex.EncodeToString(name), err)
+	}
+
+	if !responseOK(rsp) {
+		return nil, fmt.Errorf("selecting file %s: response %s", hex.EncodeToString(name), hex.EncodeToString(rsp))
 	}
 
 	return rsp, nil
