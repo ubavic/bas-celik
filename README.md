@@ -32,15 +32,6 @@ Baš Čelik može da emulira aplikaciju Smartbox koja se koristi za prijavu na p
 
 Podatak o trajanju zdravstvenog osiguranja (*overena do*), ne zapisuje se na knjižicu prilikom overe. Zvanična RFZO aplikacija preuzima ovaj podatak sa web servisa, i zbog toga je ista funkcionalnost implementirana i u Baš Čeliku. Pritiskom na dugme *Ažuriraj*, preuzima se podatak o trajanju osiguranja. Pri ovom preuzimanju šalje se LBO broj i broj zdravstvene kartice.
 
-### Pokretanje na Linuksu
-
-Baš Čelik zahteva instalirane `ccid` i `opensc`/`pcscd` pakete. Nakon instalacije ovih paketa, neophodno je i pokrenuti `pcscd` servis:
-
-```
-sudo systemctl start pcscd
-sudo systemctl enable pcscd
-```
-
 ### Pokretanje u komandnoj liniji
 
 Baš Čelik prihvata sledeće opcije:
@@ -69,8 +60,6 @@ Baš Čelik bi trebalo da funkcioniše sa svim čitačima pametnih kartica koji 
 ## Preuzimanje 
 
 Izvršne datoteke poslednje verzije programa možete preuzeti sa [Releases](https://github.com/ubavic/bas-celik/releases) stranice.
-
-Za Linux operativni sistem su dostupne verzije sa i bez grafičkog interfejsa. Verzija sa grafičkim interfejsom je dostupna u okviru datoteke `bas-celik.linux.amd64.tar.xz`. Verzija bez grafičkog interfejsa je dostupna kao izvršna datoteka `bas-celik-cli.linux.amd64`. Obe verzije prihvataju gore navedene opcije komandne linije.
 
 ## Kompilacija
 
