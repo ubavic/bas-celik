@@ -109,7 +109,7 @@ func renderCertSelector(selectCert func(int)) fyne.CanvasObject {
 	objects := make([]fyne.CanvasObject, 0, len(state.certs))
 
 	for i, cert := range state.certs {
-		button := widget.NewButton(cert.SerialNumber.String()[0:6], func() {
+		button := widget.NewButton("CERT #"+cert.SerialNumber.String()[0:6], func() {
 			selectCert(i)
 			paintSelectedCert(i)
 		})

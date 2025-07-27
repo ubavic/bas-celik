@@ -67,7 +67,7 @@ func pageID(doc *document.IdDocument) *fyne.Container {
 	imgWidget.FillMode = canvas.ImageFillContain
 
 	cryptoButton := widget.NewButton(t("ui.crypto"), cryptoList)
-	cryptoButton.Alignment = widget.ButtonAlignLeading
+	cryptoButton.Alignment = widget.ButtonAlignCenter
 	cryptoButton.Importance = widget.LowImportance
 
 	colLeft := container.New(layout.NewVBoxLayout(), imgWidget, cryptoButton)
