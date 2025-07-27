@@ -91,6 +91,10 @@ func Test_TriesLeft(t *testing.T) {
 			expectedResult: 0,
 		},
 		{
+			responseCode:   []byte{0x69, 0x83},
+			expectedResult: 0,
+		},
+		{
 			responseCode:   []byte{0x63, 0xC1},
 			expectedResult: 1,
 		},

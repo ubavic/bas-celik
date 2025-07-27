@@ -36,7 +36,7 @@ func PadPin(pin string) []byte {
 }
 
 func PinTriesLeft(rsp []byte) int {
-	if slices.Equal(rsp, []byte{0x63, 0xC0}) {
+	if slices.Equal(rsp, []byte{0x63, 0xC0}) || slices.Equal(rsp, []byte{0x69, 0x83}) {
 		return 0
 	}
 
