@@ -6,7 +6,7 @@
 
 Baš Čelik je besplatan program, sa potpuno otvorenim kodom dostupnim na adresi [github.com/ubavic/bas-celik](https://github.com/ubavic/bas-celik).
 
-U nastavku su izložene osnovne informacije o programu. Dodatna dokumentacija se može naći u [wikiju](https://github.com/ubavic/bas-celik/wiki) projekta
+U nastavku su izložene osnovne informacije o programu. Dodatna dokumentacija se može naći u [wikiju](https://github.com/ubavic/bas-celik/wiki) projekta.
 
 > [!NOTE]
 > Baš Čelik is software for reading smart-card documents issued by the government of Serbia. Supported cards include ID cards, vehicle registration cards, and medical insurance cards. The application is written completely from scratch in Go and supports Linux, macOS, and Windows.
@@ -24,9 +24,11 @@ Kreirani PDF dokument izgleda maksimalno približno dokumentu koji se dobija sa 
 
 Aplikacija dozvoljava čitanje sertifikata sa lične karte kao i promenu PIN-koda. Čitanje sertifikata sa ostalih dokumenata je u planu.
 
-### Smartbox mod
+### eUprava i ePorezi
 
-Baš Čelik može da emulira aplikaciju Smartbox koja se koristi za prijavu na portal [ePorezi](https://eporezi.purs.gov.rs/user/login.html). Smartbox mod se aktivira ili deaktivira kroz korisnička podešavanja, nakon čega je potrebno restartovati aplikaciju.
+Baš Čelik *ne* omogućava prijavu na eUpravu i druge državne portale korišćenjem kvalifikovanog elektronskog sertifikata na ličnoj karti. Za te potrebe namenjen je modul [srb-id-pkcs11](https://github.com/ubavic/srb-id-pkcs11).
+
+Baš Čelik može da emulira aplikaciju Smartbox koja se koristi za prijavu na portal [ePorezi](https://eporezi.purs.gov.rs/user/login.html). Smartbox mod se aktivira ili deaktivira kroz korisnička podešavanja, nakon čega je potrebno restartovati aplikaciju. Smartbox box funkcionalnost zavisi od raspoloživih modula za kriptografske tokene; za logovanje sa ličnom kartom može se koristiti `srb-id-pkcs11`.
 
 ### Podaci o overi zdravstvene knjižice
 
