@@ -252,7 +252,7 @@ func (doc *MedicalDocument) BuildPdf() (data []byte, fileName string, retErr err
 	pdf.SetInfo(gopdf.PdfInfo{
 		Title:        doc.GivenNameLatin + " " + doc.FamilyNameLatin,
 		Author:       "Baš Čelik",
-		Subject:      "Lična karta",
+		Subject:      "Kartica zdravstvenog osiguranja",
 		CreationDate: time.Now(),
 	})
 
