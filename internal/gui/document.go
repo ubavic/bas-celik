@@ -65,6 +65,7 @@ func pageID(doc *document.IdDocument) *fyne.Container {
 	imgWidget := canvas.NewImageFromImage(doc.Portrait)
 	imgWidget.SetMinSize(fyne.Size{Width: 200, Height: 250})
 	imgWidget.FillMode = canvas.ImageFillContain
+	imgWidget.CornerRadius = theme.InputRadiusSize()
 
 	cryptoButton := widget.NewButton(t("ui.crypto"), cryptoList)
 	cryptoButton.Alignment = widget.ButtonAlignCenter
