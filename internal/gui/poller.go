@@ -81,6 +81,8 @@ func tryToProcessCard(sCard *scard.Card) bool {
 
 		go autoSave(doc)
 
+		showWindowFromTray()
+
 		switch cardDoc.(type) {
 		case *card.Gemalto:
 			state.mu.Lock()
@@ -89,6 +91,13 @@ func tryToProcessCard(sCard *scard.Card) bool {
 	}
 
 	return loaded
+}
+
+func showWindowFromTray() {
+	if state.runInBackground && state.autoSaveMode != AutoSaveSaveAndOpen {
+		state.window.Show()
+		state.window.RequestFocus()
+	}
 }
 
 func initCardAndReadDoc(cardDoc card.CardDocument) (document.Document, error) {

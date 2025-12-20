@@ -93,6 +93,7 @@
   "preference.language": "Jezik",
   "preference.placeholder.modulePath": "Unesi putanju do modula",
   "preference.placeholder.directoryPath": "Unesi putanju direktorijuma",
+  "preference.runInBackground": "Pokreni i u pozadini",
   "preference.save": "Sačuvaj",
   "preference.saved": "Podešavanja sačuvana",
   "preference.smartboxMode": "Smartbox režim",
@@ -174,5 +175,6 @@
   "pinChange.error": "Došlo je do greške. Ne pokušavajte više da promenite PIN sa Baš Čelikom.",
   "pinChange.triesLeft": "Preostalo pokušaja: %d.",
   "smartbox.error": "Greška pri pokretanju servera",
-  "smartbox.running": "Smartbox server jе pokrenut"
+  "smartbox.running": "Smartbox server jе pokrenut",
+  "tray.show": "Otvori"
 }

@@ -7,6 +7,7 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/driver/desktop"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
 	"github.com/ubavic/bas-celik/v2/card"
@@ -34,6 +35,7 @@ type State struct {
 	certsSelectorButtons    []*widget.Button
 	autoSaveMode            AutoSaveMode
 	autoSaveLocation        string
+	runInBackground         bool
 }
 
 var state State
@@ -60,6 +62,8 @@ func StartGui(version string) {
 	mainContainer := container.New(layout.NewPaddedLayout())
 	win.SetContent(mainContainer)
 
+	runInBackground := preferences.BoolWithFallback(runInBackgroundKey, false)
+
 	state = State{
 		app:                     app,
 		window:                  win,
@@ -71,6 +75,7 @@ func StartGui(version string) {
 		statusBar:               statusBar,
 		autoSaveMode:            AutoSaveMode(preferences.Int(autoSavePdfKey)),
 		autoSaveLocation:        preferences.String(autoSaveLocationKey),
+		runInBackground:         runInBackground,
 	}
 
 	smartboxMode := preferences.BoolWithFallback(smartboxModeKey, false)
@@ -81,9 +86,30 @@ func StartGui(version string) {
 	toolbar := widgets.NewToolbar(showAboutBox, showSettings, !smartboxMode)
 	state.toolbar = toolbar
 
+	if runInBackground {
+		setupTray()
+	}
+
 	if smartboxMode {
 		startSmartboxUI()
 	} else {
 		startCardReaderUI()
 	}
+}
+
+func setupTray() {
+	desk, ok := state.app.(desktop.App)
+	if !ok {
+		return
+	}
+
+	m := fyne.NewMenu("Baš Čelik",
+		fyne.NewMenuItem(t("tray.show"), func() {
+			state.window.Show()
+		}))
+	desk.SetSystemTrayMenu(m)
+
+	state.window.SetCloseIntercept(func() {
+		state.window.Hide()
+	})
 }

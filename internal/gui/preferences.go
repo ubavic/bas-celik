@@ -18,6 +18,8 @@ const languagePreferenceKey = "language"
 const autoSavePdfKey = "auto-save-pdf"
 const autoSaveLocationKey = "auto-save-location"
 
+const runInBackgroundKey = "run-in-background"
+
 const lastUsedDirectoryKey = "last-used-directory"
 
 const smartboxModeKey = "smartbox-mode"
@@ -55,6 +57,10 @@ func showSetupBox() func() {
 		autoSaveLocationEntry := widget.NewEntry()
 		autoSaveLocationEntry.SetText(autoSaveLocation)
 		autoSaveLocationEntry.SetPlaceHolder(t("preference.placeholder.directoryPath"))
+
+		runInBackground := preferences.BoolWithFallback(runInBackgroundKey, false)
+		runInBackgroundCheck := widget.NewCheck("", func(b bool) {})
+		runInBackgroundCheck.SetChecked(runInBackground)
 
 		mupPkcsEntry := widget.NewEntry()
 		mupPkcsEntry.SetText(preferences.String(mupPkcsPathKey))
@@ -115,6 +121,8 @@ func showSetupBox() func() {
 			{Text: t("preference.language"), Widget: languageSelect},
 			{Text: t("preference.autoSave"), Widget: autoSavePdfSelect},
 			{Text: t("preference.autoSaveLocation"), Widget: autoSaveLocationEntry},
+			{Text: t("preference.runInBackground"), Widget: runInBackgroundCheck},
+			{Text: "", Widget: &widgets.Spacer{}},
 			{Text: t("preference.smartboxMode"), Widget: smartboxModeCheck},
 			{Text: "MUP", Widget: mupPkcsEntry},
 			{Text: "PKS", Widget: pksPkcsEntry},
@@ -129,6 +137,7 @@ func showSetupBox() func() {
 			preferences.SetInt(languagePreferenceKey, languageSelect.SelectedIndex())
 			preferences.SetInt(autoSavePdfKey, autoSavePdfSelect.SelectedIndex())
 			preferences.SetString(autoSaveLocationKey, autoSaveLocationEntry.Text)
+			preferences.SetBool(runInBackgroundKey, runInBackgroundCheck.Checked)
 			preferences.SetBool(smartboxModeKey, smartboxModeCheck.Checked)
 			preferences.SetString(mupPkcsPathKey, mupPkcsEntry.Text)
 			preferences.SetString(pksPkcsPathKey, pksPkcsEntry.Text)

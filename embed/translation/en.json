@@ -93,6 +93,7 @@
     "preference.language": "Language",
     "preference.placeholder.modulePath": "Enter module path",
     "preference.placeholder.directoryPath": "Enter directory path",
+    "preference.runInBackground": "Run in background also",
     "preference.save": "Save",
     "preference.saved": "Preferences saved",
     "preference.smartboxMode": "Smartbox mode",
@@ -174,5 +175,6 @@
     "pinChange.error": "Error occurred. Don't try to change PIN with Baš Čelik anymore.",
     "pinChange.triesLeft": "Tries left: %d.",
     "smartbox.error": "Error occurred while starting Smartbox server.",
-    "smartbox.running": "Smartbox server is running."
+    "smartbox.running": "Smartbox server is running.",
+    "tray.show": "Show"
 }
