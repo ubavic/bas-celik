@@ -59,6 +59,9 @@ func parseIdPersonalFile(data []byte, doc *document.IdDocument) error {
 	tlv.AssignField(fields, 1567, &doc.StateOfBirthCode)
 	tlv.AssignField(fields, 1583, &doc.NationalityFull)
 	tlv.AssignField(fields, 1683, &doc.PurposeOfStay)
+	if doc.PurposeOfStay == "" {
+		tlv.AssignField(fields, 1582, &doc.PurposeOfStay)
+	}
 	tlv.AssignField(fields, 1684, &doc.ENote)
 	localization.FormatDate(&doc.DateOfBirth)
 
