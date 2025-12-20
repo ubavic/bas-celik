@@ -32,6 +32,8 @@ type State struct {
 	selectedCert            int
 	certs                   []x509.Certificate
 	certsSelectorButtons    []*widget.Button
+	autoSaveMode            AutoSaveMode
+	autoSaveLocation        string
 }
 
 var state State
@@ -40,10 +42,12 @@ func StartGui(version string) {
 	app := app.New()
 	win := app.NewWindow("Baš Čelik")
 
-	theme := celiktheme.NewTheme(app.Preferences().IntWithFallback(themePreferenceKey, 1))
+	preferences := app.Preferences()
+
+	theme := celiktheme.NewTheme(preferences.IntWithFallback(themePreferenceKey, 1))
 	app.Settings().SetTheme(theme)
 
-	translation.SetLanguage(app.Preferences().IntWithFallback(languagePreferenceKey, 1))
+	translation.SetLanguage(preferences.IntWithFallback(languagePreferenceKey, 1))
 
 	statusBar := widgets.NewStatusBar()
 
@@ -65,9 +69,11 @@ func StartGui(version string) {
 		documentUiMainContainer: mainPage,
 		startPage:               startPage,
 		statusBar:               statusBar,
+		autoSaveMode:            AutoSaveMode(preferences.Int(autoSavePdfKey)),
+		autoSaveLocation:        preferences.String(autoSaveLocationKey),
 	}
 
-	smartboxMode := app.Preferences().BoolWithFallback(smartboxModeKey, false)
+	smartboxMode := preferences.BoolWithFallback(smartboxModeKey, false)
 
 	showAboutBox := showAboutBox()
 	showSettings := showSetupBox()

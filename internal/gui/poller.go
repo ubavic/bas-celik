@@ -79,6 +79,8 @@ func tryToProcessCard(sCard *scard.Card) bool {
 			loaded = true
 		}
 
+		go autoSave(doc)
+
 		switch cardDoc.(type) {
 		case *card.Gemalto:
 			state.mu.Lock()

@@ -15,9 +15,12 @@ import (
 
 const themePreferenceKey = "color-theme"
 const languagePreferenceKey = "language"
-const smartboxModeKey = "smartbox-mode"
+const autoSavePdfKey = "auto-save-pdf"
+const autoSaveLocationKey = "auto-save-location"
+
 const lastUsedDirectoryKey = "last-used-directory"
 
+const smartboxModeKey = "smartbox-mode"
 const mupPkcsPathKey = "mup-pkcs-path"
 const pksPkcsPathKey = "pks-pkcs-path"
 const postaPkcsPathKey = "posta-pkcs-path"
@@ -25,9 +28,9 @@ const halcomPkcsPathKey = "halcom-pkcs-path"
 const esmartPkcsPathKey = "esmart-pkcs-path"
 
 func showSetupBox() func() {
-	preferences := state.app.Preferences()
-
 	return func() {
+		preferences := state.app.Preferences()
+
 		colorTheme := preferences.IntWithFallback(themePreferenceKey, 0)
 		themeSelect := widget.NewSelect(
 			[]string{t("preference.theme.osDetermines"), t("preference.theme.alwaysLight"), t("preference.theme.alwaysDark")},
@@ -40,6 +43,17 @@ func showSetupBox() func() {
 			func(s string) {},
 		)
 		languageSelect.SetSelectedIndex(language)
+
+		autoSavePdf := preferences.IntWithFallback(autoSavePdfKey, 0)
+		autoSavePdfSelect := widget.NewSelect(
+			[]string{t("preference.autoSave.no"), t("preference.autoSave.save"), t("preference.autoSave.saveAndOpen")},
+			func(s string) {},
+		)
+		autoSavePdfSelect.SetSelectedIndex(autoSavePdf)
+
+		autoSaveLocation := preferences.String(autoSaveLocationKey)
+		autoSaveLocationEntry := widget.NewEntry()
+		autoSaveLocationEntry.SetText(autoSaveLocation)
 
 		mupPkcsEntry := widget.NewEntry()
 		mupPkcsEntry.SetText(preferences.String(mupPkcsPathKey))
@@ -93,6 +107,8 @@ func showSetupBox() func() {
 		formItems := []*widget.FormItem{
 			{Text: t("preference.theme"), Widget: themeSelect},
 			{Text: t("preference.language"), Widget: languageSelect},
+			{Text: t("preference.autoSave"), Widget: autoSavePdfSelect},
+			{Text: t("preference.autoSaveLocation"), Widget: autoSaveLocationEntry},
 			{Text: t("preference.smartboxMode"), Widget: smartboxModeCheck},
 			{Text: "MUP", Widget: mupPkcsEntry},
 			{Text: "PKS", Widget: pksPkcsEntry},
@@ -105,6 +121,8 @@ func showSetupBox() func() {
 		save := func() {
 			preferences.SetInt(themePreferenceKey, themeSelect.SelectedIndex())
 			preferences.SetInt(languagePreferenceKey, languageSelect.SelectedIndex())
+			preferences.SetInt(autoSavePdfKey, autoSavePdfSelect.SelectedIndex())
+			preferences.SetString(autoSaveLocationKey, autoSaveLocationEntry.Text)
 			preferences.SetBool(smartboxModeKey, smartboxModeCheck.Checked)
 			preferences.SetString(mupPkcsPathKey, mupPkcsEntry.Text)
 			preferences.SetString(pksPkcsPathKey, pksPkcsEntry.Text)

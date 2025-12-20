@@ -165,6 +165,26 @@ func setTimedStatus(label string) {
 	}()
 }
 
+func setTimedStatusError(labelKey string, err error) {
+	if err == nil {
+		return
+	}
+
+	logger.Error(err)
+
+	label := t(labelKey)
+
+	state.statusBar.SetStatus(label, false)
+	state.statusBar.Refresh()
+	go func() {
+		time.Sleep(2 * time.Second)
+		if state.statusBar.GetStatus() == label {
+			state.statusBar.SetStatus("", false)
+			state.statusBar.Refresh()
+		}
+	}()
+}
+
 func showDocumentUI() {
 	state.mainContainer.RemoveAll()
 	state.mainContainer.Add(state.documentUi)
