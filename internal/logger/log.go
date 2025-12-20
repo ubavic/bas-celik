@@ -5,6 +5,8 @@ import (
 	"log"
 )
 
+var debug bool
+
 func init() {
 	log.SetFlags(log.LstdFlags | log.Lmicroseconds)
 }
@@ -22,5 +24,9 @@ func Info(message string) {
 }
 
 func Debug(message string) {
+	if !debug {
+		return
+	}
+
 	log.Println("DEBUG", message)
 }
