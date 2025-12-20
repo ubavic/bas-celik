@@ -44,10 +44,10 @@ func StartGui(version string) {
 
 	preferences := app.Preferences()
 
-	theme := celiktheme.NewTheme(preferences.IntWithFallback(themePreferenceKey, 1))
+	theme := celiktheme.NewTheme(preferences.IntWithFallback(themePreferenceKey, 0))
 	app.Settings().SetTheme(theme)
 
-	translation.SetLanguage(preferences.IntWithFallback(languagePreferenceKey, 1))
+	translation.SetLanguage(preferences.IntWithFallback(languagePreferenceKey, 0))
 
 	statusBar := widgets.NewStatusBar()
 
