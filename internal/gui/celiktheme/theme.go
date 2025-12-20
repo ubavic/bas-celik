@@ -63,7 +63,7 @@ func lightTheme(c fyne.ThemeColorName) color.Color {
 	case theme.ColorNameDisabledButton:
 		return color.NRGBA{R: 0xD0, G: 0xD0, B: 0xD0, A: 0xFF}
 	case theme.ColorNameDisabled:
-		return color.NRGBA{R: 0x60, G: 0x60, B: 0x60, A: 0xFF}
+		return color.NRGBA{R: 0x70, G: 0x70, B: 0x70, A: 0xFF}
 	case theme.ColorNameError:
 		return color.NRGBA{R: 0xF0, G: 0x47, B: 0x3B, A: 0xFF}
 	case theme.ColorNameFocus:
@@ -75,13 +75,13 @@ func lightTheme(c fyne.ThemeColorName) color.Color {
 	case theme.ColorNameHeaderBackground:
 		return color.NRGBA{R: 0x21, G: 0x21, B: 0x21, A: 0xFF}
 	case theme.ColorNameHover:
-		return color.NRGBA{R: 0x00, G: 0x00, B: 0x40, A: 0x10}
+		return color.NRGBA{R: 0x67, G: 0x91, B: 0xbf, A: 0x20}
 	case theme.ColorNameHyperlink:
 		return color.NRGBA{R: 0x50, G: 0x50, B: 0xA0, A: 0xFF}
 	case theme.ColorNameInputBackground:
 		return color.NRGBA{R: 0xF0, G: 0xF0, B: 0xF0, A: 0xFF}
 	case theme.ColorNameInputBorder:
-		return color.NRGBA{R: 0xDA, G: 0xDA, B: 0xDA, A: 0xFF}
+		return color.NRGBA{R: 0xFF, G: 0xFF, B: 0xFF, A: 0x00}
 	case theme.ColorNameMenuBackground:
 		return color.NRGBA{R: 0xFF, G: 0xFF, B: 0xFF, A: 0xFF}
 	case theme.ColorNameOverlayBackground:
