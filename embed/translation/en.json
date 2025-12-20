@@ -91,6 +91,8 @@
     "preference.autoSaveLocation": "Autosave location",
     "preference.exit": "Exit",
     "preference.language": "Language",
+    "preference.placeholder.modulePath": "Enter module path",
+    "preference.placeholder.directoryPath": "Enter directory path",
     "preference.save": "Save",
     "preference.saved": "Preferences saved",
     "preference.smartboxMode": "Smartbox mode",

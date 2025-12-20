@@ -91,6 +91,8 @@
   "preference.autoSaveLocation": "Lokacija a. čuvanja",
   "preference.exit": "Izađi",
   "preference.language": "Jezik",
+  "preference.placeholder.modulePath": "Unesi putanju do modula",
+  "preference.placeholder.directoryPath": "Unesi putanju direktorijuma",
   "preference.save": "Sačuvaj",
   "preference.saved": "Podešavanja sačuvana",
   "preference.smartboxMode": "Smartbox režim",

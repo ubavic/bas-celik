@@ -54,17 +54,23 @@ func showSetupBox() func() {
 		autoSaveLocation := preferences.String(autoSaveLocationKey)
 		autoSaveLocationEntry := widget.NewEntry()
 		autoSaveLocationEntry.SetText(autoSaveLocation)
+		autoSaveLocationEntry.SetPlaceHolder(t("preference.placeholder.directoryPath"))
 
 		mupPkcsEntry := widget.NewEntry()
 		mupPkcsEntry.SetText(preferences.String(mupPkcsPathKey))
+		mupPkcsEntry.SetPlaceHolder(t("preference.placeholder.modulePath"))
 		pksPkcsEntry := widget.NewEntry()
 		pksPkcsEntry.SetText(preferences.String(pksPkcsPathKey))
+		pksPkcsEntry.SetPlaceHolder(t("preference.placeholder.modulePath"))
 		postaPkcsEntry := widget.NewEntry()
 		postaPkcsEntry.SetText(preferences.String(postaPkcsPathKey))
+		postaPkcsEntry.SetPlaceHolder(t("preference.placeholder.modulePath"))
 		halcomPkcsEntry := widget.NewEntry()
 		halcomPkcsEntry.SetText(preferences.String(halcomPkcsPathKey))
+		halcomPkcsEntry.SetPlaceHolder(t("preference.placeholder.modulePath"))
 		esmartPkcsEntry := widget.NewEntry()
 		esmartPkcsEntry.SetText(preferences.String(esmartPkcsPathKey))
+		esmartPkcsEntry.SetPlaceHolder(t("preference.placeholder.modulePath"))
 
 		var afterChangeSmartboxMode func()
 
