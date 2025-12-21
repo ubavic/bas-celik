@@ -212,7 +212,7 @@ func renderCertInformationObjects() ([]fyne.CanvasObject, func(int)) {
 func saveCert() {
 	cert := state.certs[state.selectedCert]
 
-	dialog := dialog.NewFileSave(func(w fyne.URIWriteCloser, err error) {
+	fDialog := dialog.NewFileSave(func(w fyne.URIWriteCloser, err error) {
 		if err != nil {
 			setStatus("error.writingCert", fmt.Errorf("writing certificate: %w", err))
 			return
@@ -246,16 +246,17 @@ func saveCert() {
 		setStatus("ui.certSaved", nil)
 	}, state.window)
 
-	dialog.SetFilter(storage.NewExtensionFileFilter([]string{".pem", ".crt", ".cer"}))
+	fDialog.SetFilter(storage.NewExtensionFileFilter([]string{".pem", ".crt", ".cer"}))
 
 	lastUsedDirectoryURI := getLastUsedDirectory()
 	if lastUsedDirectoryURI != nil {
-		dialog.SetLocation(lastUsedDirectoryURI)
+		fDialog.SetLocation(lastUsedDirectoryURI)
 	}
 
-	dialog.SetFileName(sanitizeFilename(cert.Subject.CommonName) + ".pem")
+	fDialog.SetFileName(sanitizeFilename(cert.Subject.CommonName) + ".pem")
+	fDialog.SetView(dialog.ListView)
 
-	dialog.Show()
+	fDialog.Show()
 }
 
 func closeCryptoUi() {

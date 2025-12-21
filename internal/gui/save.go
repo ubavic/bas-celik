@@ -24,7 +24,7 @@ func savePdf(doc document.Document) func() {
 			return
 		}
 
-		dialog := dialog.NewFileSave(func(w fyne.URIWriteCloser, err error) {
+		fDialog := dialog.NewFileSave(func(w fyne.URIWriteCloser, err error) {
 			if err != nil {
 				setStatus("error.writingPdf", fmt.Errorf("writing PDF: %w", err))
 				return
@@ -51,15 +51,16 @@ func savePdf(doc document.Document) func() {
 			setStatus("ui.pdfSaved", nil)
 		}, state.window)
 
-		dialog.SetFilter(storage.NewExtensionFileFilter([]string{".pdf"}))
-		dialog.SetFileName(fileName)
+		fDialog.SetFilter(storage.NewExtensionFileFilter([]string{".pdf"}))
+		fDialog.SetFileName(fileName)
+		fDialog.SetView(dialog.ListView)
 
 		lastUsedDirectoryURI := getLastUsedDirectory()
 		if lastUsedDirectoryURI != nil {
-			dialog.SetLocation(lastUsedDirectoryURI)
+			fDialog.SetLocation(lastUsedDirectoryURI)
 		}
 
-		dialog.Show()
+		fDialog.Show()
 	}
 }
 
@@ -76,7 +77,7 @@ func saveXlsx(doc document.Document) func() {
 			return
 		}
 
-		dialog := dialog.NewFileSave(func(w fyne.URIWriteCloser, err error) {
+		fDialog := dialog.NewFileSave(func(w fyne.URIWriteCloser, err error) {
 			if err != nil {
 				setStatus("error.writingXlsx", fmt.Errorf("writing xlsx: %w", err))
 				return
@@ -103,15 +104,16 @@ func saveXlsx(doc document.Document) func() {
 			setStatus("ui.xlsxSaved", nil)
 		}, state.window)
 
-		dialog.SetFilter(storage.NewExtensionFileFilter([]string{".xlsx"}))
-		dialog.SetFileName(fileName)
+		fDialog.SetFilter(storage.NewExtensionFileFilter([]string{".xlsx"}))
+		fDialog.SetFileName(fileName)
+		fDialog.SetView(dialog.ListView)
 
 		lastUsedDirectoryURI := getLastUsedDirectory()
 		if lastUsedDirectoryURI != nil {
-			dialog.SetLocation(lastUsedDirectoryURI)
+			fDialog.SetLocation(lastUsedDirectoryURI)
 		}
 
-		dialog.Show()
+		fDialog.Show()
 	}
 }
 
