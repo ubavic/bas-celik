@@ -92,15 +92,6 @@ jobs:
         with:
           name: windows-build-artifact
           path: bas-celik.windows.amd64.exe
-      - name: Build Debug version
-        run: |
-          go build  .
-          mv bas-celik.exe bas-celik-debug.windows.amd64.exe
-      - name: Upload Debug version
-        uses: actions/upload-artifact@v4
-        with:
-          name: windows-debug-build-artifact
-          path: bas-celik-debug.windows.amd64.exe
 
   release:
     runs-on: ubuntu-latest
@@ -114,7 +105,6 @@ jobs:
           mv linux-build-artifact/* .
           mv linux-cli-build-artifact/* .
           mv windows-build-artifact/* .
-          mv windows-debug-build-artifact/* .
       - name: Generate release body
         run: |
           touch changelog.md
@@ -132,10 +122,6 @@ jobs:
           sha256sum bas-celik.windows.amd64.exe >> changelog.md
           echo '```' >> changelog.md
           echo ''    >> changelog.md
-          echo '```' >> changelog.md
-          sha256sum bas-celik-debug.windows.amd64.exe >> changelog.md
-          echo '```' >> changelog.md
-          echo ''    >> changelog.md
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
@@ -143,6 +129,5 @@ jobs:
             bas-celik.linux.amd64.tar.xz
             bas-celik-cli.linux.amd64
             bas-celik.windows.amd64.exe
-            bas-celik-debug.windows.amd64.exe
           body_path: changelog.md
           tag_name: ${{github.ref_name}}
