@@ -57,13 +57,12 @@ func autoSave(doc document.Document) {
 		return
 	}
 
-	if state.autoSaveMode != 2 {
-		return
-	}
-
-	err = openFile(pdfPath)
-	if err != nil {
-		setTimedStatusError("autoSave.error.fileOpen", fmt.Errorf("autosave: opening saved file: %w", err))
+	if state.autoSaveMode == 2 {
+		err = openFile(pdfPath)
+		if err != nil {
+			setTimedStatusError("autoSave.error.fileOpen", fmt.Errorf("autosave: opening saved file: %w", err))
+			return
+		}
 	}
 
 	setTimedStatus(t("autoSave.done"))
