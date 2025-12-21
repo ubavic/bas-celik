@@ -47,7 +47,7 @@ jobs:
           echo "  Version = \"$VERSION\"" >> FyneApp.toml
       - name: Build GUI version
         run: |
-          fyne package -os linux
+          fyne package -os linux -release
           mv 'Bas Celik.tar.xz' bas-celik.linux.amd64.tar.xz
       - name: Upload GUI version
         uses: actions/upload-artifact@v4
@@ -85,7 +85,7 @@ jobs:
           "  Version = `"$version`"" | Out-File -FilePath "FyneApp.toml" -Append
       - name: Build
         run: |
-          fyne package -os windows
+          fyne package -os windows -release
           mv 'Bas Celik.exe' bas-celik.windows.amd64.exe
       - name: Upload executables
         uses: actions/upload-artifact@v4
