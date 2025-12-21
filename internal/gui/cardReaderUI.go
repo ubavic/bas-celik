@@ -65,12 +65,14 @@ func setUI(doc document.Document) {
 
 	buttonBar := container.New(layout.NewHBoxLayout(), buttonBarObjects...)
 
-	state.documentUiMainContainer.RemoveAll()
-	state.documentUiMainContainer.Add(page)
-	state.documentUiMainContainer.Add(buttonBar)
+	fyne.DoAndWait(func() {
+		state.documentUiMainContainer.RemoveAll()
+		state.documentUiMainContainer.Add(page)
+		state.documentUiMainContainer.Add(buttonBar)
 
-	state.startPage.Hide()
-	state.documentUiMainContainer.Show()
+		state.startPage.Hide()
+		state.documentUiMainContainer.Show()
+	})
 
 	resizeWindow(false)
 }
@@ -117,8 +119,10 @@ func setStatus(statusId string, err error) {
 	}
 
 	status := t(statusId)
-	state.statusBar.SetStatus(status, isError)
-	state.statusBar.Refresh()
+	fyne.Do(func() {
+		state.statusBar.SetStatus(status, isError)
+		state.statusBar.Refresh()
+	})
 }
 
 func updateMedicalDocHandler(doc *document.MedicalDocument) func() {
@@ -159,8 +163,10 @@ func setTimedStatus(label string) {
 	go func() {
 		time.Sleep(2 * time.Second)
 		if state.statusBar.GetStatus() == label {
-			state.statusBar.SetStatus("", false)
-			state.statusBar.Refresh()
+			fyne.Do(func() {
+				state.statusBar.SetStatus("", false)
+				state.statusBar.Refresh()
+			})
 		}
 	}()
 }
@@ -179,15 +185,19 @@ func setTimedStatusError(labelKey string, err error) {
 	go func() {
 		time.Sleep(2 * time.Second)
 		if state.statusBar.GetStatus() == label {
-			state.statusBar.SetStatus("", false)
-			state.statusBar.Refresh()
+			fyne.Do(func() {
+				state.statusBar.SetStatus("", false)
+				state.statusBar.Refresh()
+			})
 		}
 	}()
 }
 
 func showDocumentUI() {
-	state.mainContainer.RemoveAll()
-	state.mainContainer.Add(state.documentUi)
+	fyne.DoAndWait(func() {
+		state.mainContainer.RemoveAll()
+		state.mainContainer.Add(state.documentUi)
+	})
 }
 
 func resizeWindow(keepCurrentSize bool) {
@@ -205,5 +215,7 @@ func resizeWindow(keepCurrentSize bool) {
 		}
 	}
 
-	state.window.Resize(minSize)
+	fyne.Do(func() {
+		state.window.Resize(minSize)
+	})
 }

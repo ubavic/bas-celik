@@ -69,8 +69,10 @@ func (r *StartPageRenderer) Refresh() {
 		r.statusText.Color = theme.Color(theme.ColorNameForeground)
 	}
 
-	r.statusText.Refresh()
-	r.explanationText.Refresh()
+	fyne.Do(func() {
+		r.statusText.Refresh()
+		r.explanationText.Refresh()
+	})
 }
 
 func (r *StartPageRenderer) Layout(s fyne.Size) {
