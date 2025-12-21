@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"path"
+	"path/filepath"
 	"runtime"
 	"time"
 
@@ -49,7 +49,7 @@ func autoSave(doc document.Document) {
 		return
 	}
 
-	pdfPath := path.Join(state.autoSaveLocation, time.Now().Format("2006-01-02_15:04")+"_"+name)
+	pdfPath := filepath.Join(state.autoSaveLocation, time.Now().Format("2006-01-02_15-04")+"_"+name)
 
 	err = os.WriteFile(pdfPath, pdf, 0600)
 	if err != nil {
