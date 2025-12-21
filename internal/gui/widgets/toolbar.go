@@ -1,6 +1,8 @@
 package widgets
 
 import (
+	"strings"
+
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/layout"
@@ -124,8 +126,13 @@ func (r *ToolbarRenderer) Objects() []fyne.CanvasObject {
 func (r *ToolbarRenderer) Destroy() {}
 
 func (r *Toolbar) SetReaders(readers []string, selectedReader string) {
-	r.readers = make([]string, len(readers))
-	copy(r.readers, readers)
+	r.readers = make([]string, 0, len(readers))
+
+	for i := range readers {
+		if !strings.HasPrefix(readers[i], "Windows Hello for Business") {
+			r.readers = append(r.readers, readers[i])
+		}
+	}
 
 	r.selectedReader = selectedReader
 
