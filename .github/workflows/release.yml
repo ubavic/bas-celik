@@ -93,9 +93,87 @@ jobs:
           name: windows-build-artifact
           path: bas-celik.windows.amd64.exe
 
+  buildMacOsArm:
+    runs-on: macos-latest
+    needs: [test]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "stable"
+      - name: Install Fyne
+        run: go install fyne.io/tools/cmd/fyne@latest
+      - name: Generate version file
+        run: |
+          VERSION=$(git describe --tags --abbrev=0 | tail -c +2)
+          echo "$VERSION" >> assets/version
+          echo "  Version = \"$VERSION\"" >> FyneApp.toml
+      - name: Build GUI version
+        run: |
+          fyne package -os darwin -release
+          codesign --force --deep -s - 'Bas Celik.app'
+          tar -czf bas-celik.macos.arm.tar.gz 'Bas Celik.app'
+      - name: Upload GUI version
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-arm-build-artifact
+          path: bas-celik.macos.arm.tar.gz
+      - name: Build CLI version
+        run: |
+          echo -n "cli" >> assets/version
+          rm -R embed/translation
+          go build -tags "cli" -ldflags "-s -w" .
+          mv bas-celik bas-celik-cli.macos.arm
+      - name: Upload CLI version
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-cli-arm-build-artifact
+          path: bas-celik-cli.macos.arm
+
+  buildMacOsIntel:
+    runs-on: macos-15
+    needs: [test]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "stable"
+      - name: Install Fyne
+        run: go install fyne.io/tools/cmd/fyne@latest
+      - name: Generate version file
+        run: |
+          VERSION=$(git describe --tags --abbrev=0 | tail -c +2)
+          echo "$VERSION" >> assets/version
+          echo "  Version = \"$VERSION\"" >> FyneApp.toml
+      - name: Build GUI version
+        run: |
+          fyne package -os darwin -release
+          codesign --force --deep -s - 'Bas Celik.app'
+          tar -czf bas-celik.macos.intel.tar.gz 'Bas Celik.app'
+      - name: Upload GUI version
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-intel-build-artifact
+          path: bas-celik.macos.intel.tar.gz
+      - name: Build CLI version
+        run: |
+          echo -n "cli" >> assets/version
+          rm -R embed/translation
+          go build -tags "cli" -ldflags "-s -w" .
+          mv bas-celik bas-celik-cli.macos.intel
+      - name: Upload CLI version
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-cli-intel-build-artifact
+          path: bas-celik-cli.macos.intel
+
   release:
     runs-on: ubuntu-latest
-    needs: [buildLinux, buildWindows]
+    needs: [buildLinux, buildWindows, buildMacOsArm, buildMacOsIntel]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -105,11 +183,16 @@ jobs:
           mv linux-build-artifact/* .
           mv linux-cli-build-artifact/* .
           mv windows-build-artifact/* .
+          mv macos-arm-build-artifact/* .
+          mv macos-cli-arm-build-artifact/* .
+          mv macos-intel-build-artifact/* .
+          mv macos-cli-intel-build-artifact/* .
       - name: Generate release body
         run: |
           touch changelog.md
           git tag -l --format='%(contents)' ${{github.ref_name}} >> changelog.md
           echo ''    >> changelog.md
+          echo 'CLI verzije su verzije bez grafičkog interfejsa i namenjene su za napredne korisnike' >> changelog.md
           echo '```' >> changelog.md
           sha256sum bas-celik.linux.amd64.tar.xz >> changelog.md
           echo '```' >> changelog.md
@@ -122,6 +205,22 @@ jobs:
           sha256sum bas-celik.windows.amd64.exe >> changelog.md
           echo '```' >> changelog.md
           echo ''    >> changelog.md
+          echo '```' >> changelog.md
+          sha256sum bas-celik.macos.arm.tar.gz >> changelog.md
+          echo '```' >> changelog.md
+          echo ''    >> changelog.md
+          echo '```' >> changelog.md
+          sha256sum bas-celik-cli.macos.arm >> changelog.md
+          echo '```' >> changelog.md
+          echo ''    >> changelog.md
+          echo '```' >> changelog.md
+          sha256sum  bas-celik.macos.intel.tar.gz >> changelog.md
+          echo '```' >> changelog.md
+          echo ''    >> changelog.md
+          echo '```' >> changelog.md
+          sha256sum  bas-celik-cli.macos.intel >> changelog.md
+          echo '```' >> changelog.md
+          echo ''    >> changelog.md
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
@@ -129,5 +228,9 @@ jobs:
             bas-celik.linux.amd64.tar.xz
             bas-celik-cli.linux.amd64
             bas-celik.windows.amd64.exe
+            bas-celik.macos.arm.tar.gz
+            bas-celik-cli.macos.arm
+            bas-celik.macos.intel.tar.gz
+            bas-celik-cli.macos.intel
           body_path: changelog.md
           tag_name: ${{github.ref_name}}
