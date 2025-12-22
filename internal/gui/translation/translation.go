@@ -15,7 +15,7 @@ var currentLanguage localization.Language
 func SetTranslations(embedFS embed.FS) error {
 	translations = make(map[localization.Language]map[string]string)
 
-	languages := []localization.Language{localization.SrLatin, localization.SrCyrillic, localization.En}
+	languages := []localization.Language{localization.SrLatin, localization.SrCyrillic, localization.En, localization.Ru}
 	for _, lang := range languages {
 		langJson, err := embedFS.ReadFile("embed/translation/" + string(lang) + ".json")
 		if err != nil {
@@ -36,7 +36,9 @@ func SetTranslations(embedFS embed.FS) error {
 }
 
 func SetLanguage(lang int) {
-	if lang == 2 {
+	if lang == 3 {
+		currentLanguage = localization.Ru
+	} else if lang == 2 {
 		currentLanguage = localization.En
 	} else if lang == 1 {
 		currentLanguage = localization.SrCyrillic
