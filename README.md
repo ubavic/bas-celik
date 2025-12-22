@@ -10,7 +10,7 @@ U nastavku su izložene osnovne informacije o programu. Dodatna dokumentacija se
 
 > [!NOTE]
 > Baš Čelik is software for reading smart-card documents issued by the government of Serbia. Supported cards include ID cards, vehicle registration cards, and medical insurance cards. The application is written completely from scratch in Go and supports Linux, macOS, and Windows.
-> The rest of this document is in Serbian, but the entire codebase is in English, and the interface includes English support. Additional information can be found in the project [wiki](https://github.com/ubavic/bas-celik/wiki).
+> The rest of this document is in Serbian, but the entire codebase is in English, and the interface includes English and Russian support. Additional information can be found in the project [wiki](https://github.com/ubavic/bas-celik/wiki).
 
 ![Interfejs](assets/ui.png)
 
@@ -28,11 +28,23 @@ Aplikacija dozvoljava čitanje sertifikata sa lične karte kao i promenu PIN-kod
 
 Baš Čelik *ne* omogućava prijavu na eUpravu i druge državne portale korišćenjem kvalifikovanog elektronskog sertifikata na ličnoj karti. Za te potrebe namenjen je modul [srb-id-pkcs11](https://github.com/ubavic/srb-id-pkcs11).
 
-Baš Čelik može da emulira aplikaciju Smartbox koja se koristi za prijavu na portal [ePorezi](https://eporezi.purs.gov.rs/user/login.html). Smartbox mod se aktivira ili deaktivira kroz korisnička podešavanja, nakon čega je potrebno restartovati aplikaciju. Smartbox box funkcionalnost zavisi od raspoloživih modula za kriptografske tokene; za logovanje sa ličnom kartom može se koristiti `srb-id-pkcs11`.
+Baš Čelik može da emulira aplikaciju Smartbox koja se koristi za prijavu na portal [ePorezi](https://eporezi.purs.gov.rs/user/login.html). Smartbox mod se aktivira ili deaktivira kroz korisnička podešavanja. Smartbox box funkcionalnost zavisi od raspoloživih modula za kriptografske tokene; za logovanje sa ličnom kartom može se koristiti `srb-id-pkcs11`.
 
 ### Podaci o overi zdravstvene knjižice
 
 Podatak o trajanju zdravstvenog osiguranja (*overena do*), ne zapisuje se na knjižicu prilikom overe. Zvanična RFZO aplikacija preuzima ovaj podatak sa web servisa, i zbog toga je ista funkcionalnost implementirana i u Baš Čeliku. Pritiskom na dugme *Ažuriraj*, preuzima se podatak o trajanju osiguranja. Pri ovom preuzimanju šalje se LBO broj i broj zdravstvene kartice.
+
+### Podešavanja
+
+Podešavanja se otvaraju sa dugmetom koje se nalazi u gornjem desnom uglu aplikacija. Osim teme i jezika, podešavanja imaju sledeće stavke:
+
++ **Automatsko čuvanje** omogućuje da se PDF dokument automatski sačuva (i otvori u podrazumevanom PDF pregledniku) pri očitavanju kartice.
++ **Lokacija a. čuvanja** označava putanju do postojećeg foldera gde će se PDF dokumenti sačuvati. Mora biti popunjeno da bi automatsko čuvanje radilo.
++ **Pokreni i u pozadini** ako je aktivirano, BašČelik će biti pokrenut kroz system tray.
+
+U okviru podešavanja se može aktivirati i SmartBox mod, kao podesiti putanje ka PKCS#11 modulima.
+
+Restart aplikacije je neophodan da bi podešavanja bila primenjena.
 
 ### Pokretanje u komandnoj liniji
 
