@@ -41,7 +41,7 @@ func showSetupBox() func() {
 
 		language := preferences.IntWithFallback(languagePreferenceKey, 0)
 		languageSelect := widget.NewSelect(
-			[]string{"Srpski", "Српски", "English"},
+			[]string{"Srpski", "Српски", "English", "Русский"},
 			func(s string) {},
 		)
 		languageSelect.SetSelectedIndex(language)

@@ -15,6 +15,12 @@ func FormatYesNo(a bool, script Language) string {
 		} else {
 			return "Не"
 		}
+	} else if script == Ru {
+		if a {
+			return "Да"
+		} else {
+			return "Нет"
+		}
 	} else {
 		if a {
 			return "Yes"
