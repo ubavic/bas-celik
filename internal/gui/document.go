@@ -30,14 +30,12 @@ func pageID(doc *document.IdDocument) *fyne.Container {
 	personalInformationGroupObjects = []fyne.CanvasObject{nameF, birthRow, birthPlaceF, addressF, addressDateF}
 
 	nationalityLabel := t("id.nationalityFull")
-	foreignerStatusLabel := t("id.foreignerStatus")
 	purposeOfStayLabel := t("id.purposeOfStay")
 	eNoteLabel := t("id.eNote")
 
 	if doc.DocumentType == document.ID_TYPE_IDENTITY_FOREIGNER {
 		personalInformationGroupObjects = append(personalInformationGroupObjects,
-			widgets.NewField(nationalityLabel, doc.NationalityFull, 200),
-			widgets.NewField(foreignerStatusLabel, doc.StatusOfForeigner, 200))
+			widgets.NewField(nationalityLabel, doc.NationalityFull, 200))
 	} else if doc.DocumentType == document.ID_TYPE_RESIDENCE_PERMIT {
 		personalInformationGroupObjects = append(personalInformationGroupObjects,
 			widgets.NewField(nationalityLabel, doc.NationalityFull, 200),
