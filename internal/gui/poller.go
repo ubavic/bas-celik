@@ -53,6 +53,7 @@ func tryToProcessCard(sCard *scard.Card) bool {
 	if cardDoc != nil {
 		logger.Info("ATR read: " + cardDoc.Atr().String())
 	}
+
 	if err != nil {
 		message := ""
 		if err == card.ErrUnknownCard {
@@ -82,12 +83,6 @@ func tryToProcessCard(sCard *scard.Card) bool {
 		go autoSave(doc)
 
 		showWindowFromTray()
-
-		switch cardDoc.(type) {
-		case *card.Gemalto:
-			state.mu.Lock()
-			state.mu.Unlock()
-		}
 	}
 
 	return loaded
