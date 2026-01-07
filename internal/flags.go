@@ -33,7 +33,7 @@ func ProcessFlags() (LaunchConfig, bool) {
 	if *listFlag {
 		err := listReaders()
 		if err != nil {
-			fmt.Println("Error reading ATR:", err)
+			fmt.Println("Error listing readers:", err)
 		}
 		return launchCfg, true
 	}
@@ -86,7 +86,7 @@ func printATR(reader uint) error {
 
 	smartCardStatus, err := sCard.Status()
 	if err != nil {
-		return fmt.Errorf("reading card %w", err)
+		return fmt.Errorf("reading card in reader %s: %w", readersNames[reader], err)
 	}
 
 	fmt.Println(hex.EncodeToString(smartCardStatus.Atr))
