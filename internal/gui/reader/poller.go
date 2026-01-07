@@ -30,9 +30,9 @@ type ReaderLister interface {
 
 func NewPoller(readerLister ReaderLister, onCardEvent func(string, *scard.Context)) (*ReaderPoller, error) {
 	if created {
-		panic("you can create only single instance of ReaderPoller")
+		logger.Info("NewPoller called more than once")
+		return createdPoller, nil
 	}
-	created = true
 
 	readerListerContext, err := scard.EstablishContext()
 	if err != nil {
@@ -53,6 +53,7 @@ func NewPoller(readerLister ReaderLister, onCardEvent func(string, *scard.Contex
 
 	readerLister.HookReaderChange(poller.SetReader)
 
+	created = true
 	createdPoller = &poller
 
 	return createdPoller, nil
