@@ -109,13 +109,7 @@ func renderCertSelector(selectCert func(int)) fyne.CanvasObject {
 	objects := make([]fyne.CanvasObject, 0, len(state.certs))
 
 	for i, cert := range state.certs {
-		name := ""
-		serNo := cert.SerialNumber.String()
-		if len(serNo) < 6 {
-			name = "CERT #" + serNo
-		} else {
-			name = "CERT #" + serNo[0:6]
-		}
+		name := extractCertShortName(cert.SerialNumber.String())
 
 		button := widget.NewButton(name, func() {
 			selectCert(i)
@@ -284,4 +278,16 @@ func sanitizeFilename(input string) string {
 	}
 
 	return filename
+}
+
+func extractCertShortName(serialNumber string) string {
+	name := ""
+
+	if len(serialNumber) < 6 {
+		name = "CERT #" + serialNumber
+	} else {
+		name = "CERT #" + serialNumber[0:6]
+	}
+
+	return name
 }
