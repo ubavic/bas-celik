@@ -58,7 +58,6 @@ func (s *SmartBoxServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	err = s.smartBoxHandler(conn)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
 		logger.Error(err)
 	}
 }
