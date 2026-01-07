@@ -93,9 +93,13 @@ func (s *SmartBoxServer) smartBoxHandler(conn *websocket.Conn) error {
 }
 
 func (s *SmartBoxServer) onMessage(sessionId *string, ctx context.Context, conn *websocket.Conn) error {
+	if sessionId == nil {
+		return fmt.Errorf("nil session")
+	}
+
 	_, data, err := conn.Read(ctx)
 	if err != nil {
-		return fmt.Errorf("reading message: %w", err)
+		return fmt.Errorf("reading message in session %s: %w", *sessionId, err)
 	}
 
 	msg := Message[any]{}
@@ -112,7 +116,7 @@ func (s *SmartBoxServer) onMessage(sessionId *string, ctx context.Context, conn 
 
 	session, ok := s.sessions[*sessionId]
 	if !ok && msg.Operation != operationGetInfo {
-		return fmt.Errorf("session not found")
+		return fmt.Errorf("session %s not found, operation %s", *sessionId, msg.Operation)
 	}
 
 	switch msg.Operation {
@@ -127,9 +131,10 @@ func (s *SmartBoxServer) onMessage(sessionId *string, ctx context.Context, conn 
 	case operationGetSignedXml:
 		err = s.handleGetSignedXml(&session, data, w)
 	default:
-		err = fmt.Errorf("unknown operation %s", msg.Operation)
+		err = fmt.Errorf("unknown operation %s in session %s", msg.Operation, *sessionId)
 	}
 
 	s.sessions[*sessionId] = session
+
 	return err
 }
