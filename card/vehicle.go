@@ -52,7 +52,7 @@ var VEHICLE_ATR_4 = Atr([]byte{
 
 // Initializes vehicle card by trying three different sets of commands.
 // The procedure is reverse-engineered from the official binary.
-func (card VehicleCard) InitCard() error {
+func (card *VehicleCard) InitCard() error {
 	tryToSelect := func(cmd1, cmd2, cmd3 []byte) error {
 		apu := buildAPDU(0x00, 0xA4, 0x04, 0x00, cmd1, 0)
 		rsp, err := card.smartCard.Transmit(apu)
@@ -230,7 +230,7 @@ func (card *VehicleCard) ReadFile(name []byte) ([]byte, error) {
 	return output, nil
 }
 
-func (card VehicleCard) Test() bool {
+func (card *VehicleCard) Test() bool {
 	err := card.InitCard()
 	return err == nil
 }
