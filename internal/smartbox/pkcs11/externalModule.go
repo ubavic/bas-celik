@@ -4,6 +4,7 @@ import (
 	"crypto/x509"
 	"errors"
 	"fmt"
+	"sync"
 
 	"github.com/miekg/pkcs11"
 )
@@ -28,6 +29,7 @@ type pkcsModuleCtx struct {
 	refCount uint
 }
 
+var mu sync.Mutex
 var gModuleContexts map[string]pkcsModuleCtx
 
 func init() {
@@ -35,6 +37,9 @@ func init() {
 }
 
 func NewPkcsExternalModule(modulePath string) (PkcsModuleSession, error) {
+	mu.Lock()
+	defer mu.Unlock()
+
 	mc, ok := gModuleContexts[modulePath]
 	if !ok {
 		pkcsCtx := pkcs11.New(modulePath)
@@ -173,6 +178,9 @@ func (pm *PkcsModuleSession) GetCertificates() ([]NamedCert, error) {
 }
 
 func (pm *PkcsModuleSession) CloseSession() error {
+	mu.Lock()
+	defer mu.Unlock()
+
 	err1 := pm.context.Logout(pm.session)
 	err2 := pm.context.CloseSession(pm.session)
 
