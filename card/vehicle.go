@@ -57,26 +57,27 @@ func (card VehicleCard) InitCard() error {
 		apu := buildAPDU(0x00, 0xA4, 0x04, 0x00, cmd1, 0)
 		rsp, err := card.smartCard.Transmit(apu)
 		if err != nil {
-			return fmt.Errorf("selecting file: %w", err)
+			return fmt.Errorf("first command: %w", err)
 		}
 
-		if responseOK(rsp) {
-			apu = buildAPDU(0x00, 0xA4, 0x04, 0x00, cmd2, 0)
-			_, err = card.smartCard.Transmit(apu)
-			if err != nil {
-				return fmt.Errorf("selecting file: %w", err)
-			}
-
-			apu = buildAPDU(0x00, 0xA4, 0x04, 0x0C, cmd3, 0)
-			_, err = card.smartCard.Transmit(apu)
-			if err != nil {
-				return fmt.Errorf("selecting file: %w", err)
-			}
-
-			return nil
-		} else {
-			return fmt.Errorf("selecting file: %w", err)
+		if !responseOK(rsp) {
+			return fmt.Errorf("first command: response %s", hex.EncodeToString(rsp))
 		}
+
+		apu = buildAPDU(0x00, 0xA4, 0x04, 0x00, cmd2, 0)
+		_, err = card.smartCard.Transmit(apu)
+		if err != nil {
+			return fmt.Errorf("second command: %w", err)
+		}
+
+		apu = buildAPDU(0x00, 0xA4, 0x04, 0x0C, cmd3, 0)
+		_, err = card.smartCard.Transmit(apu)
+		if err != nil {
+			return fmt.Errorf("third command: %w", err)
+		}
+
+		return nil
+
 	}
 
 	err := tryToSelect(

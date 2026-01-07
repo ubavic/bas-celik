@@ -124,7 +124,7 @@ func readAndSave(cfg LaunchConfig) error {
 	if len(cfg.ExcelPath) > 0 {
 		excel, _, err := doc.BuildExcel()
 		if err != nil {
-			return fmt.Errorf("generating json: %w", err)
+			return fmt.Errorf("generating excel: %w", err)
 		}
 
 		err = os.WriteFile(cfg.ExcelPath, excel, 0600)

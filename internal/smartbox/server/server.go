@@ -95,19 +95,19 @@ func (s *SmartBoxServer) smartBoxHandler(conn *websocket.Conn) error {
 func (s *SmartBoxServer) onMessage(sessionId *string, ctx context.Context, conn *websocket.Conn) error {
 	_, data, err := conn.Read(ctx)
 	if err != nil {
-		return err
+		return fmt.Errorf("reading message: %w", err)
 	}
 
 	msg := Message[any]{}
-	json.Unmarshal(data, &msg)
-
-	logger.Debug(fmt.Sprintf("Received `%s` message. Session `%s`.", msg.Operation, *sessionId))
+	err = json.Unmarshal(data, &msg)
+	if err != nil {
+		return fmt.Errorf("unmarshaling data: %w", err)
+	}
 
 	w, err := conn.Writer(ctx, websocket.MessageText)
 	if err != nil {
-		return err
+		return fmt.Errorf("getting writer: %w", err)
 	}
-
 	defer w.Close()
 
 	session, ok := s.sessions[*sessionId]

@@ -50,17 +50,17 @@ func configDocumentPackage() error {
 
 	documentConfig.FontRegular, err = embedFS.ReadFile("embed/liberationSansRegular.ttf")
 	if err != nil {
-		return fmt.Errorf("reading font: %w", err)
+		return fmt.Errorf("reading regular font: %w", err)
 	}
 
 	documentConfig.FontBold, err = embedFS.ReadFile("embed/liberationSansBold.ttf")
 	if err != nil {
-		return fmt.Errorf("reading font: %w", err)
+		return fmt.Errorf("reading bold font: %w", err)
 	}
 
 	documentConfig.RfzoLogo, err = embedFS.ReadFile("embed/rfzo.png")
 	if err != nil {
-		return fmt.Errorf("reading font: %w", err)
+		return fmt.Errorf("reading logo: %w", err)
 	}
 
 	err = document.Configure(documentConfig)
