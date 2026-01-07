@@ -375,6 +375,7 @@ func (card *Gemalto) LoadCertificates() error {
 
 		decompressed, err := io.ReadAll(zlibReader)
 		if err != nil {
+			zlibReader.Close()
 			allErrors = append(allErrors, fmt.Errorf("decompressing certificate from file %s: %w", filename, err))
 			continue
 		}
