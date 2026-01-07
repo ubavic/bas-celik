@@ -18,13 +18,12 @@ func StartServer(modulePaths []ModulePath) (string, error) {
 		return "", fmt.Errorf("no valid pkcs11 path loaded")
 	}
 
-	ports := []uint{17165, 20806, 65097}
-	port := findAvailablePort(ports)
-	if port == 0 {
+	address := findAvailablePort()
+	if address == "" {
 		return "", fmt.Errorf("no valid port available")
 	}
 
-	l, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
+	l, err := net.Listen("tcp", address)
 	if err != nil {
 		return "", err
 	}
@@ -44,14 +43,18 @@ func StartServer(modulePaths []ModulePath) (string, error) {
 	return l.Addr().String(), nil
 }
 
-func findAvailablePort(ports []uint) uint {
+func findAvailablePort() string {
+	bindHost := "127.0.0.1"
+	ports := []string{"17165", "20806", "65097"}
+
 	for _, port := range ports {
-		listener, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
+		address := net.JoinHostPort(bindHost, port)
+		listener, err := net.Listen("tcp", address)
 		if err == nil {
 			listener.Close()
-			return port
+			return address
 		}
 	}
 
-	return 0
+	return ""
 }
