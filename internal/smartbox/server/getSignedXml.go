@@ -83,8 +83,10 @@ type signedInfo struct {
 
 func (s *SmartBoxServer) handleGetSignedXml(session *SmartboxSession, data []byte, w io.Writer) error {
 	msg := Message[GetSignedXmlInput]{}
-	if err := json.Unmarshal(data, &msg); err != nil {
-		return err
+
+	err := json.Unmarshal(data, &msg)
+	if err != nil {
+		return fmt.Errorf("unmarshaling sign request: %w", err)
 	}
 
 	if session.module == nil {
@@ -93,7 +95,7 @@ func (s *SmartBoxServer) handleGetSignedXml(session *SmartboxSession, data []byt
 
 	certId, err := hex.DecodeString(msg.Input.Certificate.Alias)
 	if err != nil {
-		return err
+		return fmt.Errorf("decoding certificate alias: %w", err)
 	}
 
 	signXML, err := signRequest(session.module, certId, msg.Input.Xml)
@@ -114,7 +116,7 @@ func (s *SmartBoxServer) handleGetSignedXml(session *SmartboxSession, data []byt
 func signRequest(module PkcsModuleSession, id []byte, base64XmlRequest string) ([]byte, error) {
 	namedCerts, err := module.GetCertificates()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("getting certificates: %w", err)
 	}
 
 	var cert *x509.Certificate
@@ -130,7 +132,7 @@ func signRequest(module PkcsModuleSession, id []byte, base64XmlRequest string) (
 
 	xmlString, err := base64.StdEncoding.DecodeString(base64XmlRequest)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("decoding request: %w", err)
 	}
 
 	a, _ := bytes.CutPrefix(xmlString, []byte(xmlHeader))
@@ -141,14 +143,14 @@ func signRequest(module PkcsModuleSession, id []byte, base64XmlRequest string) (
 	signedInfo := constructSignedInfo(hashBase64)
 	timestamp, err := extractTimestamp(xmlString)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("extracting timestamp: %w", err)
 	}
 
 	marshaled := signedInfo.marshal()
 
 	signed, err := module.Sign(id, marshaled)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("signing request: %w", err)
 	}
 
 	module.CloseSession()
@@ -156,11 +158,17 @@ func signRequest(module PkcsModuleSession, id []byte, base64XmlRequest string) (
 	envelope := constructResponse(cert, timestamp, signedInfo, signed)
 
 	buf := bytes.Buffer{}
-	buf.Write([]byte(xmlHeader))
+	_, err = buf.Write([]byte(xmlHeader))
+	if err != nil {
+		return nil, fmt.Errorf("writing xml header to the buffer: %w", err)
+	}
 
 	enc := xml.NewEncoder(&buf)
 	enc.Indent("", "")
-	enc.Encode(envelope)
+	err = enc.Encode(envelope)
+	if err != nil {
+		return nil, fmt.Errorf("encoding envelope to the buffer: %w", err)
+	}
 
 	return buf.Bytes(), nil
 }

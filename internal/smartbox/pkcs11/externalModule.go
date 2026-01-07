@@ -4,7 +4,6 @@ import (
 	"crypto/x509"
 	"errors"
 	"fmt"
-	"log"
 
 	"github.com/miekg/pkcs11"
 )
@@ -201,14 +200,22 @@ func (pm *PkcsModuleSession) Sign(certId []byte, message []byte) ([]byte, error)
 		pkcs11.NewAttribute(pkcs11.CKA_ID, certId),
 	})
 	if err != nil {
-		log.Fatalf("Failed to initialize private key search: %v", err)
+		return nil, fmt.Errorf("private key search initialization: %w", err)
 	}
 
 	objects, _, err := pm.context.FindObjects(pm.session, 1)
-	if err != nil || len(objects) == 0 {
-		log.Fatalf("Private key not found")
+	if err != nil {
+		return nil, fmt.Errorf("object search: %w", err)
 	}
-	pm.context.FindObjectsFinal(pm.session)
+
+	if len(objects) == 0 {
+		return nil, fmt.Errorf("no private key found")
+	}
+
+	err = pm.context.FindObjectsFinal(pm.session)
+	if err != nil {
+		return nil, fmt.Errorf("finalizing object search: %w", err)
+	}
 
 	mech := []*pkcs11.Mechanism{
 		pkcs11.NewMechanism(pkcs11.CKM_SHA256_RSA_PKCS, nil),
@@ -216,12 +223,12 @@ func (pm *PkcsModuleSession) Sign(certId []byte, message []byte) ([]byte, error)
 
 	err = pm.context.SignInit(pm.session, mech, objects[0])
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("sign initialization: %w", err)
 	}
 
 	sig, err := pm.context.Sign(pm.session, message)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("signing message: %w", err)
 	}
 
 	return sig, nil
