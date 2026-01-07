@@ -271,6 +271,8 @@ func (card *Gemalto) ChangePin(newPin, oldPin string) (int, error) {
 		return -1, err
 	}
 
+	defer card.smartCard.EndTransaction(scard.LeaveCard)
+
 	err = card.InitCrypto()
 	if err != nil {
 		return -1, err
@@ -308,11 +310,6 @@ func (card *Gemalto) ChangePin(newPin, oldPin string) (int, error) {
 
 	if !responseOK(rsp) {
 		return PinTriesLeft(rsp), fmt.Errorf("verifying old pin: response %s", hex.EncodeToString(rsp))
-	}
-
-	err = card.smartCard.EndTransaction(scard.LeaveCard)
-	if err != nil {
-		return -1, err
 	}
 
 	return -1, nil
