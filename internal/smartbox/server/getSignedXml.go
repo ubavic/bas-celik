@@ -114,6 +114,8 @@ func (s *SmartBoxServer) handleGetSignedXml(session *SmartboxSession, data []byt
 }
 
 func signRequest(module PkcsModuleSession, id []byte, base64XmlRequest string) ([]byte, error) {
+	defer module.CloseSession()
+
 	namedCerts, err := module.GetCertificates()
 	if err != nil {
 		return nil, fmt.Errorf("getting certificates: %w", err)
@@ -152,8 +154,6 @@ func signRequest(module PkcsModuleSession, id []byte, base64XmlRequest string) (
 	if err != nil {
 		return nil, fmt.Errorf("signing request: %w", err)
 	}
-
-	module.CloseSession()
 
 	envelope := constructResponse(cert, timestamp, signedInfo, signed)
 
