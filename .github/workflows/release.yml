@@ -191,36 +191,9 @@ jobs:
         run: |
           touch changelog.md
           git tag -l --format='%(contents)' ${{github.ref_name}} >> changelog.md
-          echo ''    >> changelog.md
+          echo '' >> changelog.md
           echo 'CLI verzije su verzije bez grafičkog interfejsa i namenjene su za napredne korisnike' >> changelog.md
-          echo '```' >> changelog.md
-          sha256sum bas-celik.linux.amd64.tar.xz >> changelog.md
-          echo '```' >> changelog.md
-          echo ''    >> changelog.md
-          echo '```' >> changelog.md
-          sha256sum bas-celik-cli.linux.amd64 >> changelog.md
-          echo '```' >> changelog.md
-          echo ''    >> changelog.md
-          echo '```' >> changelog.md
-          sha256sum bas-celik.windows.amd64.exe >> changelog.md
-          echo '```' >> changelog.md
-          echo ''    >> changelog.md
-          echo '```' >> changelog.md
-          sha256sum bas-celik.macos.arm.tar.gz >> changelog.md
-          echo '```' >> changelog.md
-          echo ''    >> changelog.md
-          echo '```' >> changelog.md
-          sha256sum bas-celik-cli.macos.arm >> changelog.md
-          echo '```' >> changelog.md
-          echo ''    >> changelog.md
-          echo '```' >> changelog.md
-          sha256sum  bas-celik.macos.intel.tar.gz >> changelog.md
-          echo '```' >> changelog.md
-          echo ''    >> changelog.md
-          echo '```' >> changelog.md
-          sha256sum  bas-celik-cli.macos.intel >> changelog.md
-          echo '```' >> changelog.md
-          echo ''    >> changelog.md
+          echo '' >> changelog.md
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
