@@ -1,5 +1,7 @@
 package localization
 
+import "strings"
+
 var cyrillic = []rune{
 	'А', 'Б', 'В', 'Г', 'Д', 'Ђ', 'Е', 'Ж', 'З', 'И', 'Ј', 'К', 'Л', 'Љ', 'М', 'Н', 'Њ', 'О', 'П', 'Р', 'С', 'Т', 'Ћ', 'У', 'Ф', 'Х', 'Ц', 'Ч', 'Џ', 'Ш',
 	'а', 'б', 'в', 'г', 'д', 'ђ', 'е', 'ж', 'з', 'и', 'ј', 'к', 'л', 'љ', 'м', 'н', 'њ', 'о', 'п', 'р', 'с', 'т', 'ћ', 'у', 'ф', 'х', 'ц', 'ч', 'џ', 'ш',
@@ -11,18 +13,18 @@ var latin = []string{
 }
 
 func CyrillicToLatin(str string) string {
-	out := ""
+	var out strings.Builder
 
 	for _, r := range str {
 		index := indexOfCyrillic(r)
 		if index >= 0 {
-			out += latin[index]
+			out.WriteString(latin[index])
 		} else {
-			out += string(r)
+			out.WriteRune(r)
 		}
 	}
 
-	return out
+	return out.String()
 }
 
 func indexOfCyrillic(r rune) int {
