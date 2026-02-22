@@ -36,13 +36,14 @@ func SetTranslations(embedFS embed.FS) error {
 }
 
 func SetLanguage(lang int) {
-	if lang == 3 {
+	switch lang {
+	case 3:
 		currentLanguage = localization.Ru
-	} else if lang == 2 {
+	case 2:
 		currentLanguage = localization.En
-	} else if lang == 1 {
+	case 1:
 		currentLanguage = localization.SrCyrillic
-	} else {
+	default:
 		currentLanguage = localization.SrLatin
 	}
 }
