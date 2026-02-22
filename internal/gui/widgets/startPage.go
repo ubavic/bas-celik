@@ -45,7 +45,7 @@ func (sb *StartPage) CreateRenderer() fyne.WidgetRenderer {
 	statusText.Color = theme.Color(theme.ColorNameError)
 
 	explanationText := canvas.NewText(sb.status, theme.Color(theme.ColorNameForeground))
-	explanationText.TextSize = 11
+	explanationText.TextSize = 12
 	explanationText.Color = theme.Color(theme.ColorNameForeground)
 
 	box := container.New(layout.NewVBoxLayout(), statusText, explanationText)

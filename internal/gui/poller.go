@@ -22,7 +22,7 @@ func connectToCard(selectedReader string, ctx *scard.Context) {
 
 	readers, _ := ctx.ListReaders()
 	if selectedReader == "" || len(readers) == 0 {
-		setStartPage("error.noReader", "error.noReaderExplanation", nil)
+		setStartPage("error.noReader", t("error.noReaderExplanation"), nil)
 		return
 	}
 
@@ -40,7 +40,7 @@ func connectToCard(selectedReader string, ctx *scard.Context) {
 
 	setStartPage(
 		"error.readingCard",
-		"error.isCardPresent",
+		t("error.isCardPresent"),
 		fmt.Errorf("connecting reader %s: %w", selectedReader, err))
 }
 
@@ -57,7 +57,7 @@ func tryToProcessCard(sCard *scard.Card) bool {
 	if err != nil {
 		message := ""
 		if err == card.ErrUnknownCard {
-			message = "error.unknownCard"
+			message = t("error.unknownCard") + " " + cardDoc.Atr().String()
 		}
 		setStartPage(
 			"error.readingCard",

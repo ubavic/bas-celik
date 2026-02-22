@@ -77,12 +77,11 @@ func setUI(doc document.Document) {
 	resizeWindow(false)
 }
 
-func setStartPage(statusId, explanationId string, err error) {
+func setStartPage(statusId, explanation string, err error) {
 	state.mu.Lock()
 	defer state.mu.Unlock()
 
 	status := t(statusId)
-	explanation := t(explanationId)
 
 	isError := false
 	if err != nil {
@@ -92,7 +91,7 @@ func setStartPage(statusId, explanationId string, err error) {
 	if isError {
 		logger.Error(err)
 	} else {
-		logger.Info(translation.EnglishTranslation(statusId) + " " + translation.EnglishTranslation(explanationId))
+		logger.Info(translation.EnglishTranslation(statusId))
 	}
 
 	state.startPage.SetStatus(status, explanation, isError)
