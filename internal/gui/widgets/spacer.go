@@ -8,7 +8,8 @@ import (
 
 type Spacer struct {
 	widget.BaseWidget
-	minWidth float32
+	width  float32
+	height float32
 }
 
 type SpacerRenderer struct {
@@ -22,11 +23,11 @@ func NewSpacer() *Spacer {
 }
 
 func (s *Spacer) SetMinWidth(width float32) {
-	if width < 0 {
-		width = 0
-	}
+	s.width = max(0, width)
+}
 
-	s.minWidth = width
+func (s *Spacer) SetHeight(height float32) {
+	s.height = max(0, height)
 }
 
 func (s *Spacer) CreateRenderer() fyne.WidgetRenderer {
@@ -40,13 +41,10 @@ func (r *SpacerRenderer) Refresh() {}
 func (r *SpacerRenderer) Layout(s fyne.Size) {}
 
 func (r *SpacerRenderer) MinSize() fyne.Size {
-	width := r.spacer.minWidth
+	width := max(r.spacer.width, theme.Padding())
+	height := max(r.spacer.height, theme.Padding())
 
-	if r.spacer.minWidth == 0 {
-		width = theme.Padding()
-	}
-
-	return fyne.NewSize(width, 5*theme.Padding())
+	return fyne.NewSize(width, height)
 }
 
 func (r *SpacerRenderer) Objects() []fyne.CanvasObject {

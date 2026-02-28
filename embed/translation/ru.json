@@ -90,6 +90,7 @@
     "preference.autoSave.saveAndOpen": "Сохранить и открыть",
     "preference.autoSaveLocation": "Папка автосохранения",
     "preference.exit": "Выход",
+    "preference.general": "Общий",
     "preference.language": "Язык",
     "preference.pdfScript": "PDF письмо",
     "preference.placeholder.modulePath": "Укажите путь к модулю",

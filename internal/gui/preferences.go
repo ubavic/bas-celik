@@ -124,23 +124,6 @@ func showSetupBox() func() {
 			changeSmartboxMode(false)
 		}
 
-		formItems := []*widget.FormItem{
-			{Text: t("preference.theme"), Widget: themeSelect},
-			{Text: t("preference.language"), Widget: languageSelect},
-			{Text: t("preference.pdfScript"), Widget: pdfScriptSelect},
-			{Text: t("preference.autoSave"), Widget: autoSavePdfSelect},
-			{Text: t("preference.autoSaveLocation"), Widget: autoSaveLocationEntry},
-			{Text: t("preference.runInBackground"), Widget: runInBackgroundCheck},
-			{Text: "", Widget: &widgets.Spacer{}},
-			{Text: t("preference.smartboxMode"), Widget: smartboxModeCheck},
-			{Text: "MUP", Widget: mupPkcsEntry},
-			{Text: "PKS", Widget: pksPkcsEntry},
-			{Text: "Pošta", Widget: postaPkcsEntry},
-			{Text: "Halcom", Widget: halcomPkcsEntry},
-			{Text: "E-Smart", Widget: esmartPkcsEntry},
-			{Text: "", Widget: &widgets.Spacer{}},
-		}
-
 		save := func() {
 			preferences.SetInt(themePreferenceKey, themeSelect.SelectedIndex())
 			preferences.SetInt(languagePreferenceKey, languageSelect.SelectedIndex())
@@ -158,32 +141,80 @@ func showSetupBox() func() {
 			dialog.ShowInformation(t("preference.saved"), t("preference.startAgain"), state.window)
 		}
 
-		form := widget.Form{
-			Items:      formItems,
-			SubmitText: t("preference.save"),
-			CancelText: t("preference.exit"),
-			OnSubmit: func() {
-				save()
-				showDocumentUI()
-				setTimedStatus(t("preference.saved"))
-			},
-			OnCancel: func() {
-				showDocumentUI()
-				setTimedStatus("")
-			},
-		}
-
-		afterChangeSmartboxMode = func() {
-			form.Refresh()
-		}
-
 		title := canvas.NewText(t("preference.title"), theme.Color(theme.ColorNameForeground))
 		title.TextStyle.Bold = true
 		title.TextSize = 20
 
-		rows := container.New(layout.NewVBoxLayout(), title, &form)
+		spacer := widgets.NewSpacer()
+		spacer.SetMinWidth(160)
+
+		rows1 := container.New(layout.NewFormLayout(),
+			spacer,
+			spacer,
+			widget.NewLabel(t("preference.runInBackground")),
+			runInBackgroundCheck,
+			widget.NewLabel(t("preference.theme")),
+			themeSelect,
+			widget.NewLabel(t("preference.language")),
+			languageSelect,
+			widget.NewLabel(t("preference.pdfScript")),
+			pdfScriptSelect,
+			widget.NewLabel(t("preference.autoSave")),
+			autoSavePdfSelect,
+			widget.NewLabel(t("preference.autoSaveLocation")),
+			autoSaveLocationEntry)
+
+		rows2 := container.New(layout.NewFormLayout(),
+			spacer,
+			spacer,
+			widget.NewLabel(t("preference.smartboxMode")),
+			smartboxModeCheck,
+			widget.NewLabel("MUP"),
+			mupPkcsEntry,
+			widget.NewLabel("PKS"),
+			pksPkcsEntry,
+			widget.NewLabel("Pošta"),
+			postaPkcsEntry,
+			widget.NewLabel("Halcom"),
+			halcomPkcsEntry,
+			widget.NewLabel("E-Smart"),
+			esmartPkcsEntry,
+		)
+
+		afterChangeSmartboxMode = func() {
+			rows2.Refresh()
+		}
+
+		tabs := container.NewAppTabs(
+			container.NewTabItem(t("preference.general"), rows1),
+			container.NewTabItem("Smartbox", rows2),
+		)
+
+		saveButton := widget.NewButton(t("preference.save"), func() {
+			save()
+			showDocumentUI()
+			setTimedStatus(t("preference.saved"))
+		})
+		saveButton.Importance = widget.HighImportance
+
+		cancelButton := widget.NewButton(t("preference.exit"), func() {
+			showDocumentUI()
+			setTimedStatus("")
+		})
+
+		buttonRow := container.New(layout.NewHBoxLayout(),
+			layout.NewSpacer(),
+			cancelButton,
+			saveButton,
+		)
+
+		content := container.New(layout.NewVBoxLayout(),
+			title,
+			tabs,
+			spacer,
+			buttonRow)
 
 		state.mainContainer.RemoveAll()
-		state.mainContainer.Add(rows)
+		state.mainContainer.Add(content)
 	}
 }

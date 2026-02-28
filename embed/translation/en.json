@@ -90,6 +90,7 @@
     "preference.autoSave.saveAndOpen": "Save and open",
     "preference.autoSaveLocation": "Autosave location",
     "preference.exit": "Exit",
+    "preference.general": "General",
     "preference.language": "Language",
     "preference.pdfScript": "PDF script",
     "preference.placeholder.modulePath": "Enter module path",
