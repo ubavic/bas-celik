@@ -56,6 +56,11 @@ type IdDocument struct {
 	ApartmentNumber      string
 	AddressDate          string
 	AddressLabel         string
+	pdfCyrillicLabels    bool
+}
+
+func (doc *IdDocument) SetCyrillicLabels() {
+	doc.pdfCyrillicLabels = true
 }
 
 func (doc *IdDocument) GetFullName() string {

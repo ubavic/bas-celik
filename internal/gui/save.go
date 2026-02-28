@@ -17,6 +17,13 @@ func savePdf(doc document.Document) func() {
 			return
 		}
 
+		switch doc := doc.(type) {
+		case *document.IdDocument:
+			if state.pdfCyrillicLabels {
+				doc.SetCyrillicLabels()
+			}
+		}
+
 		pdf, fileName, err := doc.BuildPdf()
 
 		if err != nil {

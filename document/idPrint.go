@@ -30,7 +30,11 @@ func (idw *IdPdfWriter) moveY(y float64) {
 	idw.pdf.SetXY(idw.pdf.GetX(), idw.pdf.GetY()+y)
 }
 
-func (idw *IdPdfWriter) cell(s string) {
+func (idw *IdPdfWriter) cell(s string, transliterate bool) {
+	if transliterate && !idw.doc.pdfCyrillicLabels {
+		s = localization.CyrillicToLatin(s)
+	}
+
 	err := idw.pdf.Cell(nil, s)
 	if err != nil {
 		panic(fmt.Errorf("putting text: %w", err))
@@ -40,6 +44,10 @@ func (idw *IdPdfWriter) cell(s string) {
 func (idw *IdPdfWriter) putData(label, data string) {
 	y := idw.pdf.GetY()
 
+	if !idw.doc.pdfCyrillicLabels {
+		label = localization.CyrillicToLatin(label)
+	}
+
 	idw.pdf.SetX(idw.textLeftMargin)
 	texts, err := idw.pdf.SplitTextWithWordWrap(label, 120)
 	if err != nil && err != gopdf.ErrEmptyString {
@@ -47,7 +55,7 @@ func (idw *IdPdfWriter) putData(label, data string) {
 	}
 
 	for i, text := range texts {
-		idw.cell(text)
+		idw.cell(text, false)
 		if i < len(texts)-1 {
 			idw.pdf.SetXY(idw.textLeftMargin, idw.pdf.GetY()+12)
 		}
@@ -62,7 +70,7 @@ func (idw *IdPdfWriter) putData(label, data string) {
 	}
 
 	for i, text := range texts {
-		idw.cell(text)
+		idw.cell(text, false)
 		if i < len(texts)-1 {
 			idw.pdf.SetXY(idw.textLeftMargin+128, idw.pdf.GetY()+12)
 		}
@@ -84,7 +92,7 @@ func (ipw *IdPdfWriter) printRegularId() {
 	if err != nil {
 		panic(err)
 	}
-	ipw.cell("ČITAČ ELEKTRONSKE LIČNE KARTE: ŠTAMPA PODATAKA")
+	ipw.cell("ЧИТАЧ ЕЛЕКТРОНСКЕ ЛИЧНЕ КАРТЕ: ШТАМПА ПОДАТАКА", true)
 
 	err = ipw.pdf.SetCharSpacing(-0.1)
 	if err != nil {
@@ -122,38 +130,38 @@ func (ipw *IdPdfWriter) printRegularId() {
 		panic(err)
 	}
 
-	ipw.cell("Podaci o građaninu")
+	ipw.cell("Подаци о грађанину", true)
 
 	ipw.moveY(16)
 	ipw.line(0)
 	ipw.moveY(9)
 
-	ipw.putData("Prezime:", ipw.doc.Surname)
-	ipw.putData("Ime:", ipw.doc.GivenName)
-	ipw.putData("Ime jednog roditelja:", ipw.doc.ParentGivenName)
-	ipw.putData("Datum rođenja:", ipw.doc.DateOfBirth)
-	ipw.putData("Mesto rođenja,\nopština i država:", ipw.doc.GetFullPlaceOfBirth())
-	addressLabel := "Prebivalište\ni adresa stana:"
+	ipw.putData("Презиме:", ipw.doc.Surname)
+	ipw.putData("Име:", ipw.doc.GivenName)
+	ipw.putData("Име једног родитеља:", ipw.doc.ParentGivenName)
+	ipw.putData("Датум рођења:", ipw.doc.DateOfBirth)
+	ipw.putData("Место рођења\nопштина и држава:", ipw.doc.GetFullPlaceOfBirth())
+	addressLabel := "Пребивалиште\nи адреса стана:"
 	if ipw.doc.AddressLabel == "prebivalište" {
-		addressLabel = "Prebivalište:"
+		addressLabel = "Пребивалиште:"
 	}
 	ipw.putData(addressLabel, ipw.doc.GetFullAddress(true))
-	ipw.putData("Datum promene adrese:", ipw.doc.AddressDate)
-	ipw.putData("JMBG:", ipw.doc.PersonalNumber)
-	ipw.putData("Pol:", ipw.doc.Sex)
+	ipw.putData("Датум промене адресе:", ipw.doc.AddressDate)
+	ipw.putData("ЈМБГ:", ipw.doc.PersonalNumber)
+	ipw.putData("Пол:", ipw.doc.Sex)
 
 	ipw.moveY(-8.67)
 	ipw.line(0)
 	ipw.moveY(9)
-	ipw.cell("Podaci o dokumentu")
+	ipw.cell("Подаци о документу", true)
 	ipw.moveY(16)
 
 	ipw.line(0)
 	ipw.moveY(9)
-	ipw.putData("Dokument izdaje:", ipw.doc.IssuingAuthority)
-	ipw.putData("Broj dokumenta:", ipw.doc.DocRegNo)
-	ipw.putData("Datum izdavanja:", ipw.doc.IssuingDate)
-	ipw.putData("Važi do:", ipw.doc.ExpiryDate)
+	ipw.putData("Документ издаје:", ipw.doc.IssuingAuthority)
+	ipw.putData("Број документа:", ipw.doc.DocRegNo)
+	ipw.putData("Датум издавања:", ipw.doc.IssuingDate)
+	ipw.putData("Важи до:", ipw.doc.ExpiryDate)
 
 	ipw.moveY(-8.67)
 	ipw.line(0)
@@ -161,7 +169,7 @@ func (ipw *IdPdfWriter) printRegularId() {
 	ipw.line(0)
 	ipw.moveY(9)
 
-	ipw.cell("Datum štampe: " + time.Now().Format("02.01.2006."))
+	ipw.cell("Датум штампе: "+time.Now().Format("02.01.2006."), true)
 
 	ipw.moveY(19)
 
@@ -179,19 +187,35 @@ func (ipw *IdPdfWriter) printRegularId() {
 	ipw.moveY(10)
 	ipw.pdf.SetX(ipw.leftMargin)
 
-	ipw.cell("1. U čipu lične karte, podaci o imenu i prezimenu imaoca lične karte ispisani su na nacionalnom pismu onako kako su")
-	ipw.pdf.SetX(ipw.leftMargin)
-	ipw.moveY(9.7)
-	ipw.cell("ispisani na samom obrascu lične karte, dok su ostali podaci ispisani latiničkim pismom.")
-	ipw.pdf.SetX(ipw.leftMargin)
-	ipw.moveY(9.7)
-	ipw.cell("2. Ako se ime lica sastoji od dve reči čija je ukupna dužina između 20 i 30 karaktera ili prezimena od dve reči čija je")
-	ipw.pdf.SetX(ipw.leftMargin)
-	ipw.moveY(9.7)
-	ipw.cell("ukupna dužina između 30 i 36 karaktera, u čipu lične karte izdate pre 18.08.2014. godine, druga reč u imenu ili prezimenu")
-	ipw.pdf.SetX(ipw.leftMargin)
-	ipw.moveY(9.7)
-	ipw.cell("skraćuje se na prva dva karaktera")
+	if ipw.doc.pdfCyrillicLabels {
+		ipw.cell("1. У чипу личне карте, подаци о имену и презимену имаоца личне карте исписани су на националном писму онако", false)
+		ipw.pdf.SetX(ipw.leftMargin)
+		ipw.moveY(9.7)
+		ipw.cell("како су исписани на самом обрасцу личне карте, док су остали подаци исписани латиничким писмом.", false)
+		ipw.pdf.SetX(ipw.leftMargin)
+		ipw.moveY(9.7)
+		ipw.cell("2. Ако се име лица састоји од две речи чија је укупна дужина између 20 и 30 карактера или презимена од две речи", false)
+		ipw.pdf.SetX(ipw.leftMargin)
+		ipw.moveY(9.7)
+		ipw.cell("чија је укупна дужина између 30 и 36 карактера, у чипу личне карте издате пре 18.08.2014. године, друга реч у", false)
+		ipw.pdf.SetX(ipw.leftMargin)
+		ipw.moveY(9.7)
+		ipw.cell("имену или презимену скраћује се на прва два карактера", false)
+	} else {
+		ipw.cell("1. U čipu lične karte, podaci o imenu i prezimenu imaoca lične karte ispisani su na nacionalnom pismu onako kako su", false)
+		ipw.pdf.SetX(ipw.leftMargin)
+		ipw.moveY(9.7)
+		ipw.cell("ispisani na samom obrascu lične karte, dok su ostali podaci ispisani latiničkim pismom.", false)
+		ipw.pdf.SetX(ipw.leftMargin)
+		ipw.moveY(9.7)
+		ipw.cell("2. Ako se ime lica sastoji od dve reči čija je ukupna dužina između 20 i 30 karaktera ili prezimena od dve reči čija je", false)
+		ipw.pdf.SetX(ipw.leftMargin)
+		ipw.moveY(9.7)
+		ipw.cell("ukupna dužina između 30 i 36 karaktera, u čipu lične karte izdate pre 18.08.2014. godine, druga reč u imenu ili prezimenu", false)
+		ipw.pdf.SetX(ipw.leftMargin)
+		ipw.moveY(9.7)
+		ipw.cell("skraćuje se na prva dva karaktera", false)
+	}
 
 	ipw.moveY(15.7)
 	ipw.line(0)
@@ -208,7 +232,7 @@ func (ipw *IdPdfWriter) printForeignerId() {
 	if err != nil {
 		panic(err)
 	}
-	ipw.cell("ČITAČ ELEKTRONSKE LIČNE KARTE: ŠTAMPA PODATAKA")
+	ipw.cell("ЧИТАЧ ЕЛЕКТРОНСКЕ ЛИЧНЕ КАРТЕ: ШТАМПА ПОДАТАКА", true)
 
 	err = ipw.pdf.SetCharSpacing(-0.1)
 	if err != nil {
@@ -246,38 +270,38 @@ func (ipw *IdPdfWriter) printForeignerId() {
 		panic(err)
 	}
 
-	ipw.cell("Podaci o strancu")
+	ipw.cell("Подаци о странцу", true)
 
 	ipw.moveY(16)
 	ipw.line(0)
 	ipw.moveY(9)
 
-	ipw.putData("Prezime:", ipw.doc.Surname)
-	ipw.putData("Ime:", ipw.doc.GivenName)
-	ipw.putData("Državljanstvo:", ipw.doc.NationalityFull)
-	ipw.putData("Datum rođenja:", ipw.doc.DateOfBirth)
-	ipw.putData("Osnov boravka:", ipw.doc.PurposeOfStay)
-	addressLabel := "Prebivalište\ni adresa stana:"
+	ipw.putData("Презиме:", ipw.doc.Surname)
+	ipw.putData("Име:", ipw.doc.GivenName)
+	ipw.putData("Држављанство:", ipw.doc.NationalityFull)
+	ipw.putData("Датум рођења:", ipw.doc.DateOfBirth)
+	ipw.putData("Основ боравка:", ipw.doc.PurposeOfStay)
+	addressLabel := "Пребивалиште\nи адреса стана:"
 	if ipw.doc.AddressLabel == "prebivalište" {
-		addressLabel = "Prebivalište:"
+		addressLabel = "Пребивалиште:"
 	}
 	ipw.putData(addressLabel, localization.JoinWithComma(ipw.doc.State, ipw.doc.GetFullAddress(true)))
-	ipw.putData("Datum promene adrese:", ipw.doc.AddressDate)
-	ipw.putData("Evidencijski broj\nstranca:", ipw.doc.PersonalNumber)
-	ipw.putData("Pol:", ipw.doc.Sex)
+	ipw.putData("Датум промене адресе:", ipw.doc.AddressDate)
+	ipw.putData("Евиденцијски број\nстранца:", ipw.doc.PersonalNumber)
+	ipw.putData("Пол:", ipw.doc.Sex)
 
 	ipw.moveY(-8.67)
 	ipw.line(0)
 	ipw.moveY(9)
-	ipw.cell("Podaci o dokumentu")
+	ipw.cell("Подаци о документу", true)
 	ipw.moveY(16)
 
 	ipw.line(0)
 	ipw.moveY(9)
-	ipw.putData("Dokument izdaje:", ipw.doc.IssuingAuthority)
-	ipw.putData("Broj dokumenta:", ipw.doc.DocRegNo)
-	ipw.putData("Datum izdavanja:", ipw.doc.IssuingDate)
-	ipw.putData("Važi do:", ipw.doc.ExpiryDate)
+	ipw.putData("Документ издаје:", ipw.doc.IssuingAuthority)
+	ipw.putData("Број документа:", ipw.doc.DocRegNo)
+	ipw.putData("Датум издавања:", ipw.doc.IssuingDate)
+	ipw.putData("Важи до:", ipw.doc.ExpiryDate)
 
 	ipw.moveY(-8.67)
 	ipw.line(0)
@@ -285,7 +309,7 @@ func (ipw *IdPdfWriter) printForeignerId() {
 	ipw.line(0)
 	ipw.moveY(9)
 
-	ipw.cell("Datum štampe: " + time.Now().Format("02.01.2006."))
+	ipw.cell("Датум штампе: "+time.Now().Format("02.01.2006."), true)
 
 	ipw.moveY(19)
 
@@ -300,19 +324,35 @@ func (ipw *IdPdfWriter) printForeignerId() {
 
 	ipw.pdf.SetX(ipw.leftMargin)
 
-	ipw.cell("1. U čipu lične karte za strance, podaci o imenu i prezimenu stranca ispisani su onako kako su ispisani na samom")
-	ipw.pdf.SetX(ipw.leftMargin)
-	ipw.moveY(9.7)
-	ipw.cell("obrascu lične karte za stranca latiničnim pismom.")
-	ipw.pdf.SetX(ipw.leftMargin)
-	ipw.moveY(9.7)
-	ipw.cell("2. Ako se ime ili prezime stranca sastoji od dve ili više reči čija dužina prelazi 30 karaktera za ime, odnosno 36")
-	ipw.pdf.SetX(ipw.leftMargin)
-	ipw.moveY(9.7)
-	ipw.cell("karaktera za prezime, u čip se upisuje puno ime i prezime stranca, a na obrascu lične karte za stranca se upisuje do")
-	ipw.pdf.SetX(ipw.leftMargin)
-	ipw.moveY(9.7)
-	ipw.cell("30 karaktera za ime, odnosno 36 karaktera za prezime.")
+	if ipw.doc.pdfCyrillicLabels {
+		ipw.cell("1. У чипу личне карте за странце, подаци о имену и презимену странца исписани су онако како су исписани на", false)
+		ipw.pdf.SetX(ipw.leftMargin)
+		ipw.moveY(9.7)
+		ipw.cell("самом обрасцу личне карте за странца латиничним писмом.", false)
+		ipw.pdf.SetX(ipw.leftMargin)
+		ipw.moveY(9.7)
+		ipw.cell("2. Ако се име или презиме странца састоји од две или више речи чија дужина прелази 30 карактера за име, односно", false)
+		ipw.pdf.SetX(ipw.leftMargin)
+		ipw.moveY(9.7)
+		ipw.cell("односно 36 карактера за презиме, у чип се уписује пуно име и презиме странца, а на обрасцу личне карте за", false)
+		ipw.pdf.SetX(ipw.leftMargin)
+		ipw.moveY(9.7)
+		ipw.cell("странца се уписује до 30 карактера за име, односно 36 карактера за презиме.", false)
+	} else {
+		ipw.cell("1. U čipu lične karte za strance, podaci o imenu i prezimenu stranca ispisani su onako kako su ispisani na samom", false)
+		ipw.pdf.SetX(ipw.leftMargin)
+		ipw.moveY(9.7)
+		ipw.cell("obrascu lične karte za stranca latiničnim pismom.", false)
+		ipw.pdf.SetX(ipw.leftMargin)
+		ipw.moveY(9.7)
+		ipw.cell("2. Ako se ime ili prezime stranca sastoji od dve ili više reči čija dužina prelazi 30 karaktera za ime, odnosno 36", false)
+		ipw.pdf.SetX(ipw.leftMargin)
+		ipw.moveY(9.7)
+		ipw.cell("karaktera za prezime, u čip se upisuje puno ime i prezime stranca, a na obrascu lične karte za stranca se upisuje do", false)
+		ipw.pdf.SetX(ipw.leftMargin)
+		ipw.moveY(9.7)
+		ipw.cell("30 karaktera za ime, odnosno 36 karaktera za prezime.", false)
+	}
 
 	ipw.moveY(9.7)
 
@@ -330,7 +370,7 @@ func (ipw *IdPdfWriter) printResidencePermit() {
 	if err != nil {
 		panic(err)
 	}
-	ipw.cell("ČITAČ ELEKTRONSKE LIČNE KARTE: ŠTAMPA PODATAKA")
+	ipw.cell("ЧИТАЧ ЕЛЕКТРОНСКЕ ЛИЧНЕ КАРТЕ: ШТАМПА ПОДАТАКА", true)
 
 	err = ipw.pdf.SetCharSpacing(-0.1)
 	if err != nil {
@@ -368,41 +408,41 @@ func (ipw *IdPdfWriter) printResidencePermit() {
 		panic(err)
 	}
 
-	ipw.cell("Podaci o strancu")
+	ipw.cell("Подаци о странцу", true)
 
 	ipw.moveY(16)
 	ipw.line(0)
 	ipw.moveY(9)
 
-	ipw.putData("Prezime:", ipw.doc.Surname)
-	ipw.putData("Ime:", ipw.doc.GivenName)
-	ipw.putData("Državljanstvo:", ipw.doc.NationalityFull)
-	ipw.putData("Datum rođenja:", ipw.doc.DateOfBirth)
-	ipw.putData("Mesto rođenja,\nopština i država:", ipw.doc.GetFullPlaceOfBirth())
-	addressLabel := "Prebivalište\ni adresa stana:"
+	ipw.putData("Презиме:", ipw.doc.Surname)
+	ipw.putData("Име:", ipw.doc.GivenName)
+	ipw.putData("Држављанство:", ipw.doc.NationalityFull)
+	ipw.putData("Датум рођења:", ipw.doc.DateOfBirth)
+	ipw.putData("Место рођења,\nопштина и држава:", ipw.doc.GetFullPlaceOfBirth())
+	addressLabel := "Пребивалиште\nи адреса стана:"
 	if ipw.doc.AddressLabel == "prebivalište" {
-		addressLabel = "Prebivalište:"
+		addressLabel = "Пребивалиште:"
 	}
 	ipw.putData(addressLabel, ipw.doc.GetFullAddress(true))
-	ipw.putData("Datum promene adrese:", ipw.doc.AddressDate)
-	ipw.putData("Evidencijski broj\nstranca:", ipw.doc.PersonalNumber)
-	ipw.putData("Pol:", ipw.doc.Sex)
-	ipw.putData("Osnov boravka:", ipw.doc.PurposeOfStay)
-	ipw.putData("Napomena:", ipw.doc.ENote)
+	ipw.putData("Датум промене адресе:", ipw.doc.AddressDate)
+	ipw.putData("Евиденцијски број\nстранца:", ipw.doc.PersonalNumber)
+	ipw.putData("Пол:", ipw.doc.Sex)
+	ipw.putData("Основ боравка:", ipw.doc.PurposeOfStay)
+	ipw.putData("Напомена:", ipw.doc.ENote)
 
 	ipw.moveY(-8.67)
 	ipw.line(0)
 	ipw.moveY(9)
-	ipw.cell("Podaci o dokumentu")
+	ipw.cell("Подаци о документу", true)
 	ipw.moveY(16)
 
 	ipw.line(0)
 	ipw.moveY(9)
-	ipw.putData("Naziv dokumenta:", ipw.doc.DocumentName)
-	ipw.putData("Dokument izdaje:", ipw.doc.IssuingAuthority)
-	ipw.putData("Broj dokumenta:", ipw.doc.DocRegNo)
-	ipw.putData("Datum izdavanja:", ipw.doc.IssuingDate)
-	ipw.putData("Važi do:", ipw.doc.ExpiryDate)
+	ipw.putData("Назив документа:", ipw.doc.DocumentName)
+	ipw.putData("Документ издаје:", ipw.doc.IssuingAuthority)
+	ipw.putData("Број документа:", ipw.doc.DocRegNo)
+	ipw.putData("Датум издавања:", ipw.doc.IssuingDate)
+	ipw.putData("Важи до:", ipw.doc.ExpiryDate)
 
 	ipw.moveY(-8.67)
 	ipw.line(0)
@@ -410,7 +450,7 @@ func (ipw *IdPdfWriter) printResidencePermit() {
 	ipw.line(0)
 	ipw.moveY(9)
 
-	ipw.cell("Datum štampe: " + time.Now().Format("02.01.2006."))
+	ipw.cell("Датум штампе: "+time.Now().Format("02.01.2006."), true)
 
 	ipw.moveY(19)
 
@@ -425,19 +465,36 @@ func (ipw *IdPdfWriter) printResidencePermit() {
 
 	ipw.pdf.SetX(ipw.leftMargin)
 
-	ipw.cell("1. U čipu dozvole za privremeni boravak i rad, podaci o imenu i prezimenu imaoca dozvole ispisani su onako")
-	ipw.pdf.SetX(ipw.leftMargin)
-	ipw.moveY(9.7)
-	ipw.cell("kako su ispisani na samom obrascu dozvole za privremeni boravak latiničnim pismom.")
-	ipw.pdf.SetX(ipw.leftMargin)
-	ipw.moveY(9.7)
-	ipw.cell("2. Ako se ime ili prezime stranca sastoji od dve ili više reči čija dužina prelazi 30 karaktera za ime,")
-	ipw.pdf.SetX(ipw.leftMargin)
-	ipw.moveY(9.7)
-	ipw.cell("odnosno 36 karaktera za prezime u čip se upisuje puno ime stranca, a na obrascu dozvole za privremeni boravak")
-	ipw.pdf.SetX(ipw.leftMargin)
-	ipw.moveY(9.7)
-	ipw.cell("se upisuje do 30 karaktera za ime, odnosno 36 karaktera za prezime.")
+	if ipw.doc.pdfCyrillicLabels {
+		ipw.cell("1. У чипу дозволе за привремени боравак и рад, подаци о имену и презимену имаоца дозволе исписани су онако", false)
+		ipw.pdf.SetX(ipw.leftMargin)
+		ipw.moveY(9.7)
+		ipw.cell("како су исписани на самом обрасцу дозволе за привремени боравак латиничним писмом.", false)
+		ipw.pdf.SetX(ipw.leftMargin)
+		ipw.moveY(9.7)
+		ipw.cell("2. Ако се име или презиме странца састоји од две или више речи чија дужина прелази 30 карактера за име,", false)
+		ipw.pdf.SetX(ipw.leftMargin)
+		ipw.moveY(9.7)
+		ipw.cell("односно 36 карактера за презиме у чип се уписује пуно име странца, а на обрасцу дозволе за привремени боравак", false)
+		ipw.pdf.SetX(ipw.leftMargin)
+		ipw.moveY(9.7)
+		ipw.cell("се уписује до 30 карактера за име, односно 36 карактера за презиме.", false)
+
+	} else {
+		ipw.cell("1. U čipu dozvole za privremeni boravak i rad, podaci o imenu i prezimenu imaoca dozvole ispisani su onako kako su", false)
+		ipw.pdf.SetX(ipw.leftMargin)
+		ipw.moveY(9.7)
+		ipw.cell("ispisani na samom obrascu dozvole za privremeni boravak latiničnim pismom.", false)
+		ipw.pdf.SetX(ipw.leftMargin)
+		ipw.moveY(9.7)
+		ipw.cell("2. Ako se ime ili prezime stranca sastoji od dve ili više reči čija dužina prelazi 30 karaktera za ime, odnosno 36 karaktera", false)
+		ipw.pdf.SetX(ipw.leftMargin)
+		ipw.moveY(9.7)
+		ipw.cell("za prezime u čip se upisuje puno ime stranca, a na obrascu dozvole za privremeni boravak se upisuje do 30 karaktera za", false)
+		ipw.pdf.SetX(ipw.leftMargin)
+		ipw.moveY(9.7)
+		ipw.cell("ime, odnosno 36 karaktera za prezime.", false)
+	}
 
 	ipw.moveY(9.7)
 

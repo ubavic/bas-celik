@@ -91,6 +91,7 @@
     "preference.autoSaveLocation": "Папка автосохранения",
     "preference.exit": "Выход",
     "preference.language": "Язык",
+    "preference.pdfScript": "PDF письмо",
     "preference.placeholder.modulePath": "Укажите путь к модулю",
     "preference.placeholder.directoryPath": "Укажите путь к папке",
     "preference.runInBackground": "Запускать также в фоне",

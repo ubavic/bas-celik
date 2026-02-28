@@ -15,6 +15,7 @@ import (
 
 const themePreferenceKey = "color-theme"
 const languagePreferenceKey = "language"
+const pdfScriptPreferenceKey = "pdf-labels-script"
 const autoSavePdfKey = "auto-save-pdf"
 const autoSaveLocationKey = "auto-save-location"
 
@@ -45,6 +46,13 @@ func showSetupBox() func() {
 			func(s string) {},
 		)
 		languageSelect.SetSelectedIndex(language)
+
+		pdfScript := preferences.IntWithFallback(pdfScriptPreferenceKey, 0)
+		pdfScriptSelect := widget.NewSelect(
+			[]string{"Latinica", "Ћирилица"},
+			func(s string) {},
+		)
+		pdfScriptSelect.SetSelectedIndex(pdfScript)
 
 		autoSavePdf := preferences.IntWithFallback(autoSavePdfKey, 0)
 		autoSavePdfSelect := widget.NewSelect(
@@ -119,6 +127,7 @@ func showSetupBox() func() {
 		formItems := []*widget.FormItem{
 			{Text: t("preference.theme"), Widget: themeSelect},
 			{Text: t("preference.language"), Widget: languageSelect},
+			{Text: t("preference.pdfScript"), Widget: pdfScriptSelect},
 			{Text: t("preference.autoSave"), Widget: autoSavePdfSelect},
 			{Text: t("preference.autoSaveLocation"), Widget: autoSaveLocationEntry},
 			{Text: t("preference.runInBackground"), Widget: runInBackgroundCheck},
@@ -135,6 +144,7 @@ func showSetupBox() func() {
 		save := func() {
 			preferences.SetInt(themePreferenceKey, themeSelect.SelectedIndex())
 			preferences.SetInt(languagePreferenceKey, languageSelect.SelectedIndex())
+			preferences.SetInt(pdfScriptPreferenceKey, pdfScriptSelect.SelectedIndex())
 			preferences.SetInt(autoSavePdfKey, autoSavePdfSelect.SelectedIndex())
 			preferences.SetString(autoSaveLocationKey, autoSaveLocationEntry.Text)
 			preferences.SetBool(runInBackgroundKey, runInBackgroundCheck.Checked)

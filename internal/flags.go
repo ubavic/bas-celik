@@ -15,6 +15,7 @@ func ProcessFlags() (LaunchConfig, bool) {
 	launchCfg := LaunchConfig{}
 
 	atrFlag := flag.Bool("atr", false, "Print the ATR form the card and exit")
+	cyrillicLabelsFlag := flag.Bool("cyrillic-labels", false, "Print ID PDF with cyrillic labels. Ignored for other cards")
 	excelPath := flag.String("excel", "", "Set Excel export path")
 	jsonPath := flag.String("json", "", "Set JSON export path")
 	listFlag := flag.Bool("list", false, "List connected readers and exit")
@@ -46,6 +47,7 @@ func ProcessFlags() (LaunchConfig, bool) {
 		return launchCfg, true
 	}
 
+	launchCfg.CyrillicLabels = *cyrillicLabelsFlag
 	launchCfg.JsonPath = *jsonPath
 	launchCfg.PdfPath = *pdfPath
 	launchCfg.ExcelPath = *excelPath

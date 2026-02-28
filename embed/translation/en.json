@@ -91,6 +91,7 @@
     "preference.autoSaveLocation": "Autosave location",
     "preference.exit": "Exit",
     "preference.language": "Language",
+    "preference.pdfScript": "PDF script",
     "preference.placeholder.modulePath": "Enter module path",
     "preference.placeholder.directoryPath": "Enter directory path",
     "preference.runInBackground": "Run in background also",

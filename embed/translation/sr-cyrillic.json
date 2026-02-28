@@ -91,6 +91,7 @@
   "preference.autoSaveLocation": "Локација а. чувања",
   "preference.exit": "Изађи",
   "preference.language": "Језик",
+  "preference.pdfScript": "Писмо PDF-a",
   "preference.placeholder.modulePath": "Унеси путању до модула",
   "preference.placeholder.directoryPath": "Унеси путању директоријума",
   "preference.runInBackground": "Покрени и у позадини",

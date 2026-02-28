@@ -12,6 +12,7 @@ import (
 )
 
 type LaunchConfig struct {
+	CyrillicLabels        bool
 	PdfPath               string
 	JsonPath              string
 	ExcelPath             string
@@ -94,6 +95,10 @@ func readAndSave(cfg LaunchConfig) error {
 			if err != nil {
 				return fmt.Errorf("updating `ValidUntil` date: %w", err)
 			}
+		}
+	case *document.IdDocument:
+		if cfg.CyrillicLabels {
+			doc.SetCyrillicLabels()
 		}
 	}
 

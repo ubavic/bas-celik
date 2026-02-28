@@ -38,6 +38,7 @@ Podatak o trajanju zdravstvenog osiguranja (*overena do*), ne zapisuje se na knj
 
 Podešavanja se otvaraju sa dugmetom koje se nalazi u gornjem desnom uglu aplikacija. Osim teme i jezika, podešavanja imaju sledeće stavke:
 
++ **Pismo PDF-a** određuje pismo labela u PDF-u lične karte.
 + **Automatsko čuvanje** omogućuje da se PDF dokument automatski sačuva (i otvori u podrazumevanom PDF pregledniku) pri očitavanju kartice.
 + **Lokacija a. čuvanja** označava putanju do postojećeg foldera gde će se PDF dokumenti sačuvati. Mora biti popunjeno da bi automatsko čuvanje radilo.
 + **Pokreni i u pozadini** ako je aktivirano, BašČelik će biti pokrenut kroz system tray.
@@ -50,7 +51,8 @@ Restart aplikacije je neophodan da bi podešavanja bila primenjena.
 
 Baš Čelik prihvata sledeće opcije:
  
- + `-atr`: ATR kôd kartice biće prikazan u konzoli. 
+ + `-atr`: ATR kôd kartice biće prikazan u konzoli.
+ + `-cyrillic-labels`: PDF lične karte biće kreiran sa ćiriličnim labelama. Ne odnosi se na grafički interfejs niti na ostala dokumenta.
  + `-excel PATH`: grafički interfejs neće biti pokrenut, a sadržaj dokumenta biće direktno sačuvan u Excel datoteku (`xlsx`) na `PATH` lokaciji. U Excel datoteku će biti sačuvana samo tekstualna polja, ne i slike.
  + `-help`: informacija o opcijama biće prikazana u konzoli.
  + `-json PATH`: grafički interfejs neće biti pokrenut, a sadržaj dokumenta biće direktno sačuvan u JSON datoteku na `PATH` lokaciji.

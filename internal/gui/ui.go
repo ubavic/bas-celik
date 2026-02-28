@@ -36,6 +36,7 @@ type State struct {
 	autoSaveMode            AutoSaveMode
 	autoSaveLocation        string
 	runInBackground         bool
+	pdfCyrillicLabels       bool
 }
 
 var state State
@@ -76,6 +77,7 @@ func StartGui(version string) {
 		autoSaveMode:            AutoSaveMode(preferences.Int(autoSavePdfKey)),
 		autoSaveLocation:        preferences.String(autoSaveLocationKey),
 		runInBackground:         runInBackground,
+		pdfCyrillicLabels:       preferences.Int(pdfScriptPreferenceKey) == 1,
 	}
 
 	smartboxMode := preferences.BoolWithFallback(smartboxModeKey, false)
