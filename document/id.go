@@ -128,11 +128,12 @@ func (doc *IdDocument) BuildPdf() (data []byte, fileName string, retErr error) {
 		doc:            doc,
 	}
 
-	if doc.DocumentType == ID_TYPE_APOLLO || doc.DocumentType == ID_TYPE_ID {
+	switch doc.DocumentType {
+	case ID_TYPE_APOLLO, ID_TYPE_ID:
 		ipw.printRegularId()
-	} else if doc.DocumentType == ID_TYPE_IDENTITY_FOREIGNER {
+	case ID_TYPE_IDENTITY_FOREIGNER:
 		ipw.printForeignerId()
-	} else if doc.DocumentType == ID_TYPE_RESIDENCE_PERMIT {
+	case ID_TYPE_RESIDENCE_PERMIT:
 		ipw.printResidencePermit()
 	}
 
