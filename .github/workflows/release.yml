@@ -133,8 +133,11 @@ jobs:
           path: bas-celik-cli.macos.arm
 
   buildMacOsIntel:
-    runs-on: macos-15
+    runs-on: macos-15-intel
     needs: [test]
+    env:
+      GOOS: darwin
+      GOARCH: amd64
     steps:
       - name: Checkout
         uses: actions/checkout@v4
