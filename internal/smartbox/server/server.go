@@ -45,7 +45,7 @@ type SmartBoxServer struct {
 
 func (s *SmartBoxServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	conn, err := websocket.Accept(w, r, &websocket.AcceptOptions{
-		OriginPatterns: []string{"eporezi.purs.gov.rs"},
+		OriginPatterns: []string{"eporezi.purs.gov.rs", "test.purs.gov.rs"},
 	})
 
 	if err != nil {
