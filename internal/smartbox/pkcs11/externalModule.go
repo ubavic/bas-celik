@@ -190,9 +190,6 @@ func (pm *PkcsModuleSession) CloseSession() error {
 
 			if mc.refCount > 0 {
 				gModuleContexts[modulePath] = mc
-			} else {
-				pm.context.Destroy()
-				delete(gModuleContexts, modulePath)
 			}
 
 			break
