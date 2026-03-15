@@ -58,13 +58,12 @@ jobs:
         run: |
           echo -n "cli" >> assets/version
           rm -R embed/translation
-          go build -tags "cli" -ldflags "-s -w"  .
-          mv bas-celik bas-celik-cli.linux.amd64
+          go build -tags "cli" -ldflags "-s -w" -o cli-bas-celik.linux.amd64 .
       - name: Upload CLI version
         uses: actions/upload-artifact@v4
         with:
           name: linux-cli-build-artifact
-          path: bas-celik-cli.linux.amd64
+          path: cli-bas-celik.linux.amd64
 
   buildWindows:
     runs-on: windows-latest
@@ -124,13 +123,12 @@ jobs:
         run: |
           echo -n "cli" >> assets/version
           rm -R embed/translation
-          go build -tags "cli" -ldflags "-s -w" .
-          mv bas-celik bas-celik-cli.macos.arm
+          go build -tags "cli" -ldflags "-s -w" -o cli-bas-celik.macos.arm .
       - name: Upload CLI version
         uses: actions/upload-artifact@v4
         with:
           name: macos-cli-arm-build-artifact
-          path: bas-celik-cli.macos.arm
+          path: cli-bas-celik.macos.arm
 
   buildMacOsIntel:
     runs-on: macos-15-intel
@@ -166,13 +164,12 @@ jobs:
         run: |
           echo -n "cli" >> assets/version
           rm -R embed/translation
-          go build -tags "cli" -ldflags "-s -w" .
-          mv bas-celik bas-celik-cli.macos.intel
+          go build -tags "cli" -ldflags "-s -w" -o cli-bas-celik.macos.intel .
       - name: Upload CLI version
         uses: actions/upload-artifact@v4
         with:
           name: macos-cli-intel-build-artifact
-          path: bas-celik-cli.macos.intel
+          path: cli-bas-celik.macos.intel
 
   release:
     runs-on: ubuntu-latest
@@ -202,11 +199,11 @@ jobs:
         with:
           files: |
             bas-celik.linux.amd64.tar.xz
-            bas-celik-cli.linux.amd64
+            cli-bas-celik.linux.amd64
             bas-celik.windows.amd64.exe
             bas-celik.macos.arm.tar.gz
-            bas-celik-cli.macos.arm
+            cli-bas-celik.macos.arm
             bas-celik.macos.intel.tar.gz
-            bas-celik-cli.macos.intel
+            cli-bas-celik.macos.intel
           body_path: changelog.md
           tag_name: ${{github.ref_name}}
