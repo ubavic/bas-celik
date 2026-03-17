@@ -2,6 +2,7 @@ package gui
 
 import (
 	"fmt"
+	"runtime"
 	"time"
 
 	"fyne.io/fyne/v2"
@@ -35,7 +36,11 @@ func startCardReaderUI() {
 	if pollerErr == nil {
 		poller.StartPoller()
 	} else {
-		setStartPage("error.contextFail", "", pollerErr)
+		explanation := ""
+		if runtime.GOOS == "linux" {
+			explanation = t("error.contextFail.linux")
+		}
+		setStartPage("error.contextFail", explanation, pollerErr)
 	}
 
 	state.window.ShowAndRun()

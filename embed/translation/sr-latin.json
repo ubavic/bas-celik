@@ -12,6 +12,7 @@
   "autoSave.error.fileOpen": "Greška pri otvaranju automatski sačuvanog dokumenta",
   "autoSave.done": "Uspešno automatski sačuvano",
   "error.contextFail": "Neuspešno povezivanje sa drajverom pametnih kartica",
+  "error.contextFail.linux": "Da li je PCSC-lite instaliran i pokrenut?",
   "error.dataUpdate": "Greška prilikom ažuriranja podataka",
   "error.driver": "Greška pri upotrebi drajvera za pametne kartice.",
   "error.driverExplanation": "Da li program ima neophodne dozvole? Restartujte aplikaciju.",

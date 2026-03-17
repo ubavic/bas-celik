@@ -12,6 +12,7 @@
     "autoSave.error.fileOpen": "Can't open autosaved file",
     "autoSave.done": "Autosave successful",
     "error.contextFail": "Failed to create smart card context",
+    "error.contextFail.linux": "Is PCSC-lite installed and started?",
     "error.dataUpdate": "Error updating data.",
     "error.driver": "Error with smart card driver.",
     "error.driverExplanation": "Does the program have the required permissions? Please restart the program.",

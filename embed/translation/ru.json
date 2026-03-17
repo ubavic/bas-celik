@@ -12,6 +12,7 @@
     "autoSave.error.fileOpen": "Не удаётся открыть файл автосохранения",
     "autoSave.done": "Автосохранение выполнено",
     "error.contextFail": "Не удалось создать контекст смарт‑карты",
+    "error.contextFail.linux": "Установлен и запущен ли PCSC-lite?",
     "error.dataUpdate": "Ошибка обновления данных.",
     "error.driver": "Ошибка драйвера смарт‑карты.",
     "error.driverExplanation": "У программы есть необходимые разрешения? Перезапустите программу.",
