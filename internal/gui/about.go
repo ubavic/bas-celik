@@ -17,13 +17,12 @@ import (
 )
 
 func showAboutBox() func() {
-	version := strings.TrimSpace(state.version)
-
-	verLabel := widget.NewLabelWithStyle(t("about.version")+": "+version, fyne.TextAlignLeading, fyne.TextStyle{Italic: true})
 	moreLabel := widget.NewLabel(t("about.moreAboutProgram"))
 	url, _ := url.Parse("https://github.com/ubavic/bas-celik")
 	linkLabel := widget.NewHyperlink("github.com/ubavic/bas-celik", url)
-	spacer := widgets.NewSpacer()
+
+	version := strings.TrimSpace(state.version)
+	verLabel := widget.NewLabelWithStyle(t("about.version")+": "+version, fyne.TextAlignLeading, fyne.TextStyle{Italic: true})
 	verButton := widget.NewButton(t("about.checkVersion"), func() {
 		newVersion, err := checkForUpdate()
 		if err != nil || newVersion == "" {
@@ -38,9 +37,16 @@ func showAboutBox() func() {
 		}
 	})
 
+	authorLabel := widget.NewLabel(t("about.author"))
+	url1, _ := url.Parse("https://ubavic.rs")
+	link1 := widget.NewHyperlink("Nikola Ubavić", url1)
+
 	hBox0 := container.NewHBox(verLabel, verButton)
 	hBox1 := container.NewHBox(moreLabel, linkLabel)
-	vBox := container.NewVBox(hBox0, hBox1, spacer)
+	hBox2 := container.NewHBox(authorLabel, link1)
+
+	spacer := widgets.NewSpacer()
+	vBox := container.NewVBox(hBox0, hBox1, hBox2, spacer)
 
 	return func() {
 		dialog.ShowCustom(
