@@ -71,7 +71,7 @@ Pri pokretanju sa `atr`, `help`, `list` ili `version` opcijama podaci sa kartice
 
 ### Čitači i drajveri
 
-Baš Čelik bi trebalo da funkcioniše sa svim čitačima pametnih kartica koji su trenutno dostupni u prodaji (Gemalto, Hama, Samtec...). Korisnici Windows (7, 8, 10, 11) i macOS operativnih sistema ne moraju da instaliraju nijedan dodatni program (drajver).
+Baš Čelik bi trebalo da funkcioniše sa svim čitačima pametnih kartica koji su trenutno dostupni u prodaji (Gemalto, Hama, Samtec...). Korisnici Windows (7, 8, 10, 11) i macOS operativnih sistema ne moraju da instaliraju nijedan dodatni program (drajver). Više o upotrebi na Linux-u dato je na [wiki stranici](https://github.com/ubavic/bas-celik/wiki/Linux).
 
 ## Preuzimanje 
 
