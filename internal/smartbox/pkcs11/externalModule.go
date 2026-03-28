@@ -74,7 +74,7 @@ func (pm *PkcsModuleSession) ListSlots() ([]uint, []string, error) {
 		}
 
 		// some modules (looking at you NetSet) don't properly set SlotInfo flags
-		// therefore this should be more reliable way to check ig slot has token
+		// therefore this should be more reliable way to check if slot has token
 		_, err = pm.context.GetTokenInfo(slot)
 		if err != nil {
 			continue
