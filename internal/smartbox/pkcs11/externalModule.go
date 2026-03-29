@@ -43,10 +43,13 @@ func NewPkcsExternalModule(modulePath string) (PkcsModuleSession, error) {
 	mc, ok := gModuleContexts[modulePath]
 	if !ok {
 		pkcsCtx := pkcs11.New(modulePath)
+		if pkcsCtx == nil {
+			return PkcsModuleSession{}, fmt.Errorf("failed to initialize PKCS#11 module from path \"%s\"", modulePath)
+		}
 
 		err := pkcsCtx.Initialize()
 		if err != nil {
-			return PkcsModuleSession{}, fmt.Errorf("failed to initialize PKCS#11: %w", err)
+			return PkcsModuleSession{}, fmt.Errorf("failed to initialize PKCS#11 module from path \"%s\": %w", modulePath, err)
 		}
 
 		mc = pkcsModuleCtx{context: pkcsCtx}
