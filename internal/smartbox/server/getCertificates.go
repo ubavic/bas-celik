@@ -1,11 +1,11 @@
 package server
 
 import (
+	"crypto/x509"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io"
-	"strings"
 	"time"
 
 	"github.com/ubavic/bas-celik/v2/internal/smartbox/pkcs11"
@@ -69,7 +69,7 @@ func GetValidCertificates(namedCerts []pkcs11.NamedCert, cardVendor pkcs11.CardV
 		}
 
 		if cardVendor == pkcs11.CardVendorMup {
-			if !strings.Contains(namedCert.Certificate.Subject.CommonName, "Sign") {
+			if namedCert.Certificate.KeyUsage&x509.KeyUsageContentCommitment == 0 {
 				continue
 			}
 		}
