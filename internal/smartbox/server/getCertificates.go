@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"strings"
 	"time"
 
 	"github.com/ubavic/bas-celik/v2/internal/smartbox/pkcs11"
@@ -47,14 +48,14 @@ func (s *SmartBoxServer) handleGetCertificates(session *SmartboxSession, data []
 	rsp := Response[GetCertificatesPayload]{
 		Operation: operationGetCertificates,
 		Payload: GetCertificatesPayload{
-			Certificates: GetCertificateAliases(GetValidCertificates(certs)),
+			Certificates: GetCertificateAliases(GetValidCertificates(certs, session.vendor)),
 		},
 	}
 
 	return json.NewEncoder(w).Encode(rsp)
 }
 
-func GetValidCertificates(namedCerts []pkcs11.NamedCert) []pkcs11.NamedCert {
+func GetValidCertificates(namedCerts []pkcs11.NamedCert, cardVendor pkcs11.CardVendor) []pkcs11.NamedCert {
 	now := time.Now()
 
 	validNamedCertificates := make([]pkcs11.NamedCert, 0, len(namedCerts))
@@ -65,6 +66,12 @@ func GetValidCertificates(namedCerts []pkcs11.NamedCert) []pkcs11.NamedCert {
 
 		if now.After(namedCert.Certificate.NotAfter) {
 			continue
+		}
+
+		if cardVendor == pkcs11.CardVendorMup {
+			if !strings.Contains(namedCert.Certificate.Subject.CommonName, "Sign") {
+				continue
+			}
 		}
 
 		validNamedCertificates = append(validNamedCertificates, namedCert)
