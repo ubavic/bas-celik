@@ -1,6 +1,7 @@
 package server
 
 import (
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -42,7 +43,7 @@ func (s *SmartBoxServer) handleGetInfo(sessionId *string, data []byte, w io.Writ
 		Payload: GetInfoPayload{
 			TerminalId:    session.terminalId,
 			ProviderId:    int(session.vendor),
-			CertificateId: session.certificateId,
+			CertificateId: hex.EncodeToString(session.certificateId),
 		},
 	}
 

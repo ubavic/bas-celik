@@ -1,18 +1,19 @@
 package server
 
 import (
-	"bytes"
-	"crypto/sha256"
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
-	"encoding/xml"
 	"fmt"
 	"io"
 	"slices"
 	"strings"
+
+	"github.com/beevik/etree"
+	"github.com/moov-io/signedxml"
+	"github.com/moov-io/signedxml/xmlenc"
 )
 
 const xmlHeader = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>`
@@ -27,60 +28,6 @@ type GetSignedXmlPayload struct {
 	Xml string `json:"xml"`
 }
 
-type envelopeReq struct {
-	XMLName   xml.Name `xml:"envelopaEPrijave"`
-	XMLNS     string   `xml:"xmlns:ns2,attr"`
-	Timestamp string   `xml:"timestamp"`
-}
-
-type envelopeResp struct {
-	XMLName   xml.Name   `xml:"ns2:envelopaEPrijave"`
-	XMLNS     string     `xml:"xmlns:ns2,attr"`
-	Timestamp string     `xml:"timestamp"`
-	Signature *signature `xml:"signature,omitempty"`
-}
-
-type signature struct {
-	XMLName        xml.Name
-	Xmlns          string `xml:"xmlns,attr"`
-	SignedInfo     signedInfo
-	SignatureValue string
-	KeyInfo        struct {
-		X509Data struct {
-			X509Certificate  string
-			X509IssuerSerial struct {
-				X509IssuerName   string
-				X509SerialNumber string
-			}
-			X509SubjectName string
-		}
-	}
-}
-
-type signedInfo struct {
-	XMLName                xml.Name
-	Xmlns                  string `xml:"xmlns,attr,omitempty"`
-	Ns2                    string `xml:"xmlns:ns2,attr,omitempty"`
-	CanonicalizationMethod struct {
-		Algorithm string `xml:",attr"`
-	}
-	SignatureMethod struct {
-		Algorithm string `xml:",attr"`
-	}
-	Reference struct {
-		Uri        string `xml:"URI,attr"`
-		Transforms struct {
-			Transform struct {
-				Algorithm string `xml:",attr"`
-			}
-		}
-		DigestMethod struct {
-			Algorithm string `xml:",attr"`
-		}
-		DigestValue string
-	}
-}
-
 func (s *SmartBoxServer) handleGetSignedXml(session *SmartboxSession, data []byte, w io.Writer) error {
 	msg := Message[GetSignedXmlInput]{}
 
@@ -93,150 +40,51 @@ func (s *SmartBoxServer) handleGetSignedXml(session *SmartboxSession, data []byt
 		return fmt.Errorf("pkcs11 module not loaded")
 	}
 
-	certId, err := hex.DecodeString(msg.Input.Certificate.Alias)
+	session.certificateId, err = hex.DecodeString(msg.Input.Certificate.Alias)
 	if err != nil {
 		return fmt.Errorf("decoding certificate alias: %w", err)
 	}
 
-	signXML, err := signRequest(session.module, certId, msg.Input.Xml)
+	cert := session.Certificate()
+	if cert == nil {
+		return fmt.Errorf("certificate %s not found", hex.EncodeToString(session.certificateId))
+	}
+
+	xmlToSign, err := base64.StdEncoding.DecodeString(msg.Input.Xml)
 	if err != nil {
-		return err
+		return fmt.Errorf("decoding base64 payload: %w", err)
+	}
+
+	doc := etree.NewDocument()
+
+	err = doc.ReadFromBytes(xmlToSign)
+	if err != nil {
+		return fmt.Errorf("reading xml: %w", err)
+	}
+
+	err = populateSignature(doc.Root(), cert)
+	if err != nil {
+		return fmt.Errorf("adding Sign element: %w", err)
+	}
+
+	xmlSigner, err := signedxml.NewSignerFromDoc(doc)
+	if err != nil {
+		return fmt.Errorf("creating xml signer: %w", err)
+	}
+
+	signedXML, err := xmlSigner.Sign(session)
+	if err != nil {
+		return fmt.Errorf("creating xml signer: %w", err)
 	}
 
 	rsp := Response[GetSignedXmlPayload]{
 		Operation: operationGetCertificates,
 		Payload: GetSignedXmlPayload{
-			Xml: base64.StdEncoding.EncodeToString(signXML),
+			Xml: base64.StdEncoding.EncodeToString([]byte(signedXML)),
 		},
 	}
 
 	return json.NewEncoder(w).Encode(rsp)
-}
-
-func signRequest(module PkcsModuleSession, id []byte, base64XmlRequest string) ([]byte, error) {
-	defer module.CloseSession()
-
-	namedCerts, err := module.GetCertificates()
-	if err != nil {
-		return nil, fmt.Errorf("getting certificates: %w", err)
-	}
-
-	var cert *x509.Certificate
-	for _, namedCert := range namedCerts {
-		if slices.Equal(namedCert.Id, id) {
-			cert = namedCert.Certificate
-		}
-	}
-
-	if cert == nil {
-		return nil, fmt.Errorf("certificate %s not found", hex.EncodeToString(id))
-	}
-
-	xmlString, err := base64.StdEncoding.DecodeString(base64XmlRequest)
-	if err != nil {
-		return nil, fmt.Errorf("decoding request: %w", err)
-	}
-
-	a, _ := bytes.CutPrefix(xmlString, []byte(xmlHeader))
-
-	hash := sha256.Sum256(a)
-	hashBase64 := base64.StdEncoding.EncodeToString(hash[:])
-
-	signedInfo := constructSignedInfo(hashBase64)
-	timestamp, err := extractTimestamp(xmlString)
-	if err != nil {
-		return nil, fmt.Errorf("extracting timestamp: %w", err)
-	}
-
-	marshaled := signedInfo.marshal()
-
-	signed, err := module.Sign(id, marshaled)
-	if err != nil {
-		return nil, fmt.Errorf("signing request: %w", err)
-	}
-
-	envelope := constructResponse(cert, timestamp, signedInfo, signed)
-
-	buf := bytes.Buffer{}
-	_, err = buf.Write([]byte(xmlHeader))
-	if err != nil {
-		return nil, fmt.Errorf("writing xml header to the buffer: %w", err)
-	}
-
-	enc := xml.NewEncoder(&buf)
-	enc.Indent("", "")
-	err = enc.Encode(envelope)
-	if err != nil {
-		return nil, fmt.Errorf("encoding envelope to the buffer: %w", err)
-	}
-
-	return buf.Bytes(), nil
-}
-
-func extractTimestamp(input []byte) (string, error) {
-	var env envelopeReq
-	err := xml.Unmarshal(input, &env)
-	if err != nil {
-		return "", err
-	}
-
-	return env.Timestamp, nil
-}
-
-func constructResponse(cert *x509.Certificate, timestamp string, signedInfo signedInfo, signatureValue []byte) envelopeResp {
-	signatureValueBase64 := base64.StdEncoding.EncodeToString(signatureValue)
-
-	signedInfo.Xmlns = ""
-	signedInfo.Ns2 = ""
-
-	signature := signatureXML(cert, signedInfo, signatureValueBase64)
-
-	envelope := envelopeResp{
-		XMLNS:     "urn:poreskauprava.gov.rs/zim",
-		Timestamp: timestamp,
-		Signature: &signature,
-	}
-
-	return envelope
-}
-
-func constructSignedInfo(digestValue string) signedInfo {
-	signedInfo := signedInfo{}
-
-	signedInfo.XMLName = xml.Name{Local: "SignedInfo"}
-	signedInfo.Xmlns = "http://www.w3.org/2000/09/xmldsig#"
-	signedInfo.Ns2 = "urn:poreskauprava.gov.rs/zim"
-	signedInfo.CanonicalizationMethod.Algorithm = "http://www.w3.org/TR/2001/REC-xml-c14n-20010315"
-	signedInfo.SignatureMethod.Algorithm = "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"
-	signedInfo.Reference.DigestMethod.Algorithm = "http://www.w3.org/2001/04/xmlenc#sha256"
-	signedInfo.Reference.DigestValue = digestValue
-	signedInfo.Reference.Transforms.Transform.Algorithm = "http://www.w3.org/2000/09/xmldsig#enveloped-signature"
-
-	return signedInfo
-}
-
-func signatureXML(cert *x509.Certificate, signedInfo signedInfo, signatureValue string) signature {
-	sig := signature{}
-	sig.XMLName = xml.Name{Local: "Signature"}
-	sig.Xmlns = "http://www.w3.org/2000/09/xmldsig#"
-
-	sig.SignedInfo = signedInfo
-	sig.SignatureValue = signatureValue
-	sig.KeyInfo.X509Data.X509Certificate = base64.RawStdEncoding.EncodeToString(cert.Raw)
-	sig.KeyInfo.X509Data.X509IssuerSerial.X509IssuerName = cert.Issuer.String()
-	sig.KeyInfo.X509Data.X509IssuerSerial.X509SerialNumber = cert.SerialNumber.String()
-	sig.KeyInfo.X509Data.X509SubjectName = formatSubject(cert.Subject)
-
-	return sig
-}
-
-func (s *signedInfo) marshal() []byte {
-	buf := bytes.Buffer{}
-	enc := xml.NewEncoder(&buf)
-	enc.Indent("", "")
-	enc.Encode(s)
-
-	return buf.Bytes()
 }
 
 func formatSubject(subject pkix.Name) string {
@@ -276,4 +124,61 @@ func formatSubject(subject pkix.Name) string {
 		serNo1,
 		serNo2,
 		country)
+}
+
+func populateSignature(root *etree.Element, cert *x509.Certificate) error {
+	signature := root.FindElement("./Signature")
+	if signature == nil {
+		signature = etree.NewElement("Signature")
+		root.AddChild(signature)
+	} else {
+		return fmt.Errorf("Signature element already exists")
+	}
+
+	signature.Child = nil
+
+	signature.CreateAttr("xmlns", xmlenc.NamespaceXMLDSig)
+
+	signedInfo := signature.CreateElement("SignedInfo")
+
+	canon := signedInfo.CreateElement("CanonicalizationMethod")
+	canon.CreateAttr("Algorithm", "http://www.w3.org/TR/2001/REC-xml-c14n-20010315")
+
+	sigMethod := signedInfo.CreateElement("SignatureMethod")
+	sigMethod.CreateAttr("Algorithm", "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256")
+
+	ref := signedInfo.CreateElement("Reference")
+	ref.CreateAttr("URI", "")
+
+	transforms := ref.CreateElement("Transforms")
+	transform := transforms.CreateElement("Transform")
+	transform.CreateAttr("Algorithm", "http://www.w3.org/2000/09/xmldsig#enveloped-signature")
+
+	digestMethod := ref.CreateElement("DigestMethod")
+	digestMethod.CreateAttr("Algorithm", xmlenc.AlgorithmSHA256)
+
+	ref.CreateElement("DigestValue")
+	sigValue := signature.CreateElement("SignatureValue")
+	sigValue.SetText("")
+
+	keyInfo := signature.CreateElement("KeyInfo")
+
+	x509Data := keyInfo.CreateElement("X509Data")
+
+	x509Cert := x509Data.CreateElement("X509Certificate")
+	x509Cert.SetText(base64.RawStdEncoding.EncodeToString(cert.Raw))
+
+	x509IssuerSerial := x509Data.CreateElement("X509IssuerSerial")
+
+	x509IssuerName := x509IssuerSerial.CreateElement("X509IssuerName")
+	x509IssuerName.SetText(cert.Issuer.String())
+
+	x509Serial := x509IssuerSerial.CreateElement("X509SerialNumber")
+	x509Serial.SetText(cert.SerialNumber.String())
+
+	x509Subject := x509Data.CreateElement("X509SubjectName")
+	x509Subject.SetText(formatSubject(cert.Subject))
+
+	return nil
+
 }

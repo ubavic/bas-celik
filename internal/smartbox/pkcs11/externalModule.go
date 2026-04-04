@@ -226,7 +226,7 @@ func (pm *PkcsModuleSession) Sign(certId []byte, message []byte) ([]byte, error)
 	}
 
 	mech := []*pkcs11.Mechanism{
-		pkcs11.NewMechanism(pkcs11.CKM_SHA256_RSA_PKCS, nil),
+		pkcs11.NewMechanism(pkcs11.CKM_RSA_PKCS, nil),
 	}
 
 	err = pm.context.SignInit(pm.session, mech, objects[0])
@@ -234,7 +234,17 @@ func (pm *PkcsModuleSession) Sign(certId []byte, message []byte) ([]byte, error)
 		return nil, fmt.Errorf("sign initialization: %w", err)
 	}
 
-	sig, err := pm.context.Sign(pm.session, message)
+	pkcsMessage := []byte{
+		0x30, 0x31,
+		0x30, 0x0d,
+		0x06, 0x09,
+		0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x01,
+		0x05, 0x00,
+		0x04, 0x20,
+	}
+	pkcsMessage = append(pkcsMessage, message...)
+
+	sig, err := pm.context.Sign(pm.session, pkcsMessage)
 	if err != nil {
 		return nil, fmt.Errorf("signing message: %w", err)
 	}
