@@ -63,6 +63,10 @@ func NewPkcsExternalModule(modulePath string) (PkcsModuleSession, error) {
 }
 
 func (pm *PkcsModuleSession) ListSlots() ([]uint, []string, error) {
+	if pm.context == nil {
+		return nil, nil, fmt.Errorf("nil PKCS#11 context")
+	}
+
 	slots, err := pm.context.GetSlotList(true)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to get slot list: %w", err)
@@ -92,6 +96,10 @@ func (pm *PkcsModuleSession) ListSlots() ([]uint, []string, error) {
 }
 
 func (pm *PkcsModuleSession) OpenSessionAndLogin(pin string, slotId int) error {
+	if pm.context == nil {
+		return fmt.Errorf("nil PKCS#11 context")
+	}
+
 	if slotId < 0 {
 		return fmt.Errorf("invalid slot id: %d", slotId)
 	}
@@ -99,6 +107,7 @@ func (pm *PkcsModuleSession) OpenSessionAndLogin(pin string, slotId int) error {
 	session, err := pm.context.OpenSession(uint(slotId), pkcs11.CKF_SERIAL_SESSION|pkcs11.CKF_RW_SESSION)
 	if err != nil {
 		pm.context.Destroy()
+		pm.context = nil
 		return fmt.Errorf("failed to open PKCS#11 session: %w", err)
 	}
 
@@ -111,6 +120,7 @@ func (pm *PkcsModuleSession) OpenSessionAndLogin(pin string, slotId int) error {
 
 		pm.context.CloseSession(session)
 		pm.context.Destroy()
+		pm.context = nil
 		return fmt.Errorf("failed to login to smart card: %w", err)
 	}
 
@@ -120,6 +130,10 @@ func (pm *PkcsModuleSession) OpenSessionAndLogin(pin string, slotId int) error {
 }
 
 func (pm *PkcsModuleSession) getRawCertificates() ([][]byte, [][]byte, error) {
+	if pm.context == nil {
+		return nil, nil, fmt.Errorf("nil PKCS#11 context")
+	}
+
 	searchTemplate := []*pkcs11.Attribute{
 		pkcs11.NewAttribute(pkcs11.CKA_CLASS, pkcs11.CKO_CERTIFICATE),
 	}
@@ -162,6 +176,10 @@ func (pm *PkcsModuleSession) getRawCertificates() ([][]byte, [][]byte, error) {
 }
 
 func (pm *PkcsModuleSession) GetCertificates() ([]NamedCert, error) {
+	if pm.context == nil {
+		return nil, fmt.Errorf("nil PKCS#11 context")
+	}
+
 	if len(pm.certs) > 0 {
 		return pm.certs, nil
 	}
@@ -189,6 +207,10 @@ func (pm *PkcsModuleSession) GetCertificates() ([]NamedCert, error) {
 func (pm *PkcsModuleSession) CloseSession() error {
 	mu.Lock()
 	defer mu.Unlock()
+
+	if pm.context == nil {
+		return fmt.Errorf("nil PKCS#11 context")
+	}
 
 	err1 := pm.context.Logout(pm.session)
 	err2 := pm.context.CloseSession(pm.session)
