@@ -2,6 +2,7 @@ package celiktheme
 
 import (
 	"image/color"
+	"runtime"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/theme"
@@ -10,6 +11,9 @@ import (
 type Theme struct {
 	systemDecides bool
 	dark          bool
+	font          fyne.Resource
+	fontBold      fyne.Resource
+	fontItalic    fyne.Resource
 }
 
 func NewTheme(themeSelection int) Theme {
@@ -21,7 +25,26 @@ func NewTheme(themeSelection int) Theme {
 		theme.dark = true
 	}
 
+	theme.setFont()
+
 	return theme
+}
+
+func (t *Theme) setFont() {
+	t.font = theme.DefaultTheme().Font(fyne.TextStyle{})
+	t.fontBold = theme.DefaultTheme().Font(fyne.TextStyle{Bold: true})
+	t.fontItalic = theme.DefaultTheme().Font(fyne.TextStyle{Italic: true})
+
+	if runtime.GOOS == "windows" {
+		regular, bold, italic, err := loadWidowsSystemFonts()
+		if err != nil {
+			return
+		}
+
+		t.font = fyne.NewStaticResource("segoeUi", regular)
+		t.fontBold = fyne.NewStaticResource("segoeUiBold", bold)
+		t.fontItalic = fyne.NewStaticResource("segoeUiItalic", italic)
+	}
 }
 
 func (t Theme) Color(colorName fyne.ThemeColorName, v fyne.ThemeVariant) color.Color {
@@ -38,8 +61,16 @@ func (t Theme) Color(colorName fyne.ThemeColorName, v fyne.ThemeVariant) color.C
 	}
 }
 
-func (Theme) Font(s fyne.TextStyle) fyne.Resource {
-	return theme.DefaultTheme().Font(s)
+func (t Theme) Font(s fyne.TextStyle) fyne.Resource {
+	if s.Bold {
+		return t.fontBold
+	}
+
+	if s.Italic {
+		return t.fontItalic
+	}
+
+	return t.font
 }
 
 func (Theme) Icon(n fyne.ThemeIconName) fyne.Resource {
