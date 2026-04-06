@@ -1,7 +1,12 @@
 package gui
 
 import (
+	"encoding/json"
+	"fmt"
+	"net/http"
+	"net/url"
 	"runtime"
+	"time"
 
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
@@ -10,6 +15,7 @@ import (
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 	"github.com/ubavic/bas-celik/v2/internal/gui/widgets"
+	"github.com/ubavic/bas-celik/v2/internal/logger"
 	"github.com/ubavic/bas-celik/v2/internal/smartbox/pkcs11"
 )
 
@@ -181,6 +187,27 @@ func showSetupBox() func() {
 			esmartPkcsEntry,
 		)
 
+		ghUrl, _ := url.Parse("https://github.com/ubavic/bas-celik")
+		authorUrl, _ := ghUrl.Parse("https://ubavic.rs")
+		guideUrl, _ := ghUrl.Parse("https://ubavic.rs/e-documents/")
+		newVersionInfoLabel := widget.NewLabel("")
+		go populateNewVersionInfo(newVersionInfoLabel)
+
+		rows3 := container.New(layout.NewFormLayout(),
+			spacer,
+			spacer,
+			widget.NewLabel(t("about.version")),
+			widget.NewLabel(state.version),
+			spacer,
+			newVersionInfoLabel,
+			widget.NewLabel(t("about.moreAboutProgram")),
+			widget.NewHyperlink("github.com/ubavic/bas-celik", ghUrl),
+			widget.NewLabel(t("about.author")),
+			widget.NewHyperlink("Nikola Ubavić", authorUrl),
+			widget.NewLabel(t("about.guide")),
+			widget.NewHyperlink("ubavic.rs/e-documents", guideUrl),
+		)
+
 		afterChangeSmartboxMode = func() {
 			rows2.Refresh()
 		}
@@ -188,6 +215,7 @@ func showSetupBox() func() {
 		tabs := container.NewAppTabs(
 			container.NewTabItem(t("preference.general"), rows1),
 			container.NewTabItem("Smartbox", rows2),
+			container.NewTabItem(t("preference.about"), rows3),
 		)
 
 		saveButton := widget.NewButton(t("preference.save"), func() {
@@ -217,4 +245,53 @@ func showSetupBox() func() {
 		state.mainContainer.RemoveAll()
 		state.mainContainer.Add(content)
 	}
+}
+
+func populateNewVersionInfo(versionLabel *widget.Label) {
+	newVersion, err := checkForUpdate()
+	if err != nil || newVersion == "" {
+		logger.Error(err)
+		return
+	}
+
+	information := ""
+
+	if newVersion != "v"+state.version {
+		information = fmt.Sprintf(t("about.newVersionAvailable"), newVersion)
+	} else {
+		information = t("about.youHaveLatestVersion")
+	}
+
+	versionLabel.SetText(information)
+}
+
+func checkForUpdate() (string, error) {
+	client := http.Client{
+		Timeout: time.Second,
+	}
+
+	url := `https://api.github.com/repos/ubavic/bas-celik/releases/latest`
+	req, err := http.NewRequest(http.MethodGet, url, nil)
+	if err != nil {
+		return "", fmt.Errorf("creating request: %w", err)
+	}
+
+	res, err := client.Do(req)
+	if err != nil {
+		return "", fmt.Errorf("executing request: %w", err)
+	}
+
+	if res.Body != nil {
+		defer res.Body.Close()
+	}
+
+	response := struct {
+		TagName string `json:"tag_name"`
+	}{}
+	err = json.NewDecoder(res.Body).Decode(&response)
+	if err != nil {
+		return "", fmt.Errorf("decoding response: %w", err)
+	}
+
+	return response.TagName, nil
 }

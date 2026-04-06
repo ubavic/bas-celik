@@ -14,7 +14,6 @@ import (
 type Toolbar struct {
 	widget.BaseWidget
 	readers           []string
-	onOpenAbout       func()
 	onOpenPreferences func()
 	onReaderChange    func(string)
 	selectedReader    string
@@ -23,17 +22,15 @@ type Toolbar struct {
 
 type ToolbarRenderer struct {
 	toolbar           *Toolbar
-	aboutButton       *widget.Button
 	preferencesButton *widget.Button
 	container         *fyne.Container
 	readersLabel      *widget.Label
 	readersSelect     *widget.Select
 }
 
-func NewToolbar(onOpenAbout, onOpenPreferences func(), showReaders bool) *Toolbar {
+func NewToolbar(onOpenPreferences func(), showReaders bool) *Toolbar {
 	toolbar := &Toolbar{
 		readers:           nil,
-		onOpenAbout:       onOpenAbout,
 		onOpenPreferences: onOpenPreferences,
 		showReaders:       showReaders,
 	}
@@ -60,19 +57,15 @@ func (t *Toolbar) CreateRenderer() fyne.WidgetRenderer {
 	preferencesButton := widget.NewButtonWithIcon("", theme.SettingsIcon(), t.onOpenPreferences)
 	preferencesButton.Importance = widget.LowImportance
 
-	aboutButton := widget.NewButtonWithIcon("", theme.InfoIcon(), t.onOpenAbout)
-	aboutButton.Importance = widget.LowImportance
-
 	var horizontalContainer *fyne.Container
 	if t.showReaders {
-		horizontalContainer = container.New(layout.NewHBoxLayout(), label, readersSelect, layout.NewSpacer(), preferencesButton, aboutButton)
+		horizontalContainer = container.New(layout.NewHBoxLayout(), label, readersSelect, layout.NewSpacer(), preferencesButton)
 	} else {
-		horizontalContainer = container.New(layout.NewHBoxLayout(), layout.NewSpacer(), preferencesButton, aboutButton)
+		horizontalContainer = container.New(layout.NewHBoxLayout(), layout.NewSpacer(), preferencesButton)
 	}
 
 	return &ToolbarRenderer{
 		toolbar:           t,
-		aboutButton:       aboutButton,
 		preferencesButton: preferencesButton,
 		container:         horizontalContainer,
 		readersLabel:      label,
@@ -93,13 +86,10 @@ func (r *ToolbarRenderer) Refresh() {
 
 		r.readersSelect.Refresh()
 	}
-
-	r.aboutButton.Refresh()
 }
 
 func (r *ToolbarRenderer) Layout(s fyne.Size) {
 	availableWidth := s.Width
-	availableWidth -= r.aboutButton.Size().Width
 	availableWidth -= r.preferencesButton.MinSize().Width
 	if r.toolbar.showReaders {
 		availableWidth -= r.readersLabel.MinSize().Width
@@ -114,7 +104,7 @@ func (r *ToolbarRenderer) MinSize() fyne.Size {
 }
 
 func (r *ToolbarRenderer) Objects() []fyne.CanvasObject {
-	objects := []fyne.CanvasObject{r.aboutButton, r.preferencesButton, r.container}
+	objects := []fyne.CanvasObject{r.preferencesButton, r.container}
 
 	if r.toolbar.showReaders {
 		objects = append(objects, r.readersSelect)

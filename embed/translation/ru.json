@@ -1,7 +1,8 @@
 {
     "about.author": "Разработчик",
     "about.close": "Закрыть",
-    "about.moreAboutProgram": "Подробнее о программе на",
+    "about.guide": "Руководство",
+    "about.moreAboutProgram": "Подробнее на",
     "about.title": "Baš Čelik — программа для чтения документов смарт‑карты",
     "about.version": "Версия",
     "about.checkVersion": "Проверить версию",
@@ -86,6 +87,7 @@
     "poller.tryingAgain1": "Повтор через 1...",
     "poller.tryingAgain2": "Повтор через 2...",
     "poller.tryingAgain3": "Повтор через 3...",
+    "preference.about": "О программе",
     "preference.autoSave": "Автосохранение",
     "preference.autoSave.no": "Нет",
     "preference.autoSave.save": "Сохранить",

@@ -1,7 +1,8 @@
 {
     "about.author": "Author",
     "about.close": "Close",
-    "about.moreAboutProgram": "More about the program at",
+    "about.guide": "Guide",
+    "about.moreAboutProgram": "More on",
     "about.title": "Baš Čelik - Program for Reading Smart Card Documents",
     "about.version": "Version",
     "about.checkVersion": "Check version",
@@ -86,6 +87,7 @@
     "poller.tryingAgain1": "Trying again in 1...",
     "poller.tryingAgain2": "Trying again in 2...",
     "poller.tryingAgain3": "Trying again in 3...",
+    "preference.about": "About",
     "preference.autoSave": "Autosave",
     "preference.autoSave.no": "No",
     "preference.autoSave.save": "Save",

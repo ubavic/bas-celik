@@ -1,7 +1,8 @@
 {
   "about.author": "Аутор",
   "about.close": "Затвори",
-  "about.moreAboutProgram": "Више о програму на адреси",
+  "about.guide": "Водич за употребу",
+  "about.moreAboutProgram": "Више о програму",
   "about.title": "Баш Челик - програм за очитавање електронских докумената",
   "about.version": "Верзија",
   "about.checkVersion": "Провери верзију",
@@ -86,6 +87,7 @@
   "poller.tryingAgain1": "Нови покушај за 1...",
   "poller.tryingAgain2": "Нови покушај за 2...",
   "poller.tryingAgain3": "Нови покушај за 3...",
+  "preference.about": "О програму",
   "preference.autoSave": "Аутоматско чување",
   "preference.autoSave.no": "Не",
   "preference.autoSave.save": "Сачувај",

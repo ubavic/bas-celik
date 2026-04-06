@@ -82,10 +82,9 @@ func StartGui(version string) {
 
 	smartboxMode := preferences.BoolWithFallback(smartboxModeKey, false)
 
-	showAboutBox := showAboutBox()
 	showSettings := showSetupBox()
 
-	toolbar := widgets.NewToolbar(showAboutBox, showSettings, !smartboxMode)
+	toolbar := widgets.NewToolbar(showSettings, !smartboxMode)
 	state.toolbar = toolbar
 
 	if runInBackground {
