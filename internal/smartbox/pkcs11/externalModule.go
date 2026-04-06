@@ -4,6 +4,7 @@ import (
 	"crypto/x509"
 	"errors"
 	"fmt"
+	"strings"
 	"sync"
 
 	"github.com/miekg/pkcs11"
@@ -103,6 +104,11 @@ func (pm *PkcsModuleSession) OpenSessionAndLogin(pin string, slotId int) error {
 
 	err = pm.context.Login(session, pkcs11.CKU_USER, pin)
 	if err != nil {
+		if strings.Contains(err.Error(), "CKR_USER_ALREADY_LOGGED_IN") {
+			pm.session = session
+			return nil
+		}
+
 		pm.context.CloseSession(session)
 		pm.context.Destroy()
 		return fmt.Errorf("failed to login to smart card: %w", err)
