@@ -33,10 +33,11 @@ func pageID(doc *document.IdDocument) *fyne.Container {
 	purposeOfStayLabel := t("id.purposeOfStay")
 	eNoteLabel := t("id.eNote")
 
-	if doc.DocumentType == document.ID_TYPE_IDENTITY_FOREIGNER {
+	switch doc.DocumentType {
+	case document.ID_TYPE_IDENTITY_FOREIGNER:
 		personalInformationGroupObjects = append(personalInformationGroupObjects,
 			widgets.NewField(nationalityLabel, doc.NationalityFull, 200))
-	} else if doc.DocumentType == document.ID_TYPE_RESIDENCE_PERMIT {
+	case document.ID_TYPE_RESIDENCE_PERMIT:
 		personalInformationGroupObjects = append(personalInformationGroupObjects,
 			widgets.NewField(nationalityLabel, doc.NationalityFull, 200),
 			widgets.NewField(purposeOfStayLabel, doc.PurposeOfStay, 200),
