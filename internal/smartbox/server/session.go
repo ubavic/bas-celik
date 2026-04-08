@@ -15,7 +15,7 @@ type PkcsModuleSession interface {
 	ListSlots() ([]uint, []string, error)
 	OpenSessionAndLogin(pin string, terminalIndex int) error
 	GetCertificates() ([]pkcs11.NamedCert, error)
-	Sign(certId []byte, message []byte) ([]byte, error)
+	SignDigest(certId []byte, sha256digest []byte) ([]byte, error)
 	CloseSession() error
 }
 
@@ -69,7 +69,7 @@ func (ss *SmartboxSession) Sign(rand io.Reader, digest []byte, opts crypto.Signe
 		return nil, fmt.Errorf("only sha256 supported")
 	}
 
-	signed, err := ss.module.Sign(ss.certificateId, digest)
+	signed, err := ss.module.SignDigest(ss.certificateId, digest)
 
 	return signed, err
 }

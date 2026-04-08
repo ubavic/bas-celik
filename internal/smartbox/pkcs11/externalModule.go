@@ -230,7 +230,7 @@ func (pm *PkcsModuleSession) CloseSession() error {
 	return errors.Join(err1, err2)
 }
 
-func (pm *PkcsModuleSession) Sign(certId []byte, message []byte) ([]byte, error) {
+func (pm *PkcsModuleSession) SignDigest(certId []byte, sha256digest []byte) ([]byte, error) {
 	err := pm.context.FindObjectsInit(pm.session, []*pkcs11.Attribute{
 		pkcs11.NewAttribute(pkcs11.CKA_CLASS, pkcs11.CKO_PRIVATE_KEY),
 		pkcs11.NewAttribute(pkcs11.CKA_ID, certId),
@@ -270,7 +270,7 @@ func (pm *PkcsModuleSession) Sign(certId []byte, message []byte) ([]byte, error)
 		0x05, 0x00,
 		0x04, 0x20,
 	}
-	pkcsMessage = append(pkcsMessage, message...)
+	pkcsMessage = append(pkcsMessage, sha256digest...)
 
 	sig, err := pm.context.Sign(pm.session, pkcsMessage)
 	if err != nil {
