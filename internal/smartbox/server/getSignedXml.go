@@ -78,7 +78,7 @@ func (s *SmartBoxServer) handleGetSignedXml(session *SmartboxSession, data []byt
 	}
 
 	rsp := Response[GetSignedXmlPayload]{
-		Operation: operationGetCertificates,
+		Operation: operationGetSignedXml,
 		Payload: GetSignedXmlPayload{
 			Xml: base64.StdEncoding.EncodeToString([]byte(signedXML)),
 		},
