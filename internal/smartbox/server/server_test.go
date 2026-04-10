@@ -9,9 +9,11 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
@@ -291,6 +293,199 @@ func TestIntegrationSessionNotFoundBeforeGetInfo(t *testing.T) {
 		}
 	}
 	t.Error("expected connection to eventually close after session-not-found error")
+}
+
+func TestTwoSessionsOneFailsLogin(t *testing.T) {
+	cert, key := generateTestCert(
+		time.Now().Add(-time.Hour),
+		time.Now().Add(time.Hour),
+		x509.KeyUsageDigitalSignature|x509.KeyUsageContentCommitment,
+	)
+	certId := []byte{0xAA, 0xBB}
+
+	goodMock := &mockPkcsModuleSession{
+		slots:     []uint{0},
+		slotNames: []string{"Reader A"},
+		certs:     []pkcs11.NamedCert{{Id: certId, Certificate: cert}},
+		signFunc: func(cid, digest []byte) ([]byte, error) {
+			return rsa.SignPKCS1v15(rand.Reader, key, crypto.SHA256, digest)
+		},
+	}
+
+	failMock := &mockPkcsModuleSession{
+		slots:     []uint{0},
+		slotNames: []string{"Reader B"},
+		loginErr:  fmt.Errorf("incorrect PIN"),
+	}
+
+	var mu sync.Mutex
+	providerCalls := 0
+
+	srv := &SmartBoxServer{
+		sessions:      make(map[string]SmartboxSession),
+		loadedVendors: []pkcs11.CardVendor{pkcs11.CardVendorPosta},
+		sessionProvider: func(vendor pkcs11.CardVendor) (PkcsModuleSession, error) {
+			mu.Lock()
+			defer mu.Unlock()
+			providerCalls++
+			if providerCalls == 1 {
+				return goodMock, nil
+			}
+			return failMock, nil
+		},
+	}
+
+	ts := httptest.NewServer(srv)
+	t.Cleanup(ts.Close)
+
+	connA := dialWS(t, ts)
+	_ = readJSON[Response[OnOpenPayload]](t, connA)
+	writeJSON(t, connA, Message[GetInfoInput]{
+		Operation: operationGetInfo,
+		Input:     GetInfoInput{SbSession: "session-a"},
+	})
+	_ = readJSON[Response[GetInfoPayload]](t, connA)
+	writeJSON(t, connA, Message[GetTerminalsInput]{
+		Operation: operationGetTerminals,
+		Input:     GetTerminalsInput{ProviderId: stringOrInt(pkcs11.CardVendorPosta)},
+	})
+	_ = readJSON[Response[GetTerminalsPayload]](t, connA)
+
+	connB := dialWS(t, ts)
+	_ = readJSON[Response[OnOpenPayload]](t, connB)
+	writeJSON(t, connB, Message[GetInfoInput]{
+		Operation: operationGetInfo,
+		Input:     GetInfoInput{SbSession: "session-b"},
+	})
+	_ = readJSON[Response[GetInfoPayload]](t, connB)
+	writeJSON(t, connB, Message[GetTerminalsInput]{
+		Operation: operationGetTerminals,
+		Input:     GetTerminalsInput{ProviderId: stringOrInt(pkcs11.CardVendorPosta)},
+	})
+	_ = readJSON[Response[GetTerminalsPayload]](t, connB)
+
+	writeJSON(t, connB, Message[GetCertificatesInput]{
+		Operation: operationGetCertificates,
+		Input:     GetCertificatesInput{TerminalId: 0, Pin: "0000"},
+	})
+
+	ctx := context.Background()
+	deadline := time.Now().Add(2 * time.Second)
+	for time.Now().Before(deadline) {
+		readCtx, cancel := context.WithTimeout(ctx, 500*time.Millisecond)
+		_, _, err := connB.Read(readCtx)
+		cancel()
+		if err != nil {
+			break
+		}
+	}
+
+	writeJSON(t, connA, Message[GetCertificatesInput]{
+		Operation: operationGetCertificates,
+		Input:     GetCertificatesInput{TerminalId: 0, Pin: "1234"},
+	})
+	certRsp := readJSON[Response[GetCertificatesPayload]](t, connA)
+	if len(certRsp.Payload.Certificates) == 0 {
+		t.Fatal("session A: expected certificates after session B failed login")
+	}
+	if certRsp.Payload.Certificates[0].Alias != hex.EncodeToString(certId) {
+		t.Errorf("session A: cert alias = %q, want %q",
+			certRsp.Payload.Certificates[0].Alias, hex.EncodeToString(certId))
+	}
+}
+
+func TestTwoSessionsOneClosesConnection(t *testing.T) {
+	cert, key := generateTestCert(
+		time.Now().Add(-time.Hour),
+		time.Now().Add(time.Hour),
+		x509.KeyUsageDigitalSignature|x509.KeyUsageContentCommitment,
+	)
+	certId := []byte{0xAA, 0xBB}
+
+	mock := &mockPkcsModuleSession{
+		slots:     []uint{0},
+		slotNames: []string{"Virtual Reader"},
+		certs:     []pkcs11.NamedCert{{Id: certId, Certificate: cert}},
+		signFunc: func(cid, digest []byte) ([]byte, error) {
+			return rsa.SignPKCS1v15(rand.Reader, key, crypto.SHA256, digest)
+		},
+	}
+
+	srv := &SmartBoxServer{
+		sessions:      make(map[string]SmartboxSession),
+		loadedVendors: []pkcs11.CardVendor{pkcs11.CardVendorPosta},
+		sessionProvider: func(vendor pkcs11.CardVendor) (PkcsModuleSession, error) {
+			return mock, nil
+		},
+	}
+
+	ts := httptest.NewServer(srv)
+	t.Cleanup(ts.Close)
+
+	wsURL := "ws" + strings.TrimPrefix(ts.URL, "http")
+	ctx := context.Background()
+	connA, _, err := websocket.Dial(ctx, wsURL, nil)
+	if err != nil {
+		t.Fatalf("session A: websocket dial failed: %v", err)
+	}
+
+	_ = readJSON[Response[OnOpenPayload]](t, connA)
+	writeJSON(t, connA, Message[GetInfoInput]{
+		Operation: operationGetInfo,
+		Input:     GetInfoInput{SbSession: "session-a"},
+	})
+	_ = readJSON[Response[GetInfoPayload]](t, connA)
+
+	connB := dialWS(t, ts)
+	_ = readJSON[Response[OnOpenPayload]](t, connB)
+	writeJSON(t, connB, Message[GetInfoInput]{
+		Operation: operationGetInfo,
+		Input:     GetInfoInput{SbSession: "session-b"},
+	})
+	_ = readJSON[Response[GetInfoPayload]](t, connB)
+
+	connA.Close(websocket.StatusGoingAway, "client closing")
+	time.Sleep(100 * time.Millisecond)
+
+	writeJSON(t, connB, Message[GetTerminalsInput]{
+		Operation: operationGetTerminals,
+		Input:     GetTerminalsInput{ProviderId: stringOrInt(pkcs11.CardVendorPosta)},
+	})
+	termRsp := readJSON[Response[GetTerminalsPayload]](t, connB)
+	if len(termRsp.Payload.Terminals) == 0 {
+		t.Fatal("session B: expected terminals after session A disconnected")
+	}
+
+	writeJSON(t, connB, Message[GetCertificatesInput]{
+		Operation: operationGetCertificates,
+		Input:     GetCertificatesInput{TerminalId: 0, Pin: "1234"},
+	})
+	certRsp := readJSON[Response[GetCertificatesPayload]](t, connB)
+	if len(certRsp.Payload.Certificates) == 0 {
+		t.Fatal("session B: expected certificates after session A disconnected")
+	}
+
+	xmlDoc := `<Document><Data>session B payload</Data></Document>`
+	writeJSON(t, connB, Message[GetSignedXmlInput]{
+		Operation: operationGetSignedXml,
+		Input: GetSignedXmlInput{
+			Certificate: certRsp.Payload.Certificates[0],
+			Pin:         "1234",
+			Xml:         base64.StdEncoding.EncodeToString([]byte(xmlDoc)),
+		},
+	})
+	signRsp := readJSON[Response[GetSignedXmlPayload]](t, connB)
+	if signRsp.Operation != operationGetSignedXml {
+		t.Fatalf("session B: expected GET_SIGNED_XML, got %q", signRsp.Operation)
+	}
+
+	signedBytes, err := base64.StdEncoding.DecodeString(signRsp.Payload.Xml)
+	if err != nil {
+		t.Fatalf("session B: failed to decode signed XML: %v", err)
+	}
+	if !strings.Contains(string(signedBytes), "session B payload") {
+		t.Error("session B: signed XML missing original content")
+	}
 }
 
 func TestServeHTTPOriginRejection(t *testing.T) {
