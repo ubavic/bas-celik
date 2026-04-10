@@ -5,7 +5,6 @@ import (
 	"crypto/x509"
 	"fmt"
 	"io"
-	"os"
 	"slices"
 
 	"github.com/ubavic/bas-celik/v2/internal/smartbox/pkcs11"
@@ -16,23 +15,22 @@ type PkcsModuleSession interface {
 	OpenSessionAndLogin(pin string, terminalIndex int) error
 	GetCertificates() ([]pkcs11.NamedCert, error)
 	SignDigest(certId []byte, sha256digest []byte) ([]byte, error)
-	CloseSession() error
 }
 
 type SmartboxSession struct {
 	id            string
-	module        PkcsModuleSession
+	moduleSession PkcsModuleSession
 	terminalId    int
 	vendor        pkcs11.CardVendor
 	certificateId []byte
 }
 
 func (ss *SmartboxSession) Certificate() *x509.Certificate {
-	if ss.module == nil {
+	if ss.moduleSession == nil {
 		return nil
 	}
 
-	namedCerts, err := ss.module.GetCertificates()
+	namedCerts, err := ss.moduleSession.GetCertificates()
 	if err != nil {
 		return nil
 	}
@@ -57,7 +55,7 @@ func (ss *SmartboxSession) Public() crypto.PublicKey {
 }
 
 func (ss *SmartboxSession) Sign(rand io.Reader, digest []byte, opts crypto.SignerOpts) (signature []byte, err error) {
-	if ss.module == nil {
+	if ss.moduleSession == nil {
 		return nil, fmt.Errorf("nil module")
 	}
 
@@ -69,35 +67,7 @@ func (ss *SmartboxSession) Sign(rand io.Reader, digest []byte, opts crypto.Signe
 		return nil, fmt.Errorf("only sha256 supported")
 	}
 
-	signed, err := ss.module.SignDigest(ss.certificateId, digest)
+	signed, err := ss.moduleSession.SignDigest(ss.certificateId, digest)
 
 	return signed, err
-}
-
-type ModulePath struct {
-	Vendor pkcs11.CardVendor
-	Path   string
-}
-
-func (s *SmartBoxServer) setModulePaths(paths []ModulePath) int {
-	s.modulePaths = make([]ModulePath, 0, len(paths))
-
-	for _, mPath := range paths {
-		if mPath.Path == "" {
-			continue
-		}
-
-		fInfo, err := os.Stat(mPath.Path)
-		if err != nil {
-			continue
-		}
-
-		if fInfo.IsDir() {
-			continue
-		}
-
-		s.modulePaths = append(s.modulePaths, mPath)
-	}
-
-	return len(s.modulePaths)
 }

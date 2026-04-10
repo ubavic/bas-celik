@@ -5,10 +5,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"time"
 
 	"github.com/coder/websocket"
 	"github.com/ubavic/bas-celik/v2/internal/logger"
+	"github.com/ubavic/bas-celik/v2/internal/smartbox/pkcs11"
 )
 
 type Message[I any] struct {
@@ -39,8 +39,8 @@ var operationGetCertificates = "GET_CERTIFICATES"
 var operationGetSignedXml = "GET_SIGNED_XML"
 
 type SmartBoxServer struct {
-	sessions    map[string]SmartboxSession
-	modulePaths []ModulePath
+	sessions      map[string]SmartboxSession
+	loadedVendors []pkcs11.CardVendor
 }
 
 func (s *SmartBoxServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -63,8 +63,7 @@ func (s *SmartBoxServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *SmartBoxServer) smartBoxHandler(conn *websocket.Conn) error {
-	ctx, cancelCtx := context.WithTimeout(context.Background(), 2*time.Minute)
-	defer cancelCtx()
+	ctx := context.Background()
 
 	w, err := conn.Writer(ctx, websocket.MessageText)
 	if err != nil {
@@ -88,7 +87,7 @@ func (s *SmartBoxServer) smartBoxHandler(conn *websocket.Conn) error {
 		}
 	}
 
-	return conn.CloseNow()
+	return nil
 }
 
 func (s *SmartBoxServer) onMessage(sessionId *string, ctx context.Context, conn *websocket.Conn) error {

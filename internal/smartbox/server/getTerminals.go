@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"slices"
 
 	"github.com/ubavic/bas-celik/v2/internal/smartbox/pkcs11"
 )
@@ -34,23 +33,15 @@ func (s *SmartBoxServer) handleGetTerminals(session *SmartboxSession, data []byt
 		return fmt.Errorf("invalid provider id")
 	}
 
-	moduleIndex := slices.IndexFunc(s.modulePaths, func(m ModulePath) bool {
-		return m.Vendor == pkcs11.CardVendor(providerID)
-	})
-
-	if moduleIndex < 0 {
-		return fmt.Errorf("module not found")
-	}
-
-	module, err := pkcs11.NewPkcsExternalModule(s.modulePaths[moduleIndex].Path)
+	moduleSession, err := pkcs11.GetPkcsSession(pkcs11.CardVendor(providerID))
 	if err != nil {
 		return err
 	}
 
 	session.vendor = pkcs11.CardVendor(providerID)
-	session.module = &module
+	session.moduleSession = &moduleSession
 
-	slotIds, slotNames, err := module.ListSlots()
+	slotIds, slotNames, err := moduleSession.ListSlots()
 	if err != nil {
 		return err
 	}

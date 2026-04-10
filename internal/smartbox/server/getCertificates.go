@@ -31,16 +31,16 @@ func (s *SmartBoxServer) handleGetCertificates(session *SmartboxSession, data []
 		return err
 	}
 
-	if session.module == nil {
+	if session.moduleSession == nil {
 		return fmt.Errorf("pkcs11 module not loaded")
 	}
 
-	err := session.module.OpenSessionAndLogin(msg.Input.Pin, msg.Input.TerminalId)
+	err := session.moduleSession.OpenSessionAndLogin(msg.Input.Pin, msg.Input.TerminalId)
 	if err != nil {
 		return err
 	}
 
-	certs, err := session.module.GetCertificates()
+	certs, err := session.moduleSession.GetCertificates()
 	if err != nil {
 		return err
 	}

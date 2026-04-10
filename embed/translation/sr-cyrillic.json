@@ -181,6 +181,7 @@
   "pinChange.error": "Дошло је до грешке. Не покушавајте више да промените PIN са Баш Челиком.",
   "pinChange.triesLeft": "Преостало покушаја: %d.",
   "smartbox.error": "Грешка при покретању сервера",
+  "smartbox.port": "Порт",
   "smartbox.running": "Smartbox сервер је покренут",
   "tray.show": "Otvori"
 }

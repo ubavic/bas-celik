@@ -10,6 +10,11 @@ const (
 	CardVendorPks
 )
 
+type ModulePath struct {
+	Vendor CardVendor
+	Path   string
+}
+
 func (cv CardVendor) String() string {
 	switch cv {
 	case CardVendorHalcom:

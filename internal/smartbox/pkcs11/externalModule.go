@@ -4,6 +4,7 @@ import (
 	"crypto/x509"
 	"errors"
 	"fmt"
+	"slices"
 	"strings"
 	"sync"
 
@@ -23,48 +24,80 @@ type PkcsModuleSession struct {
 	certs   []NamedCert
 }
 
-// wrapper around pkcs11.Ctx
-// it is used only for reference counting
-type pkcsModuleCtx struct {
-	context  *pkcs11.Ctx
-	refCount uint
-}
-
 var mu sync.Mutex
-var gModuleContexts map[string]pkcsModuleCtx
+var gModuleContexts map[CardVendor]*pkcs11.Ctx
+
+var ErrNilPkcsContext = fmt.Errorf("nil PKCS#11 context")
+var ErrInvalidPkcsSession = fmt.Errorf("invalid PKCS#11 session")
 
 func init() {
-	gModuleContexts = make(map[string]pkcsModuleCtx)
+	gModuleContexts = make(map[CardVendor]*pkcs11.Ctx)
 }
 
-func NewPkcsExternalModule(modulePath string) (PkcsModuleSession, error) {
-	mu.Lock()
-	defer mu.Unlock()
+func Deinit() {
+	for _, c := range gModuleContexts {
+		if c == nil {
+			continue
+		}
 
-	mc, ok := gModuleContexts[modulePath]
-	if !ok {
-		pkcsCtx := pkcs11.New(modulePath)
+		slots, _ := c.GetSlotList(true)
+		for _, s := range slots {
+			c.CloseAllSessions(s)
+		}
+
+		c.Destroy()
+	}
+}
+
+func LoadModules(modulePaths []ModulePath) ([]CardVendor, error) {
+	var loadedVendors []CardVendor
+	var errs []error
+
+	var foundVendor []CardVendor
+	for _, mp := range modulePaths {
+		if slices.Contains(foundVendor, mp.Vendor) {
+			return nil, fmt.Errorf("duplicate vendor found: %d %s", mp.Vendor, mp.Path)
+		}
+		foundVendor = append(foundVendor, mp.Vendor)
+	}
+
+	for _, mp := range modulePaths {
+		pkcsCtx := pkcs11.New(mp.Path)
 		if pkcsCtx == nil {
-			return PkcsModuleSession{}, fmt.Errorf("failed to initialize PKCS#11 module from path \"%s\"", modulePath)
+			errs = append(errs, fmt.Errorf("loading module `%s`", mp.Path))
+			continue
 		}
 
 		err := pkcsCtx.Initialize()
 		if err != nil {
-			return PkcsModuleSession{}, fmt.Errorf("failed to initialize PKCS#11 module from path \"%s\": %w", modulePath, err)
+			errs = append(errs, fmt.Errorf("initializing module `%s`", mp.Path))
+			continue
 		}
 
-		mc = pkcsModuleCtx{context: pkcsCtx}
+		gModuleContexts[mp.Vendor] = pkcsCtx
+		loadedVendors = append(loadedVendors, mp.Vendor)
 	}
 
-	mc.refCount += 1
-	gModuleContexts[modulePath] = mc
+	return loadedVendors, errors.Join(errs...)
+}
 
-	return PkcsModuleSession{context: mc.context}, nil
+func GetPkcsSession(vendor CardVendor) (PkcsModuleSession, error) {
+	mu.Lock()
+	defer mu.Unlock()
+
+	var ctx *pkcs11.Ctx
+
+	ctx, ok := gModuleContexts[vendor]
+	if !ok {
+		return PkcsModuleSession{}, fmt.Errorf("module context not found")
+	}
+
+	return PkcsModuleSession{context: ctx}, nil
 }
 
 func (pm *PkcsModuleSession) ListSlots() ([]uint, []string, error) {
 	if pm.context == nil {
-		return nil, nil, fmt.Errorf("nil PKCS#11 context")
+		return nil, nil, ErrNilPkcsContext
 	}
 
 	slots, err := pm.context.GetSlotList(true)
@@ -97,7 +130,7 @@ func (pm *PkcsModuleSession) ListSlots() ([]uint, []string, error) {
 
 func (pm *PkcsModuleSession) OpenSessionAndLogin(pin string, slotId int) error {
 	if pm.context == nil {
-		return fmt.Errorf("nil PKCS#11 context")
+		return ErrNilPkcsContext
 	}
 
 	if slotId < 0 {
@@ -131,7 +164,7 @@ func (pm *PkcsModuleSession) OpenSessionAndLogin(pin string, slotId int) error {
 
 func (pm *PkcsModuleSession) getRawCertificates() ([][]byte, [][]byte, error) {
 	if pm.context == nil {
-		return nil, nil, fmt.Errorf("nil PKCS#11 context")
+		return nil, nil, ErrNilPkcsContext
 	}
 
 	searchTemplate := []*pkcs11.Attribute{
@@ -177,7 +210,11 @@ func (pm *PkcsModuleSession) getRawCertificates() ([][]byte, [][]byte, error) {
 
 func (pm *PkcsModuleSession) GetCertificates() ([]NamedCert, error) {
 	if pm.context == nil {
-		return nil, fmt.Errorf("nil PKCS#11 context")
+		return nil, ErrNilPkcsContext
+	}
+
+	if pm.session == 0 {
+		return nil, ErrInvalidPkcsSession
 	}
 
 	if len(pm.certs) > 0 {
@@ -204,33 +241,16 @@ func (pm *PkcsModuleSession) GetCertificates() ([]NamedCert, error) {
 	return pm.certs, errors.Join(allErrors...)
 }
 
-func (pm *PkcsModuleSession) CloseSession() error {
-	mu.Lock()
-	defer mu.Unlock()
+func (pm *PkcsModuleSession) SignDigest(certId []byte, sha256digest []byte) ([]byte, error) {
 
 	if pm.context == nil {
-		return fmt.Errorf("nil PKCS#11 context")
+		return nil, ErrNilPkcsContext
 	}
 
-	err1 := pm.context.Logout(pm.session)
-	err2 := pm.context.CloseSession(pm.session)
-
-	for modulePath, mc := range gModuleContexts {
-		if mc.context == pm.context {
-			mc.refCount = mc.refCount - 1
-
-			if mc.refCount > 0 {
-				gModuleContexts[modulePath] = mc
-			}
-
-			break
-		}
+	if pm.session == 0 {
+		return nil, ErrInvalidPkcsSession
 	}
 
-	return errors.Join(err1, err2)
-}
-
-func (pm *PkcsModuleSession) SignDigest(certId []byte, sha256digest []byte) ([]byte, error) {
 	err := pm.context.FindObjectsInit(pm.session, []*pkcs11.Attribute{
 		pkcs11.NewAttribute(pkcs11.CKA_CLASS, pkcs11.CKO_PRIVATE_KEY),
 		pkcs11.NewAttribute(pkcs11.CKA_ID, certId),
@@ -278,4 +298,18 @@ func (pm *PkcsModuleSession) SignDigest(certId []byte, sha256digest []byte) ([]b
 	}
 
 	return sig, nil
+}
+
+func (pm *PkcsModuleSession) CloseSession() error {
+	mu.Lock()
+	defer mu.Unlock()
+
+	if pm.context == nil {
+		return ErrNilPkcsContext
+	}
+
+	err1 := pm.context.Logout(pm.session)
+	err2 := pm.context.CloseSession(pm.session)
+
+	return errors.Join(err1, err2)
 }

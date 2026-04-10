@@ -181,6 +181,7 @@
     "pinChange.error": "Error occurred. Don't try to change PIN with Baš Čelik anymore.",
     "pinChange.triesLeft": "Tries left: %d.",
     "smartbox.error": "Error occurred while starting Smartbox server.",
-    "smartbox.running": "Smartbox server is running.",
+    "smartbox.port": "Port",
+    "smartbox.running": "Smartbox server is running",
     "tray.show": "Show"
 }

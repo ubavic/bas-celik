@@ -22,11 +22,11 @@ func (s *SmartBoxServer) handleGetProviders(data []byte, w io.Writer) error {
 		return err
 	}
 
-	providers := make([]Provider, 0, len(s.modulePaths))
-	for _, module := range s.modulePaths {
+	providers := make([]Provider, 0, len(s.loadedVendors))
+	for _, vendor := range s.loadedVendors {
 		providers = append(providers, Provider{
-			Id:   int(module.Vendor),
-			Name: module.Vendor.String(),
+			Id:   int(vendor),
+			Name: vendor.String(),
 		})
 	}
 

@@ -36,7 +36,7 @@ func (s *SmartBoxServer) handleGetSignedXml(session *SmartboxSession, data []byt
 		return fmt.Errorf("unmarshaling sign request: %w", err)
 	}
 
-	if session.module == nil {
+	if session.moduleSession == nil {
 		return fmt.Errorf("pkcs11 module not loaded")
 	}
 
