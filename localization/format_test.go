@@ -54,9 +54,11 @@ func Test_FormFormatYesNo(t *testing.T) {
 		{true, localization.SrLatin, "Da"},
 		{true, localization.SrCyrillic, "Да"},
 		{true, localization.En, "Yes"},
+		{true, localization.Ru, "Да"},
 		{false, localization.SrLatin, "Ne"},
 		{false, localization.SrCyrillic, "Не"},
 		{false, localization.En, "No"},
+		{false, localization.Ru, "Нет"},
 	}
 
 	for _, testCase := range testCases {
