@@ -38,9 +38,12 @@ var operationGetTerminals = "GET_TERMINALS"
 var operationGetCertificates = "GET_CERTIFICATES"
 var operationGetSignedXml = "GET_SIGNED_XML"
 
+type PkcsSessionProvider func(vendor pkcs11.CardVendor) (PkcsModuleSession, error)
+
 type SmartBoxServer struct {
-	sessions      map[string]SmartboxSession
-	loadedVendors []pkcs11.CardVendor
+	sessions        map[string]SmartboxSession
+	loadedVendors   []pkcs11.CardVendor
+	sessionProvider PkcsSessionProvider
 }
 
 func (s *SmartBoxServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {

@@ -33,13 +33,13 @@ func (s *SmartBoxServer) handleGetTerminals(session *SmartboxSession, data []byt
 		return fmt.Errorf("invalid provider id")
 	}
 
-	moduleSession, err := pkcs11.GetPkcsSession(pkcs11.CardVendor(providerID))
+	moduleSession, err := s.sessionProvider(pkcs11.CardVendor(providerID))
 	if err != nil {
 		return err
 	}
 
 	session.vendor = pkcs11.CardVendor(providerID)
-	session.moduleSession = &moduleSession
+	session.moduleSession = moduleSession
 
 	slotIds, slotNames, err := moduleSession.ListSlots()
 	if err != nil {

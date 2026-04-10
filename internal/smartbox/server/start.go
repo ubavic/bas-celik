@@ -12,9 +12,19 @@ import (
 
 const bindHost = "127.0.0.1"
 
+func defaultSessionProvider(vendor pkcs11.CardVendor) (PkcsModuleSession, error) {
+	ms, err := pkcs11.GetPkcsSession(vendor)
+	if err != nil {
+		return nil, err
+	}
+	return &ms, nil
+}
+
 func StartServer(modulePaths []pkcs11.ModulePath) (string, []string, error) {
-	smartboxServer := SmartBoxServer{}
-	smartboxServer.sessions = make(map[string]SmartboxSession)
+	smartboxServer := SmartBoxServer{
+		sessions:        make(map[string]SmartboxSession),
+		sessionProvider: defaultSessionProvider,
+	}
 
 	loadedVendors, err := pkcs11.LoadModules(modulePaths)
 	if len(loadedVendors) == 0 {
