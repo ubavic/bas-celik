@@ -45,15 +45,23 @@ jobs:
           VERSION=$(git describe --tags --abbrev=0 | tail -c +2)
           echo "$VERSION" >> assets/version
           echo "  Version = \"$VERSION\"" >> FyneApp.toml
-      - name: Build GUI version
+      - name: Build and package GUI version
         run: |
           fyne package -os linux -release
           mv 'Bas Celik.tar.xz' bas-celik.linux.amd64.tar.xz
+      - name: Upload packaged GUI version
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-packaged-build-artifact
+          path: bas-celik.linux.amd64.tar.xz
+      - name: Build GUI version
+        run: |
+          go build -ldflags "-s -w" -o bas-celik.linux.amd64.bin .
       - name: Upload GUI version
         uses: actions/upload-artifact@v4
         with:
           name: linux-build-artifact
-          path: bas-celik.linux.amd64.tar.xz
+          path: bas-celik.linux.amd64.bin
       - name: Build CLI version
         run: |
           echo -n "cli" >> assets/version
@@ -181,6 +189,7 @@ jobs:
       - name: Move files
         run: |
           mv linux-build-artifact/* .
+          mv linux-packaged-build-artifact/* .
           mv linux-cli-build-artifact/* .
           mv windows-build-artifact/* .
           mv macos-arm-build-artifact/* .
@@ -199,6 +208,7 @@ jobs:
         with:
           files: |
             bas-celik.linux.amd64.tar.xz
+            bas-celik.linux.amd64.bin
             cli-bas-celik.linux.amd64
             bas-celik.windows.amd64.exe
             bas-celik.macos.arm.tar.gz
