@@ -10,13 +10,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Install Linux deps
         run: |
           sudo apt update
           sudo apt install -y build-essential pkg-config libpcsclite-dev libgl1-mesa-dev xorg-dev
       - name: Install Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v6
         with:
           go-version: "stable"
       - name: Install Fyne
@@ -29,13 +29,13 @@ jobs:
     needs: [test]
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Install Linux deps
         run: |
           sudo apt update
           sudo apt install -y build-essential pkg-config libpcsclite-dev libgl1-mesa-dev xorg-dev
       - name: Install Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v6
         with:
           go-version: "stable"
       - name: Install Fyne
@@ -78,9 +78,9 @@ jobs:
     needs: [test]
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Install Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v6
         with:
           go-version: "stable"
       - name: Install Fyne
@@ -95,7 +95,7 @@ jobs:
           fyne package -os windows -release
           mv 'Bas Celik.exe' bas-celik.windows.amd64.exe
       - name: Upload executables
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: windows-build-artifact
           path: bas-celik.windows.amd64.exe
@@ -105,9 +105,9 @@ jobs:
     needs: [test]
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Install Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v6
         with:
           go-version: "stable"
       - name: Install Fyne
@@ -146,9 +146,9 @@ jobs:
       GOARCH: amd64
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Install Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v6
         with:
           go-version: "stable"
       - name: Install Fyne
@@ -184,7 +184,7 @@ jobs:
     needs: [buildLinux, buildWindows, buildMacOsArm, buildMacOsIntel]
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - uses: actions/download-artifact@v4
       - name: Move files
         run: |
@@ -204,7 +204,7 @@ jobs:
           echo 'CLI verzije su verzije bez grafičkog interfejsa i namenjene su za napredne korisnike' >> changelog.md
           echo '' >> changelog.md
       - name: Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           files: |
             bas-celik.linux.amd64.tar.xz
