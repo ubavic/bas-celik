@@ -80,20 +80,21 @@ func StartGui(version string) {
 		pdfCyrillicLabels:       preferences.Int(pdfScriptPreferenceKey) == 1,
 	}
 
-	smartboxMode := preferences.BoolWithFallback(smartboxModeKey, false)
+	mode := preferences.IntWithFallback(modePreferenceKey, 0)
 
 	showSettings := showSetupBox()
 
-	toolbar := widgets.NewToolbar(showSettings, !smartboxMode)
+	toolbar := widgets.NewToolbar(showSettings, mode == 0)
 	state.toolbar = toolbar
 
 	if runInBackground {
 		setupTray()
 	}
 
-	if smartboxMode {
+	switch mode {
+	case 1:
 		startSmartboxUI()
-	} else {
+	default:
 		startCardReaderUI()
 	}
 }

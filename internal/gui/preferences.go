@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"runtime"
 	"time"
 
 	"fyne.io/fyne/v2/canvas"
@@ -16,8 +15,9 @@ import (
 	"fyne.io/fyne/v2/widget"
 	"github.com/ubavic/bas-celik/v2/internal/gui/widgets"
 	"github.com/ubavic/bas-celik/v2/internal/logger"
-	"github.com/ubavic/bas-celik/v2/internal/smartbox/pkcs11"
 )
+
+const modePreferenceKey = "mode"
 
 const themePreferenceKey = "color-theme"
 const languagePreferenceKey = "language"
@@ -29,7 +29,6 @@ const runInBackgroundKey = "run-in-background"
 
 const lastUsedDirectoryKey = "last-used-directory"
 
-const smartboxModeKey = "smartbox-mode"
 const mupPkcsPathKey = "mup-pkcs-path"
 const pksPkcsPathKey = "pks-pkcs-path"
 const postaPkcsPathKey = "posta-pkcs-path"
@@ -39,6 +38,12 @@ const esmartPkcsPathKey = "esmart-pkcs-path"
 func showSetupBox() func() {
 	return func() {
 		preferences := state.app.Preferences()
+
+		mode := preferences.IntWithFallback(modePreferenceKey, 0)
+		modeSelect := widget.NewSelect(
+			[]string{t("preference.mode.e-documentReading"), t("preference.mode.smartbox")},
+			func(s string) {})
+		modeSelect.SetSelectedIndex(mode)
 
 		colorTheme := preferences.IntWithFallback(themePreferenceKey, 0)
 		themeSelect := widget.NewSelect(
@@ -92,52 +97,16 @@ func showSetupBox() func() {
 		esmartPkcsEntry.SetText(preferences.String(esmartPkcsPathKey))
 		esmartPkcsEntry.SetPlaceHolder(t("preference.placeholder.modulePath"))
 
-		var afterChangeSmartboxMode func()
-
-		changeSmartboxMode := func(mode bool) {
-			if mode {
-				mupPkcsEntry.Enable()
-				pksPkcsEntry.Enable()
-				postaPkcsEntry.Enable()
-				halcomPkcsEntry.Enable()
-				esmartPkcsEntry.Enable()
-
-				if mupPkcsEntry.Text+pksPkcsEntry.Text+postaPkcsEntry.Text+halcomPkcsEntry.Text+esmartPkcsEntry.Text == "" {
-					mupPkcsEntry.SetText(pkcs11.GetDefaultPath(pkcs11.CardVendorMup, runtime.GOOS))
-					pksPkcsEntry.SetText(pkcs11.GetDefaultPath(pkcs11.CardVendorPks, runtime.GOOS))
-					postaPkcsEntry.SetText(pkcs11.GetDefaultPath(pkcs11.CardVendorPosta, runtime.GOOS))
-					halcomPkcsEntry.SetText(pkcs11.GetDefaultPath(pkcs11.CardVendorHalcom, runtime.GOOS))
-					esmartPkcsEntry.SetText(pkcs11.GetDefaultPath(pkcs11.CardVendorEsmart, runtime.GOOS))
-				}
-			} else {
-				mupPkcsEntry.Disable()
-				pksPkcsEntry.Disable()
-				postaPkcsEntry.Disable()
-				halcomPkcsEntry.Disable()
-				esmartPkcsEntry.Disable()
-			}
-
-			if afterChangeSmartboxMode != nil {
-				afterChangeSmartboxMode()
-			}
-		}
-
-		smartboxMode := preferences.BoolWithFallback(smartboxModeKey, false)
-		smartboxModeCheck := widget.NewCheck("", changeSmartboxMode)
-		smartboxModeCheck.SetChecked(smartboxMode)
-
-		if !smartboxMode {
-			changeSmartboxMode(false)
-		}
-
 		save := func() {
+			preferences.SetInt(modePreferenceKey, modeSelect.SelectedIndex())
+
 			preferences.SetInt(themePreferenceKey, themeSelect.SelectedIndex())
 			preferences.SetInt(languagePreferenceKey, languageSelect.SelectedIndex())
 			preferences.SetInt(pdfScriptPreferenceKey, pdfScriptSelect.SelectedIndex())
 			preferences.SetInt(autoSavePdfKey, autoSavePdfSelect.SelectedIndex())
 			preferences.SetString(autoSaveLocationKey, autoSaveLocationEntry.Text)
 			preferences.SetBool(runInBackgroundKey, runInBackgroundCheck.Checked)
-			preferences.SetBool(smartboxModeKey, smartboxModeCheck.Checked)
+
 			preferences.SetString(mupPkcsPathKey, mupPkcsEntry.Text)
 			preferences.SetString(pksPkcsPathKey, pksPkcsEntry.Text)
 			preferences.SetString(postaPkcsPathKey, postaPkcsEntry.Text)
@@ -154,15 +123,21 @@ func showSetupBox() func() {
 		spacer := widgets.NewSpacer()
 		spacer.SetMinWidth(160)
 
-		rows1 := container.New(layout.NewFormLayout(),
+		rows0 := container.New(layout.NewFormLayout(),
 			spacer,
 			spacer,
+			widget.NewLabel(t("preference.mode")),
+			modeSelect,
 			widget.NewLabel(t("preference.runInBackground")),
 			runInBackgroundCheck,
 			widget.NewLabel(t("preference.theme")),
 			themeSelect,
 			widget.NewLabel(t("preference.language")),
-			languageSelect,
+			languageSelect)
+
+		rows1 := container.New(layout.NewFormLayout(),
+			spacer,
+			spacer,
 			widget.NewLabel(t("preference.pdfScript")),
 			pdfScriptSelect,
 			widget.NewLabel(t("preference.autoSave")),
@@ -173,8 +148,6 @@ func showSetupBox() func() {
 		rows2 := container.New(layout.NewFormLayout(),
 			spacer,
 			spacer,
-			widget.NewLabel(t("preference.smartboxMode")),
-			smartboxModeCheck,
 			widget.NewLabel("MUP"),
 			mupPkcsEntry,
 			widget.NewLabel("PKS"),
@@ -208,13 +181,10 @@ func showSetupBox() func() {
 			widget.NewHyperlink("ubavic.rs/e-documents", guideUrl),
 		)
 
-		afterChangeSmartboxMode = func() {
-			rows2.Refresh()
-		}
-
 		tabs := container.NewAppTabs(
-			container.NewTabItem(t("preference.general"), rows1),
-			container.NewTabItem("Smartbox", rows2),
+			container.NewTabItem(t("preference.general"), rows0),
+			container.NewTabItem(t("preference.e-documents"), rows1),
+			container.NewTabItem("PKCS#11", rows2),
 			container.NewTabItem(t("preference.about"), rows3),
 		)
 
