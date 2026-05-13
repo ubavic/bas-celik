@@ -223,6 +223,7 @@ func parseMedicalDocumentFile(data []byte, doc *document.MedicalDocument) error 
 	localization.FormatDate(&doc.DateOfIssue)
 	tlv.AssignField(fields, 1558, &doc.DateOfExpiry)
 	localization.FormatDate(&doc.DateOfExpiry)
+	tlv.AssignField(fields, 1559, &doc.ChipSerialNumber)
 	tlv.AssignField(fields, 1560, &doc.PrintLanguage)
 
 	return nil
@@ -233,6 +234,7 @@ func parseMedicalFixedPersonalFile(data []byte, doc *document.MedicalDocument) e
 	if err != nil {
 		return err
 	}
+	tlv.AssignField(fields, 1569, &doc.InsurantNumber)
 	descramble(fields, 1570)
 	tlv.AssignField(fields, 1570, &doc.FamilyName)
 	descramble(fields, 1571)
@@ -243,7 +245,6 @@ func parseMedicalFixedPersonalFile(data []byte, doc *document.MedicalDocument) e
 	tlv.AssignField(fields, 1573, &doc.GivenNameLatin)
 	tlv.AssignField(fields, 1574, &doc.DateOfBirth)
 	localization.FormatDate(&doc.DateOfBirth)
-	tlv.AssignField(fields, 1569, &doc.InsurantNumber)
 
 	return nil
 }
@@ -277,12 +278,16 @@ func parseMedicalVariableAdminFile(data []byte, doc *document.MedicalDocument) e
 	tlv.AssignField(fields, 1604, &doc.PersonalNumber)
 	descramble(fields, 1605)
 	tlv.AssignField(fields, 1605, &doc.Street)
+	tlv.AssignField(fields, 1606, &doc.PostNumber)
 	descramble(fields, 1607)
 	tlv.AssignField(fields, 1607, &doc.Municipality)
 	descramble(fields, 1608)
 	tlv.AssignField(fields, 1608, &doc.Place)
+	tlv.AssignField(fields, 1609, &doc.StreetCode)
 	descramble(fields, 1610)
 	tlv.AssignField(fields, 1610, &doc.Number)
+	descramble(fields, 1611)
+	tlv.AssignField(fields, 1611, &doc.Entrance)
 	descramble(fields, 1612)
 	tlv.AssignField(fields, 1612, &doc.Apartment)
 	tlv.AssignField(fields, 1614, &doc.InsuranceBasisRZZO)

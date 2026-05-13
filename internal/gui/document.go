@@ -90,17 +90,21 @@ func pageMedical(doc *document.MedicalDocument) *fyne.Container {
 	address1Row := container.New(layout.NewHBoxLayout(), countryF, municipalityF)
 
 	placeF := widgets.NewField(t("medical.place"), doc.Place, 170)
-	street := widgets.NewField(t("medical.street"), doc.Street, 170)
-	address2Row := container.New(layout.NewHBoxLayout(), placeF, street)
+	postNumberF := widgets.NewField(t("medical.postNumber"), doc.PostNumber, 170)
+	address2Row := container.New(layout.NewHBoxLayout(), placeF, postNumberF)
+
+	streetF := widgets.NewField(t("medical.street"), doc.Street, 170)
+	streetCodeF := widgets.NewField(t("medical.streetCode"), doc.StreetCode, 170)
+	address3Row := container.New(layout.NewHBoxLayout(), streetF, streetCodeF)
 
 	halfWidth := (170 - 3*theme.Padding()) / 2
 
 	addressNumber := widgets.NewField(t("medical.number"), doc.Number, halfWidth)
-	addressEntrance := widgets.NewField(t("medical.entrance"), doc.Apartment, halfWidth)
+	addressEntrance := widgets.NewField(t("medical.entrance"), doc.Entrance, halfWidth)
 	addressApartmentNumber := widgets.NewField(t("medical.apartment"), doc.Apartment, 170)
-	address3Row := container.New(layout.NewHBoxLayout(), addressNumber, addressEntrance, addressApartmentNumber)
+	address4Row := container.New(layout.NewHBoxLayout(), addressNumber, addressEntrance, addressApartmentNumber)
 
-	generalGroup := widgets.NewGroup(t("medical.generalInformation"), nameF, birthRow, idsRow, address1Row, address2Row, address3Row)
+	generalGroup := widgets.NewGroup(t("medical.generalInformation"), nameF, birthRow, idsRow, address1Row, address2Row, address3Row, address4Row)
 
 	insuranceBasisF := widgets.NewField(t("medical.insuranceBasis"), doc.InsuranceBasisRZZO, 170)
 	insuranceStartDateF := widgets.NewField(t("medical.insuranceStartDate"), doc.InsuranceStartDate, 170)
@@ -120,7 +124,11 @@ func pageMedical(doc *document.MedicalDocument) *fyne.Container {
 	carrierRelationshipF := widgets.NewField(t("medical.relationship"), doc.CarrierRelationship, 170)
 	carrierRow2 := container.New(layout.NewHBoxLayout(), carrierFamilyMemberF, carrierRelationshipF)
 	carrierGroup := widgets.NewGroup(t("medical.insuranceCarrierInformation"), carrierNameF, carrierRow1, carrierRow2)
-	cardNumber := widgets.NewField(t("medical.cardId"), doc.CardId, 270)
+
+	cardNumber := widgets.NewField(t("medical.cardId"), doc.CardId, 170)
+	chipSerialNumber := widgets.NewField(t("medical.chipSerialNumber"), doc.ChipSerialNumber, 170)
+	cardRow0 := container.New(layout.NewHBoxLayout(), cardNumber, chipSerialNumber)
+
 	dateOfIssueF := widgets.NewField(t("medical.dateOfIssue"), doc.DateOfIssue, 170)
 	dateOfExpiryF := widgets.NewField(t("medical.dateOfExpiry"), doc.DateOfExpiry, 170)
 	cardRow1 := container.New(layout.NewHBoxLayout(), dateOfIssueF, dateOfExpiryF)
@@ -129,7 +137,7 @@ func pageMedical(doc *document.MedicalDocument) *fyne.Container {
 	permanentlyValidF := widgets.NewField(t("medical.permanentlyValid"), localization.FormatYesNo(doc.PermanentlyValid, translation.CurrentLanguage()), 170)
 	cardRow2 := container.New(layout.NewHBoxLayout(), validUntilF, permanentlyValidF)
 
-	cardGroup := widgets.NewGroup(t("medical.cardInformation"), cardNumber, cardRow1, cardRow2)
+	cardGroup := widgets.NewGroup(t("medical.cardInformation"), cardRow0, cardRow1, cardRow2)
 
 	taxpayerNameF := widgets.NewField(t("medical.taxpayerName"), doc.TaxpayerName, 350)
 	taxpayerActivityCodeF := widgets.NewField(t("medical.taxpayerActivityCode"), doc.TaxpayerActivityCode, 170)

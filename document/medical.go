@@ -49,8 +49,11 @@ type MedicalDocument struct {
 	DateOfBirth            string
 	Apartment              string
 	Number                 string
+	Entrance               string
 	Street                 string
+	StreetCode             string
 	Place                  string
+	PostNumber             string
 	Municipality           string
 	Country                string
 	ValidUntil             string
