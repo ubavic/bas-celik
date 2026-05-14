@@ -62,6 +62,22 @@ jobs:
         with:
           name: linux-build-artifact
           path: bas-celik.linux.amd64.bin
+      - name: Install nfpm
+        run: go install github.com/goreleaser/nfpm/v2/cmd/nfpm@latest
+      - name: Build DEB and RPM packages
+        run: |
+          VERSION=$(git describe --tags --abbrev=0 | tail -c +2)
+          sed "s/__VERSION__/${VERSION}/g" packaging/nfpm/debian.yaml > nfpm.debian.yaml
+          sed "s/__VERSION__/${VERSION}/g" packaging/nfpm/fedora.yaml > nfpm.fedora.yaml
+          "$(go env GOPATH)"/bin/nfpm package --packager deb --config nfpm.debian.yaml --target bas-celik_${VERSION}_amd64.deb
+          "$(go env GOPATH)"/bin/nfpm package --packager rpm --config nfpm.fedora.yaml --target bas-celik-${VERSION}-1.x86_64.rpm
+      - name: Upload Linux packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-package-build-artifact
+          path: |
+            bas-celik_*.deb
+            bas-celik-*.rpm
       - name: Build CLI version
         run: |
           echo -n "cli" >> assets/version
@@ -190,6 +206,7 @@ jobs:
         run: |
           mv linux-build-artifact/* .
           mv linux-packaged-build-artifact/* .
+          mv linux-package-build-artifact/* .
           mv linux-cli-build-artifact/* .
           mv windows-build-artifact/* .
           mv macos-arm-build-artifact/* .
@@ -209,6 +226,8 @@ jobs:
           files: |
             bas-celik.linux.amd64.tar.xz
             bas-celik.linux.amd64.bin
+            bas-celik_*.deb
+            bas-celik-*.rpm
             cli-bas-celik.linux.amd64
             bas-celik.windows.amd64.exe
             bas-celik.macos.arm.tar.gz
