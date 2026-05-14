@@ -50,7 +50,7 @@ func (s *SmartBoxServer) handleGetSignedXml(session *SmartboxSession, data []byt
 		return fmt.Errorf("certificate %s not found", hex.EncodeToString(session.certificateId))
 	}
 
-	xmlToSign, err := base64.StdEncoding.DecodeString(msg.Input.Xml)
+	xmlToSign, err := base64.RawStdEncoding.DecodeString(strings.TrimRight(msg.Input.Xml, "="))
 	if err != nil {
 		return fmt.Errorf("decoding base64 payload: %w", err)
 	}
