@@ -216,16 +216,16 @@ func pageVehicle(doc *document.VehicleDocument) *fyne.Container {
 	yearOfProductionF := widgets.NewField(t("vehicle.yearOfProduction"), doc.YearOfProduction, 220)
 	vehicleRow2 := container.New(layout.NewHBoxLayout(), colorF, yearOfProductionF)
 
-	massF := widgets.NewField(t("vehicle.vehicleMass"), doc.VehicleMass, 220)
-	maximalAllowedMassF := widgets.NewField(t("vehicle.maximumPermissibleLadenMass"), doc.MaximumPermissibleLadenMass, 220)
+	massF := widgets.NewFieldWithSuffix(t("vehicle.vehicleMass"), doc.VehicleMass, "kg", 220)
+	maximalAllowedMassF := widgets.NewFieldWithSuffix(t("vehicle.maximumPermissibleLadenMass"), doc.MaximumPermissibleLadenMass, "kg", 220)
 	vehicleRow3 := container.New(layout.NewHBoxLayout(), massF, maximalAllowedMassF)
 
-	enginePowerF := widgets.NewField(t("vehicle.maximumNetPower"), doc.MaximumNetPower, 220)
-	powerMassRatioF := widgets.NewField(t("vehicle.powerWeightRatio"), doc.PowerWeightRatio, 220)
+	enginePowerF := widgets.NewFieldWithSuffix(t("vehicle.maximumNetPower"), doc.MaximumNetPower, "kW", 220)
+	powerMassRatioF := widgets.NewFieldWithSuffix(t("vehicle.powerWeightRatio"), doc.PowerWeightRatio, "kW/kg", 220)
 	vehicleRow4 := container.New(layout.NewHBoxLayout(), enginePowerF, powerMassRatioF)
 
 	engineNumberF := widgets.NewField(t("vehicle.engineIdNumber"), doc.EngineIdNumber, 220)
-	engineCapacityF := widgets.NewField(t("vehicle.engineCapacity"), doc.EngineCapacity, 220)
+	engineCapacityF := widgets.NewFieldWithSuffix(t("vehicle.engineCapacity"), doc.EngineCapacity, "cm³", 220)
 	vehicleRow5 := container.New(layout.NewHBoxLayout(), engineNumberF, engineCapacityF)
 
 	seatsF := widgets.NewField(t("vehicle.numberOfSeats"), doc.NumberOfSeats, 220)

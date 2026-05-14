@@ -17,6 +17,7 @@ type Field struct {
 	hovered      bool
 	copied       bool
 	valueChanged bool
+	suffix       string
 }
 
 type FieldRenderer struct {
@@ -24,6 +25,7 @@ type FieldRenderer struct {
 	background *canvas.Rectangle
 	nameText   *canvas.Text
 	valueLabel *widget.Label
+	suffixText *canvas.Text
 }
 
 func NewField(name, value string, minWidth float32) *Field {
@@ -36,9 +38,18 @@ func NewField(name, value string, minWidth float32) *Field {
 	return field
 }
 
+func NewFieldWithSuffix(name, value, suffix string, minWidth float32) *Field {
+	field := NewField(name, value, minWidth)
+	field.suffix = suffix
+	return field
+}
+
 func (f *Field) CreateRenderer() fyne.WidgetRenderer {
 	nameText := canvas.NewText(f.name, theme.Color(theme.ColorNameForeground))
 	nameText.TextSize = 11
+
+	suffixText := canvas.NewText(f.suffix, theme.Color(theme.ColorNameDisabled))
+	suffixText.TextSize = 11
 
 	valueText := widget.NewLabel(f.value)
 	valueText.Alignment = fyne.TextAlignLeading
@@ -53,6 +64,7 @@ func (f *Field) CreateRenderer() fyne.WidgetRenderer {
 		background: background,
 		nameText:   nameText,
 		valueLabel: valueText,
+		suffixText: suffixText,
 	}
 }
 
@@ -107,6 +119,7 @@ func (r *FieldRenderer) Layout(s fyne.Size) {
 	r.nameText.Move(fyne.Position{X: theme.Padding(), Y: 0})
 	r.valueLabel.Resize(s.SubtractWidthHeight(0, 2*theme.Padding()))
 	r.valueLabel.Move(fyne.Position{X: -theme.Padding(), Y: theme.Padding()})
+	r.suffixText.Move(fyne.NewPos(r.nameText.MinSize().Width+2*theme.Padding(), 0))
 	r.background.Resize(s)
 }
 
@@ -115,7 +128,7 @@ func (r *FieldRenderer) MinSize() fyne.Size {
 }
 
 func (r *FieldRenderer) Objects() []fyne.CanvasObject {
-	return []fyne.CanvasObject{r.background, r.valueLabel, r.nameText}
+	return []fyne.CanvasObject{r.background, r.valueLabel, r.nameText, r.suffixText}
 }
 
 func (r *FieldRenderer) Destroy() {}
