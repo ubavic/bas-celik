@@ -1,4 +1,4 @@
-package server
+package smartbox
 
 import (
 	"encoding/hex"

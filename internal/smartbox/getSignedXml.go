@@ -1,4 +1,4 @@
-package server
+package smartbox
 
 import (
 	"crypto/x509"

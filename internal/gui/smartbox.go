@@ -8,7 +8,7 @@ import (
 	"fyne.io/fyne/v2/layout"
 	"github.com/ubavic/bas-celik/v2/internal/gui/widgets"
 	"github.com/ubavic/bas-celik/v2/internal/pkcs11"
-	"github.com/ubavic/bas-celik/v2/internal/smartbox/server"
+	"github.com/ubavic/bas-celik/v2/internal/smartbox"
 )
 
 func startSmartboxUI() {
@@ -20,7 +20,7 @@ func startSmartboxUI() {
 
 	state.mainContainer.Add(state.documentUi)
 
-	port, loadedVendors, err := server.StartServer(modulePaths)
+	port, loadedVendors, err := smartbox.StartServer(modulePaths)
 	if err != nil {
 		setStartPage("smartbox.error", "", err)
 		state.statusBar.SetStatus(err.Error(), true)
