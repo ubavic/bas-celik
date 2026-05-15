@@ -16,9 +16,10 @@ type Group struct {
 }
 
 type GroupRenderer struct {
-	group    *Group
-	nameText *canvas.Text
-	column   *fyne.Container
+	group      *Group
+	nameText   *canvas.Text
+	column     *fyne.Container
+	baseHeight float32
 }
 
 func NewGroup(name string, objects ...fyne.CanvasObject) *Group {
@@ -35,15 +36,18 @@ func (g *Group) CreateRenderer() fyne.WidgetRenderer {
 	nameText.TextStyle.Bold = true
 	nameText.TextSize = 14
 
-	nameText.Move(fyne.NewPos(2*theme.Padding(), 0))
+	baseHeight := 3 * theme.Padding()
+	if len(g.objects) > 0 {
+		baseHeight = g.objects[0].MinSize().Height
+	}
 
 	column := container.New(layout.NewVBoxLayout(), g.objects...)
-	column.Move(fyne.NewPos(theme.Padding(), 6*theme.Padding()))
 
 	return &GroupRenderer{
-		group:    g,
-		nameText: nameText,
-		column:   column,
+		group:      g,
+		nameText:   nameText,
+		column:     column,
+		baseHeight: baseHeight,
 	}
 }
 
@@ -53,12 +57,16 @@ func (r *GroupRenderer) Refresh() {
 }
 
 func (r *GroupRenderer) Layout(s fyne.Size) {
-	r.column.Move(fyne.Position{X: theme.Padding(), Y: 6 * theme.Padding()})
+	textHeight := r.nameText.MinSize().Height
+	r.nameText.Move(fyne.NewPos(2*theme.Padding(), r.baseHeight-textHeight))
+	r.column.Move(fyne.Position{X: theme.Padding(), Y: r.baseHeight + theme.Padding()})
 	r.column.Layout.Layout(r.group.objects, s.SubtractWidthHeight(2*theme.Padding(), 0))
 }
 
 func (r *GroupRenderer) MinSize() fyne.Size {
-	return fyne.NewSize(r.column.MinSize().Width+2*theme.Padding(), r.column.MinSize().Height+10*theme.Padding())
+	width := r.column.MinSize().Width + 2*theme.Padding()
+	height := r.column.MinSize().Height + r.baseHeight + theme.Padding()
+	return fyne.NewSize(width, height)
 }
 
 func (r *GroupRenderer) Objects() []fyne.CanvasObject {
