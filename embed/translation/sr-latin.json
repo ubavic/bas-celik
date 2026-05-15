@@ -104,6 +104,7 @@
   "preference.mode.e-documentReading": "Čitanje dokumenata",
   "preference.mode.smartbox": "Smartbox (ePorezi)",
   "preference.pdfScript": "Pismo PDF-a",
+  "preference.pkcsLoadError": "Došlo je do greške prilikom učitavanja PKCS#11 modula. Proverite putanju modula.",
   "preference.placeholder.modulePath": "Unesi putanju do modula",
   "preference.placeholder.directoryPath": "Unesi putanju direktorijuma",
   "preference.runInBackground": "Pokreni i u pozadini",

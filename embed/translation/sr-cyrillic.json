@@ -104,6 +104,7 @@
   "preference.mode.e-documentReading": "Читање докумената",
   "preference.mode.smartbox": "Smartbox (еПорези)",
   "preference.pdfScript": "Писмо PDF-a",
+  "preference.pkcsLoadError": "Дошло је до грешке приликом учитавања PKCS#11 модула. Проверите путању модула.",
   "preference.placeholder.modulePath": "Унеси путању до модула",
   "preference.placeholder.directoryPath": "Унеси путању директоријума",
   "preference.runInBackground": "Покрени и у позадини",

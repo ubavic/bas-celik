@@ -104,6 +104,7 @@
     "preference.mode.e-documentReading": "Document reading",
     "preference.mode.smartbox": "Smartbox (ePorezi - tax portal)",
     "preference.pdfScript": "PDF script",
+    "preference.pkcsLoadError": "Error occurred while loading PKCS#11 module. Check the module path.",
     "preference.placeholder.modulePath": "Enter module path",
     "preference.placeholder.directoryPath": "Enter directory path",
     "preference.runInBackground": "Run in background also",

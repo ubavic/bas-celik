@@ -104,6 +104,7 @@
     "preference.mode.e-documentReading": "Чтение документов",
     "preference.mode.smartbox": "Smartbox (eПорези - налоговый портал)",
     "preference.pdfScript": "PDF письмо",
+    "preference.pkcsLoadError": "Произошла ошибка при загрузке модуля PKCS#11. Проверьте путь к модулю.",
     "preference.placeholder.modulePath": "Укажите путь к модулю",
     "preference.placeholder.directoryPath": "Укажите путь к папке",
     "preference.runInBackground": "Запускать также в фоне",

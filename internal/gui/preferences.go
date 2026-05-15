@@ -2,9 +2,12 @@ package gui
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
+	"os"
+	"strings"
 	"time"
 
 	"fyne.io/fyne/v2/canvas"
@@ -13,6 +16,7 @@ import (
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
+	"github.com/miekg/pkcs11"
 	"github.com/ubavic/bas-celik/v2/internal/gui/widgets"
 	"github.com/ubavic/bas-celik/v2/internal/logger"
 )
@@ -81,23 +85,52 @@ func showSetupBox() func() {
 		runInBackgroundCheck := widget.NewCheck("", func(b bool) {})
 		runInBackgroundCheck.SetChecked(runInBackground)
 
+		pkcsChanged := false
+		onChangePkcsEntry := func(s string) {
+			pkcsChanged = true
+		}
+
 		mupPkcsEntry := widget.NewEntry()
 		mupPkcsEntry.SetText(preferences.String(mupPkcsPathKey))
 		mupPkcsEntry.SetPlaceHolder(t("preference.placeholder.modulePath"))
+		mupPkcsEntry.OnChanged = onChangePkcsEntry
 		pksPkcsEntry := widget.NewEntry()
 		pksPkcsEntry.SetText(preferences.String(pksPkcsPathKey))
 		pksPkcsEntry.SetPlaceHolder(t("preference.placeholder.modulePath"))
+		pksPkcsEntry.OnChanged = onChangePkcsEntry
 		postaPkcsEntry := widget.NewEntry()
 		postaPkcsEntry.SetText(preferences.String(postaPkcsPathKey))
 		postaPkcsEntry.SetPlaceHolder(t("preference.placeholder.modulePath"))
+		postaPkcsEntry.OnChanged = onChangePkcsEntry
 		halcomPkcsEntry := widget.NewEntry()
 		halcomPkcsEntry.SetText(preferences.String(halcomPkcsPathKey))
 		halcomPkcsEntry.SetPlaceHolder(t("preference.placeholder.modulePath"))
+		halcomPkcsEntry.OnChanged = onChangePkcsEntry
 		esmartPkcsEntry := widget.NewEntry()
 		esmartPkcsEntry.SetText(preferences.String(esmartPkcsPathKey))
 		esmartPkcsEntry.SetPlaceHolder(t("preference.placeholder.modulePath"))
+		esmartPkcsEntry.OnChanged = onChangePkcsEntry
 
-		save := func() {
+		save := func() bool {
+			if pkcsChanged {
+				if !isPkcsModuleValid("MUP", cleanPath(mupPkcsEntry.Text)) {
+					return false
+				}
+				if !isPkcsModuleValid("PKS", cleanPath(pksPkcsEntry.Text)) {
+					return false
+				}
+				if !isPkcsModuleValid("Pošta", cleanPath(postaPkcsEntry.Text)) {
+					return false
+				}
+				if !isPkcsModuleValid("Halcom", cleanPath(halcomPkcsEntry.Text)) {
+					return false
+				}
+				if !isPkcsModuleValid("E-Smart", cleanPath(esmartPkcsEntry.Text)) {
+					return false
+				}
+				pkcsChanged = false
+			}
+
 			preferences.SetInt(modePreferenceKey, modeSelect.SelectedIndex())
 
 			preferences.SetInt(themePreferenceKey, themeSelect.SelectedIndex())
@@ -107,13 +140,15 @@ func showSetupBox() func() {
 			preferences.SetString(autoSaveLocationKey, autoSaveLocationEntry.Text)
 			preferences.SetBool(runInBackgroundKey, runInBackgroundCheck.Checked)
 
-			preferences.SetString(mupPkcsPathKey, mupPkcsEntry.Text)
-			preferences.SetString(pksPkcsPathKey, pksPkcsEntry.Text)
-			preferences.SetString(postaPkcsPathKey, postaPkcsEntry.Text)
-			preferences.SetString(halcomPkcsPathKey, halcomPkcsEntry.Text)
-			preferences.SetString(esmartPkcsPathKey, esmartPkcsEntry.Text)
+			preferences.SetString(mupPkcsPathKey, cleanPath(mupPkcsEntry.Text))
+			preferences.SetString(pksPkcsPathKey, cleanPath(pksPkcsEntry.Text))
+			preferences.SetString(postaPkcsPathKey, cleanPath(postaPkcsEntry.Text))
+			preferences.SetString(halcomPkcsPathKey, cleanPath(halcomPkcsEntry.Text))
+			preferences.SetString(esmartPkcsPathKey, cleanPath(esmartPkcsEntry.Text))
 
 			dialog.ShowInformation(t("preference.saved"), t("preference.startAgain"), state.window)
+
+			return true
 		}
 
 		title := canvas.NewText(t("preference.title"), theme.Color(theme.ColorNameForeground))
@@ -189,9 +224,10 @@ func showSetupBox() func() {
 		)
 
 		saveButton := widget.NewButton(t("preference.save"), func() {
-			save()
-			showDocumentUI()
-			setTimedStatus(t("preference.saved"))
+			if save() {
+				showDocumentUI()
+				setTimedStatus(t("preference.saved"))
+			}
 		})
 		saveButton.Importance = widget.HighImportance
 
@@ -264,4 +300,47 @@ func checkForUpdate() (string, error) {
 	}
 
 	return response.TagName, nil
+}
+
+func cleanPath(path string) string {
+	return strings.Trim(path, " ")
+}
+
+func isPkcsModuleValid(vendor, path string) bool {
+	err := checkPkcsModulePath(path)
+	if err == nil {
+		return true
+	}
+
+	logger.Error(err)
+	info := dialog.NewInformation(vendor, t("preference.pkcsLoadError"), state.window)
+	info.Show()
+
+	return false
+}
+
+func checkPkcsModulePath(path string) error {
+	path = cleanPath(path)
+
+	if path == "" {
+		return nil
+	}
+
+	fileInfo, err := os.Stat(path)
+	if err != nil {
+		return fmt.Errorf("checking file: %w", err)
+	}
+
+	if fileInfo.IsDir() {
+		return errors.New("file is directory")
+	}
+
+	ctx := pkcs11.New(path)
+	if ctx == nil {
+		return errors.New("can't load module")
+	}
+
+	ctx.Destroy()
+
+	return nil
 }
