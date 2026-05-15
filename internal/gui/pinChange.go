@@ -2,6 +2,7 @@ package gui
 
 import (
 	"errors"
+	"strconv"
 
 	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/widget"
@@ -13,17 +14,28 @@ import (
 
 func pinChange() func() {
 	return func() {
-		dialog.ShowConfirm(t("pinChange.title"), t("pinChange.note"), func(changePinContinue bool) {
-			if changePinContinue {
-				pinForm()
-			}
-		}, state.window)
+		gemaltoCard, ok := state.cardDocument.(*card.Gemalto)
+		if !ok {
+			return
+		}
+
+		reader.CancelReaderPoler()
+		defer reader.RestartReaderPoler()
+
+		triesLeft, err := gemaltoCard.PinTriesLeft()
+		if err != nil {
+			logger.Error(err)
+			return
+		}
+
+		pinForm(triesLeft)
 	}
 }
 
-func pinForm() {
+func pinForm(triesLeft int) {
 	var pinDialog *dialog.CustomDialog
 
+	triesLeftLabel := widget.NewLabel(strconv.Itoa(triesLeft))
 	oldPinEntry := widget.NewPasswordEntry()
 	newPinEntry := widget.NewPasswordEntry()
 	confirmNewPinEntry := widget.NewPasswordEntry()
@@ -32,6 +44,7 @@ func pinForm() {
 	spacer.SetMinWidth(200)
 
 	formItems := []*widget.FormItem{
+		{Text: t("pinChange.triesLeft"), Widget: triesLeftLabel},
 		{Text: t("pinChange.oldPin"), Widget: oldPinEntry},
 		{Text: t("pinChange.newPin"), Widget: newPinEntry},
 		{Text: t("pinChange.confirmNewPin"), Widget: confirmNewPinEntry},
@@ -79,12 +92,14 @@ func pinForm() {
 			}
 
 			reader.CancelReaderPoler()
+			defer reader.RestartReaderPoler()
+
 			triesLeft, err := gemaltoCard.ChangePin(newPinEntry.Text, oldPinEntry.Text)
 			if err != nil {
 				pinDialog.Hide()
 				message := t("pinChange.error")
 				if triesLeft > -1 {
-					message += "\n" + t("pinChange.triesLeft", triesLeft)
+					message += "\n" + t("pinChange.triesLeft") + ":" + strconv.Itoa(triesLeft)
 				}
 				dialog.ShowInformation(t("pinChange.title"), message, state.window)
 				logger.Error(err)
@@ -94,7 +109,6 @@ func pinForm() {
 				dialog.ShowInformation(t("pinChange.title"), t("pinChange.success"), state.window)
 				logger.Info("pin changed")
 			}
-			reader.RestartReaderPoler()
 		},
 		CancelText: t("pinChange.cancel"),
 		OnCancel: func() {

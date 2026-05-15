@@ -263,6 +263,34 @@ func (card *Gemalto) InitCrypto() error {
 	return nil
 }
 
+func (card *Gemalto) PinTriesLeft() (int, error) {
+	err := card.smartCard.BeginTransaction()
+	if err != nil {
+		return -1, err
+	}
+
+	defer card.smartCard.EndTransaction(scard.LeaveCard)
+
+	err = card.InitCrypto()
+	if err != nil {
+		return -1, fmt.Errorf("initializing cryptography application: %w", err)
+	}
+
+	apu := buildAPDU(0x00, 0x20, 0x00, 0x80, nil, 0)
+
+	rsp, err := card.smartCard.Transmit(apu)
+	if err != nil {
+		return -1, fmt.Errorf("getting pin tries left: %w", err)
+	}
+
+	triesLeft := PinTriesLeft(rsp)
+	if triesLeft == -1 {
+		return triesLeft, fmt.Errorf("verifying old pin: response %s", hex.EncodeToString(rsp))
+	}
+
+	return triesLeft, nil
+}
+
 // Returns number of tries left, and occurred error.
 // -1 signifies unknown number of tries left
 func (card *Gemalto) ChangePin(newPin, oldPin string) (int, error) {
