@@ -62,7 +62,7 @@ func pageID(doc *document.IdDocument) *fyne.Container {
 	colRight := container.New(layout.NewVBoxLayout(), personInformationGroup, docGroup)
 
 	imgWidget := canvas.NewImageFromImage(doc.Portrait)
-	imgWidget.SetMinSize(fyne.Size{Width: 200, Height: 250})
+	imgWidget.SetMinSize(fyne.NewSize(200, 250))
 	imgWidget.FillMode = canvas.ImageFillContain
 	imgWidget.CornerRadius = theme.InputRadiusSize()
 

@@ -59,7 +59,7 @@ func (r *GroupRenderer) Refresh() {
 func (r *GroupRenderer) Layout(s fyne.Size) {
 	textHeight := r.nameText.MinSize().Height
 	r.nameText.Move(fyne.NewPos(2*theme.Padding(), r.baseHeight-textHeight))
-	r.column.Move(fyne.Position{X: theme.Padding(), Y: r.baseHeight + theme.Padding()})
+	r.column.Move(fyne.NewPos(theme.Padding(), r.baseHeight+theme.Padding()))
 	r.column.Layout.Layout(r.group.objects, s.SubtractWidthHeight(2*theme.Padding(), 0))
 }
 

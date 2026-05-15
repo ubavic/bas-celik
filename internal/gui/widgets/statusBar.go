@@ -62,7 +62,7 @@ func (r *StatusBarRenderer) Refresh() {
 }
 
 func (r *StatusBarRenderer) Layout(s fyne.Size) {
-	r.statusText.Move(fyne.Position{X: theme.Padding(), Y: 2 * theme.Padding()})
+	r.statusText.Move(fyne.NewPos(theme.Padding(), 2*theme.Padding()))
 }
 
 func (r *StatusBarRenderer) MinSize() fyne.Size {

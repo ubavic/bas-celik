@@ -116,9 +116,9 @@ func (r *FieldRenderer) Refresh() {
 }
 
 func (r *FieldRenderer) Layout(s fyne.Size) {
-	r.nameText.Move(fyne.Position{X: theme.Padding(), Y: 0})
+	r.nameText.Move(fyne.NewPos(theme.Padding(), 0))
 	r.valueLabel.Resize(s.SubtractWidthHeight(0, 2*theme.Padding()))
-	r.valueLabel.Move(fyne.Position{X: -theme.Padding(), Y: theme.Padding()})
+	r.valueLabel.Move(fyne.NewPos(-theme.Padding(), theme.Padding()))
 	r.suffixText.Move(fyne.NewPos(r.nameText.MinSize().Width+2*theme.Padding(), 0))
 	r.background.Resize(s)
 }
