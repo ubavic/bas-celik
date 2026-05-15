@@ -18,7 +18,7 @@ import (
 	"time"
 
 	"github.com/coder/websocket"
-	"github.com/ubavic/bas-celik/v2/internal/smartbox/pkcs11"
+	"github.com/ubavic/bas-celik/v2/internal/pkcs11"
 )
 
 func setupIntegrationServer(t *testing.T) (*httptest.Server, *x509.Certificate, *rsa.PrivateKey, []byte) {

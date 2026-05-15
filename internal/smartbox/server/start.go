@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/ubavic/bas-celik/v2/internal/logger"
-	"github.com/ubavic/bas-celik/v2/internal/smartbox/pkcs11"
+	"github.com/ubavic/bas-celik/v2/internal/pkcs11"
 )
 
 const bindHost = "127.0.0.1"

@@ -17,7 +17,7 @@ import (
 
 	"github.com/beevik/etree"
 	"github.com/moov-io/signedxml"
-	"github.com/ubavic/bas-celik/v2/internal/smartbox/pkcs11"
+	"github.com/ubavic/bas-celik/v2/internal/pkcs11"
 )
 
 func TestFormatSubject(t *testing.T) {

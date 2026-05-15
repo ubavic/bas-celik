@@ -7,7 +7,7 @@ import (
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/layout"
 	"github.com/ubavic/bas-celik/v2/internal/gui/widgets"
-	"github.com/ubavic/bas-celik/v2/internal/smartbox/pkcs11"
+	"github.com/ubavic/bas-celik/v2/internal/pkcs11"
 	"github.com/ubavic/bas-celik/v2/internal/smartbox/server"
 )
 

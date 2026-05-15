@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/ubavic/bas-celik/v2/internal/smartbox/pkcs11"
+	"github.com/ubavic/bas-celik/v2/internal/pkcs11"
 )
 
 func TestHandleGetProviders(t *testing.T) {
