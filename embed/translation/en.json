@@ -108,6 +108,7 @@
     "preference.placeholder.modulePath": "Enter module path",
     "preference.placeholder.directoryPath": "Enter directory path",
     "preference.runInBackground": "Run in background also",
+    "preference.checkVersionOnStartup": "Check for updates on startup",
     "preference.save": "Save",
     "preference.saved": "Preferences saved",
     "preference.smartboxMode": "Smartbox mode",

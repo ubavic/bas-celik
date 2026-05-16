@@ -1,14 +1,11 @@
 package gui
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
-	"net/http"
 	"net/url"
 	"os"
 	"strings"
-	"time"
 
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
@@ -30,6 +27,7 @@ const autoSavePdfKey = "auto-save-pdf"
 const autoSaveLocationKey = "auto-save-location"
 
 const runInBackgroundKey = "run-in-background"
+const checkVersionOnStartupKey = "check-version-on-startup"
 
 const lastUsedDirectoryKey = "last-used-directory"
 
@@ -85,6 +83,10 @@ func showSetupBox() func() {
 		runInBackgroundCheck := widget.NewCheck("", func(b bool) {})
 		runInBackgroundCheck.SetChecked(runInBackground)
 
+		checkVersionOnStartup := preferences.BoolWithFallback(checkVersionOnStartupKey, true)
+		checkVersionOnStartupCheck := widget.NewCheck("", func(b bool) {})
+		checkVersionOnStartupCheck.SetChecked(checkVersionOnStartup)
+
 		pkcsChanged := false
 		onChangePkcsEntry := func(s string) {
 			pkcsChanged = true
@@ -139,6 +141,7 @@ func showSetupBox() func() {
 			preferences.SetInt(autoSavePdfKey, autoSavePdfSelect.SelectedIndex())
 			preferences.SetString(autoSaveLocationKey, autoSaveLocationEntry.Text)
 			preferences.SetBool(runInBackgroundKey, runInBackgroundCheck.Checked)
+			preferences.SetBool(checkVersionOnStartupKey, checkVersionOnStartupCheck.Checked)
 
 			preferences.SetString(mupPkcsPathKey, cleanPath(mupPkcsEntry.Text))
 			preferences.SetString(pksPkcsPathKey, cleanPath(pksPkcsEntry.Text))
@@ -165,6 +168,8 @@ func showSetupBox() func() {
 			modeSelect,
 			widget.NewLabel(t("preference.runInBackground")),
 			runInBackgroundCheck,
+			widget.NewLabel(t("preference.checkVersionOnStartup")),
+			checkVersionOnStartupCheck,
 			widget.NewLabel(t("preference.theme")),
 			themeSelect,
 			widget.NewLabel(t("preference.language")),
@@ -251,55 +256,6 @@ func showSetupBox() func() {
 		state.mainContainer.RemoveAll()
 		state.mainContainer.Add(content)
 	}
-}
-
-func populateNewVersionInfo(versionLabel *widget.Label) {
-	newVersion, err := checkForUpdate()
-	if err != nil || newVersion == "" {
-		logger.Error(err)
-		return
-	}
-
-	information := ""
-
-	if newVersion != "v"+state.version {
-		information = fmt.Sprintf(t("about.newVersionAvailable"), newVersion)
-	} else {
-		information = t("about.youHaveLatestVersion")
-	}
-
-	versionLabel.SetText(information)
-}
-
-func checkForUpdate() (string, error) {
-	client := http.Client{
-		Timeout: time.Second,
-	}
-
-	url := `https://api.github.com/repos/ubavic/bas-celik/releases/latest`
-	req, err := http.NewRequest(http.MethodGet, url, nil)
-	if err != nil {
-		return "", fmt.Errorf("creating request: %w", err)
-	}
-
-	res, err := client.Do(req)
-	if err != nil {
-		return "", fmt.Errorf("executing request: %w", err)
-	}
-
-	if res.Body != nil {
-		defer res.Body.Close()
-	}
-
-	response := struct {
-		TagName string `json:"tag_name"`
-	}{}
-	err = json.NewDecoder(res.Body).Decode(&response)
-	if err != nil {
-		return "", fmt.Errorf("decoding response: %w", err)
-	}
-
-	return response.TagName, nil
 }
 
 func cleanPath(path string) string {

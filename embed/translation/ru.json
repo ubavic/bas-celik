@@ -108,6 +108,7 @@
     "preference.placeholder.modulePath": "Укажите путь к модулю",
     "preference.placeholder.directoryPath": "Укажите путь к папке",
     "preference.runInBackground": "Запускать также в фоне",
+    "preference.checkVersionOnStartup": "Проверять обновления при запуске",
     "preference.save": "Сохранить",
     "preference.saved": "Настройки сохранены",
     "preference.smartboxMode": "Режим Smartbox",

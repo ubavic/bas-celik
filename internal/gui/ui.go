@@ -91,6 +91,8 @@ func StartGui(version string) {
 		setupTray()
 	}
 
+	checkVersionOnStartup()
+
 	switch mode {
 	case 1:
 		startSmartboxUI()

@@ -108,6 +108,7 @@
   "preference.placeholder.modulePath": "Унеси путању до модула",
   "preference.placeholder.directoryPath": "Унеси путању директоријума",
   "preference.runInBackground": "Покрени и у позадини",
+  "preference.checkVersionOnStartup": "Провери ажурирања при покретању",
   "preference.save": "Сачувај",
   "preference.saved": "Подешавања сачувана",
   "preference.smartboxMode": "Smartbox режим",
