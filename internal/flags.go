@@ -133,5 +133,5 @@ func printVersion() {
 }
 
 func SetVersion(v string) {
-	version = v
+	version = strings.TrimSpace(v)
 }
