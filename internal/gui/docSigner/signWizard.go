@@ -74,9 +74,9 @@ func InitSignWizard(win fyne.Window, translate func(string, ...any) string, load
 	buttonRow := container.New(layout.NewHBoxLayout(), layout.NewSpacer(), backBtn, nextBtn)
 	signWizard.Panel = container.New(layout.NewVBoxLayout(), scroll, buttonRow)
 
-	signWizard.appendStep(&moduleStep{})
-
 	gWizard = &signWizard
+
+	gWizard.appendStep(&moduleStep{})
 
 	return gWizard
 }
