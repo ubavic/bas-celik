@@ -34,6 +34,19 @@ func init() {
 	gModuleContexts = make(map[CardVendor]*pkcs11.Ctx)
 }
 
+func GetLoadedVendors() []CardVendor {
+	mu.Lock()
+	defer mu.Unlock()
+
+	vendors := make([]CardVendor, 0, len(gModuleContexts))
+	for v, ctx := range gModuleContexts {
+		if ctx != nil {
+			vendors = append(vendors, v)
+		}
+	}
+	return vendors
+}
+
 func Deinit() {
 	for _, c := range gModuleContexts {
 		if c == nil {
@@ -152,8 +165,6 @@ func (pm *PkcsModuleSession) OpenSessionAndLogin(pin string, slotId int) error {
 		}
 
 		pm.context.CloseSession(session)
-		pm.context.Destroy()
-		pm.context = nil
 		return fmt.Errorf("failed to login to smart card: %w", err)
 	}
 

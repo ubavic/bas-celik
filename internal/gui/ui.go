@@ -96,6 +96,8 @@ func StartGui(version string) {
 	switch mode {
 	case 1:
 		startSmartboxUI()
+	case 2:
+		startXmlSigningUI()
 	default:
 		startCardReaderUI()
 	}

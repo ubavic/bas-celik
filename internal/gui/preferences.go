@@ -43,7 +43,7 @@ func showSetupBox() func() {
 
 		mode := preferences.IntWithFallback(modePreferenceKey, 0)
 		modeSelect := widget.NewSelect(
-			[]string{t("preference.mode.e-documentReading"), t("preference.mode.smartbox")},
+			[]string{t("preference.mode.e-documentReading"), t("preference.mode.smartbox"), t("preference.mode.xmlSigning")},
 			func(s string) {})
 		modeSelect.SetSelectedIndex(mode)
 

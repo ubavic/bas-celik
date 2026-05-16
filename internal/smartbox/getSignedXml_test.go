@@ -18,6 +18,7 @@ import (
 	"github.com/beevik/etree"
 	"github.com/moov-io/signedxml"
 	"github.com/ubavic/bas-celik/v2/internal/pkcs11"
+	"github.com/ubavic/bas-celik/v2/internal/xmlsign"
 )
 
 func TestFormatSubject(t *testing.T) {
@@ -32,7 +33,7 @@ func TestFormatSubject(t *testing.T) {
 		},
 	}
 
-	result := formatSubject(subject)
+	result := xmlsign.FormatSubject(subject)
 
 	if !strings.Contains(result, "CN=Petar Petrović") {
 		t.Errorf("expected CN in result, got %q", result)
@@ -62,7 +63,7 @@ func TestFormatSubjectNoCountry(t *testing.T) {
 		CommonName: "Test",
 	}
 
-	result := formatSubject(subject)
+	result := xmlsign.FormatSubject(subject)
 	if !strings.HasSuffix(result, "C=") {
 		t.Errorf("expected empty country, got %q", result)
 	}
@@ -78,7 +79,7 @@ func TestPopulateSignature(t *testing.T) {
 	doc := etree.NewDocument()
 	doc.ReadFromString(`<Root><Data>test</Data></Root>`)
 
-	err := populateSignature(doc.Root(), cert)
+	err := xmlsign.PopulateSignature(doc.Root(), cert)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -167,7 +168,7 @@ func TestPopulateSignatureAlreadyExists(t *testing.T) {
 	doc := etree.NewDocument()
 	doc.ReadFromString(`<Root><Signature></Signature></Root>`)
 
-	err := populateSignature(doc.Root(), cert)
+	err := xmlsign.PopulateSignature(doc.Root(), cert)
 	if err == nil {
 		t.Fatal("expected error when Signature already exists")
 	}
