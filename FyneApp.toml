@@ -1,7 +1,7 @@
 Website = "https://github.com/ubavic/bas-celik"
 
 [Details]
-  Icon = "assets/logo.png"
-  Name = "Bas Celik"
-  ID = "com.github.ubavic.bas-celik"
-  Build = 1
+Icon = "assets/logo.png"
+Name = "Bas Celik"
+ID = "com.github.ubavic.bas-celik"
+Build = 1
