@@ -22,7 +22,7 @@ func checkVersionOnStartup() {
 	go func() {
 		newVersion, err := checkForUpdate()
 		if err != nil {
-			logger.Error(err)
+			logger.Error(fmt.Errorf("checking version: %w", err))
 			return
 		}
 		if newVersion == "" || newVersion == "v"+state.version {
@@ -36,7 +36,7 @@ func checkVersionOnStartup() {
 func populateNewVersionInfo(versionLabel *widget.Label) {
 	newVersion, err := checkForUpdate()
 	if err != nil {
-		logger.Error(err)
+		logger.Error(fmt.Errorf("populating version info: %w", err))
 		return
 	}
 	if newVersion == "" {
