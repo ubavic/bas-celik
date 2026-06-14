@@ -49,9 +49,11 @@ jobs:
         run: |
           fyne package -os linux -release
           mv 'Bas Celik.tar.xz' bas-celik.linux.amd64.tar.xz
-      - name: Build GUI version
+      - name: Extract bin
         run: |
-          go build -ldflags "-s -w" -o bas-celik.linux.amd64.bin .
+          mkdir tmpcelik
+          tar -xf bas-celik.linux.amd64.tar.xz -C tmpcelik/
+          cp tmpcelik/bas-celik/usr/local/bin/bas-celik bas-celik.linux.amd64.bin
       - name: Install nfpm
         run: go install github.com/goreleaser/nfpm/v2/cmd/nfpm@latest
       - name: Build DEB and RPM packages
