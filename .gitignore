@@ -1,5 +1,8 @@
+fyne-cross/
+bin/
+tmpcelik/
+
 bas-celik*
-main
 __debug_bin*
 *.pdf
 *.json
@@ -18,11 +21,11 @@ __debug_bin*
 *.cert
 *.pub
 *.priv
-fyne-cross/
-bin/
 *.out
 *.cov
 *.log
+
+main
 .idea
 .DS_Store
 todo.md
