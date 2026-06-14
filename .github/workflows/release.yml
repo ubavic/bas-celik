@@ -69,7 +69,7 @@ jobs:
           rm -R embed/translation
           go build -tags "cli" -ldflags "-s -w" -o cli-bas-celik.linux.amd64 .
       - name: Upload Linux artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: linux-build-artifact
           path: |
@@ -134,7 +134,7 @@ jobs:
           rm -R embed/translation
           go build -tags "cli" -ldflags "-s -w" -o cli-bas-celik.macos.arm .
       - name: Upload macOS ARM artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: macos-arm-build-artifact
           path: |
@@ -172,7 +172,7 @@ jobs:
           rm -R embed/translation
           go build -tags "cli" -ldflags "-s -w" -o cli-bas-celik.macos.intel .
       - name: Upload macOS Intel artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: macos-intel-build-artifact
           path: |
@@ -185,7 +185,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
       - name: Move files
         run: |
           mv linux-build-artifact/* .
