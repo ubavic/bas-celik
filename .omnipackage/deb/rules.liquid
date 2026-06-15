@@ -1,0 +1,36 @@
+#!/usr/bin/make -f
+# debian/rules — Debian build rules. Recipe indents are TABS, not spaces.
+# -*- makefile -*-
+
+export DESTROOT = $(CURDIR)/debian/{{ package_name }}
+export GOTOOLCHAIN = auto
+export CGO_ENABLED = 1
+export GOFLAGS = -mod=mod
+# Force Go module defaults (some distros ship GOSUMDB=off, blocking toolchain fetch).
+export GOPROXY = https://proxy.golang.org,direct
+export GOSUMDB = sum.golang.org
+# Keep the Go module/build caches inside the build tree (HOME may be restricted).
+export GOPATH = $(CURDIR)/.gopath
+export GOCACHE = $(CURDIR)/.gocache
+# export DH_VERBOSE=1
+
+%:
+	dh $@
+
+# Go binaries carry no DWARF debug info (built with -s -w); skip dwz/strip steps.
+override_dh_dwz:
+
+override_dh_auto_test:
+
+override_dh_auto_build:
+	printf '%s' "{{ version }}" > assets/version
+	go build -ldflags "-s -w" -o bas-celik .
+	printf 'cli' >> assets/version
+	rm -rf embed/translation
+	go build -tags "cli" -ldflags "-s -w" -o cli-bas-celik .
+
+override_dh_auto_install:
+	install -Dm0755 bas-celik $(DESTROOT)/usr/bin/bas-celik
+	install -Dm0755 cli-bas-celik $(DESTROOT)/usr/bin/cli-bas-celik
+	install -Dm0644 assets/application.desktop $(DESTROOT)/usr/share/applications/bas-celik.desktop
+	install -Dm0644 assets/logo.png $(DESTROOT)/usr/share/icons/hicolor/512x512/apps/bas-celik.png

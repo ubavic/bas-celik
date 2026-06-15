@@ -1,0 +1,241 @@
+# omnipackage configuration for Baš Čelik.
+# Docs: https://docs.omnipackage.org
+#
+# Package names diverge per distro FAMILY (that's the reason for the family
+# anchors below). Names were verified against each family's repositories.
+#
+# Go: go.mod requires 1.26. install_go.sh uses the distro toolchain when it's
+# >= 1.21 (GOTOOLCHAIN=auto fetches the exact 1.26 at build time) and otherwise
+# downloads the official toolchain. openSUSE installs `go` from the distro
+# because the Tumbleweed image's curl is broken; RHEL clones run a dedicated
+# script that first enables CRB/EPEL (where their -devel packages live).
+
+# Version is derived from the latest git tag, mirroring the release pipeline
+# (VERSION=$(git describe --tags --abbrev=0 | tail -c +2) — strips the leading
+# "v"). The extractor runs on the host before staging, so .git is available even
+# though it's excluded from the build container. Tagless local checkouts fall
+# back to 0.0.0 so builds still work.
+version_extractors:
+  - name: git_tag
+    provider: shell
+    shell:
+      command: "git describe --tags --abbrev=0 2>/dev/null | tail -c +2 | grep . || echo 0.0.0"
+
+common: &common
+  package_name: "bas-celik"
+  maintainer: "Nikola Ubavić <ubavic@gmail.com>"
+  homepage: "https://github.com/ubavic/bas-celik"
+  description: "Reader for smart-card documents issued by the government of Serbia"
+  license: "MIT"
+
+repositories:
+  - name: R2 test repo
+    provider: s3
+    gpg_private_key_base64: "${GPG_PRIVATE_KEY_BASE64}"
+    <<: *common
+    s3:
+      bucket: repositories-test
+      path_in_bucket: "bas-celik"
+      bucket_public_url: "https://repositories-test.omnipackage.org"
+      endpoint: "${CLOUDFLARE_R2_ENDPOINT}"
+      access_key_id: "${CLOUDFLARE_R2_ACCESS_KEY_ID}"
+      secret_access_key: "${CLOUDFLARE_R2_SECRET_ACCESS_KEY}"
+      region: auto
+      force_path_style: true
+      cloudflare_zone_id: "${CLOUDFLARE_ZONE_ID}"
+      cloudflare_api_token: "${CLOUDFLARE_API_TOKEN}"
+
+  - name: Local test
+    gpg_private_key_base64: "${GPG_PRIVATE_KEY_BASE64}"
+    provider: localfs
+    <<: *common
+    localfs:
+      path: "/run/media/oleg/c3996ce0-a379-4403-9d64-7d4c0536463f/dev/omnipackage-repos/bas-celik"
+
+
+ignore_source_files:
+  - .git
+  - .env
+  - .DS_Store
+  - "*.log"
+
+# --- Debian / Ubuntu -------------------------------------------------------
+# Identical package names across both. Go is fetched by install_go.sh (several
+# releases ship a go too old for GOTOOLCHAIN), so curl is a build dep.
+deb: &deb
+  <<: *common
+  build_dependencies:
+    - curl
+    - build-essential
+    - git
+    - pkg-config
+    - libpcsclite-dev
+    - libgl1-mesa-dev
+    - xorg-dev
+  runtime_dependencies:
+    - pcscd
+    - libccid
+  before_build_script: ".omnipackage/install_go.sh"
+  deb:
+    debian_templates: ".omnipackage/deb"
+
+# --- openSUSE (Leap + Tumbleweed) ------------------------------------------
+# Distro `go` (Tumbleweed image's curl is unusable). CCID driver is `pcsc-ccid`.
+opensuse_rpm: &opensuse_rpm
+  <<: *common
+  build_dependencies:
+    - go
+    - gcc
+    - gcc-c++
+    - git
+    - pkg-config
+    - pcsc-lite-devel
+    - Mesa-libGL-devel
+    - libX11-devel
+    - libXcursor-devel
+    - libXrandr-devel
+    - libXinerama-devel
+    - libXi-devel
+    - libXxf86vm-devel
+  runtime_dependencies:
+    - pcsc-lite
+    - pcsc-ccid
+  before_build_script: ".omnipackage/install_go.sh"
+  rpm:
+    spec_template: ".omnipackage/specfile.spec.liquid"
+
+# --- Fedora ----------------------------------------------------------------
+# Lowercase `mesa-libGL-devel`, `golang`, CCID driver `pcsc-lite-ccid`.
+fedora_rpm: &fedora_rpm
+  <<: *common
+  build_dependencies:
+    - curl
+    - golang
+    - gcc
+    - gcc-c++
+    - git
+    - pkgconf-pkg-config
+    - pcsc-lite-devel
+    - mesa-libGL-devel
+    - libX11-devel
+    - libXcursor-devel
+    - libXrandr-devel
+    - libXinerama-devel
+    - libXi-devel
+    - libXxf86vm-devel
+  runtime_dependencies:
+    - pcsc-lite
+    - pcsc-lite-ccid
+  before_build_script: ".omnipackage/install_go.sh"
+  rpm:
+    spec_template: ".omnipackage/specfile.spec.liquid"
+
+# --- RHEL clones (AlmaLinux / RockyLinux) ----------------------------------
+# The X11 and pcsc-lite -devel packages live in CRB (disabled by default), so
+# they can't be plain build_dependencies. before_build_el.sh enables CRB+EPEL
+# and installs them (plus golang) before the build.
+el_rpm: &el_rpm
+  <<: *common
+  build_dependencies:
+    - curl
+    - gcc
+    - gcc-c++
+    - git
+  runtime_dependencies:
+    - pcsc-lite
+    - pcsc-lite-ccid
+  before_build_script: ".omnipackage/before_build_el.sh"
+  rpm:
+    spec_template: ".omnipackage/specfile.spec.liquid"
+
+# --- Mageia ----------------------------------------------------------------
+# lib64-prefixed -devel packages; daemon `pcsc-lite`, driver `ccid`.
+mageia_rpm: &mageia_rpm
+  <<: *common
+  build_dependencies:
+    - curl
+    - golang
+    - gcc
+    - gcc-c++
+    - git
+    - pkgconf
+    - lib64pcsclite-devel
+    - lib64mesagl-devel
+    - lib64x11-devel
+    - lib64xcursor-devel
+    - lib64xrandr-devel
+    - lib64xinerama-devel
+    - lib64xi-devel
+    - lib64xxf86vm-devel
+  runtime_dependencies:
+    - pcsc-lite
+    - ccid
+  before_build_script: ".omnipackage/install_go.sh"
+  rpm:
+    spec_template: ".omnipackage/specfile.spec.liquid"
+
+# --- Arch / Manjaro --------------------------------------------------------
+# base-devel (gcc, pkgconf) is preinstalled; `go` is current. Driver `ccid`.
+pacman: &pacman
+  <<: *common
+  build_dependencies:
+    - go
+    - gcc
+    - git
+    - pkgconf
+    - pcsclite
+    - mesa
+    - libx11
+    - libxcursor
+    - libxrandr
+    - libxinerama
+    - libxi
+    - libxxf86vm
+  runtime_dependencies:
+    - pcsclite
+    - ccid
+  pacman:
+    pkgbuild_template: ".omnipackage/PKGBUILD.liquid"
+
+builds:
+  # Arch family
+  - { distro: "arch",                <<: *pacman }
+  - { distro: "manjaro",             <<: *pacman }
+  # openSUSE
+  - { distro: "opensuse_15.3",       <<: *opensuse_rpm }
+  - { distro: "opensuse_15.4",       <<: *opensuse_rpm }
+  - { distro: "opensuse_15.5",       <<: *opensuse_rpm }
+  - { distro: "opensuse_15.6",       <<: *opensuse_rpm }
+  - { distro: "opensuse_16.0",       <<: *opensuse_rpm }
+  - { distro: "opensuse_tumbleweed", <<: *opensuse_rpm }
+  # Fedora
+  - { distro: "fedora_38",           <<: *fedora_rpm }
+  - { distro: "fedora_39",           <<: *fedora_rpm }
+  - { distro: "fedora_40",           <<: *fedora_rpm }
+  - { distro: "fedora_41",           <<: *fedora_rpm }
+  - { distro: "fedora_42",           <<: *fedora_rpm }
+  - { distro: "fedora_43",           <<: *fedora_rpm }
+  - { distro: "fedora_44",           <<: *fedora_rpm }
+  - { distro: "fedora_rawhide",      <<: *fedora_rpm }
+  # Debian
+  - { distro: "debian_11",           <<: *deb }
+  - { distro: "debian_12",           <<: *deb }
+  - { distro: "debian_13",           <<: *deb }
+  - { distro: "debian_testing",      <<: *deb }
+  - { distro: "debian_unstable",     <<: *deb }
+  # Ubuntu
+  - { distro: "ubuntu_20.04",        <<: *deb }
+  - { distro: "ubuntu_22.04",        <<: *deb }
+  - { distro: "ubuntu_24.04",        <<: *deb }
+  - { distro: "ubuntu_25.04",        <<: *deb }
+  - { distro: "ubuntu_26.04",        <<: *deb }
+  # RHEL clones
+  - { distro: "almalinux_8",         <<: *el_rpm }
+  - { distro: "almalinux_9",         <<: *el_rpm }
+  - { distro: "almalinux_10",        <<: *el_rpm }
+  - { distro: "rockylinux_8",        <<: *el_rpm }
+  - { distro: "rockylinux_9",        <<: *el_rpm }
+  - { distro: "rockylinux_10",       <<: *el_rpm }
+  # Mageia
+  - { distro: "mageia_9",            <<: *mageia_rpm }
+  - { distro: "mageia_cauldron",     <<: *mageia_rpm }

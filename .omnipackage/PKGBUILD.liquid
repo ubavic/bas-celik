@@ -1,0 +1,38 @@
+# PKGBUILD template rendered at build time. {{ vars }} come from config.yml.
+# Maintainer: {{ maintainer }}
+pkgname={{ package_name }}
+pkgver={{ version }}
+pkgrel=1
+pkgdesc="{{ description }}"
+arch=("$(uname -m)")
+url="{{ homepage }}"
+license=('MIT')
+{% if runtime_dependencies.size > 0 %}depends=({{ runtime_dependencies | join: ' ' }}){% endif %}
+# makepkg defaults LTO on; Go does its own linking, so disable it.
+options=('!lto')
+source=("{{ source_folder_name }}.tar.gz")
+sha256sums=('SKIP')
+
+build() {
+  cd "$srcdir/{{ source_folder_name }}"
+  export GOTOOLCHAIN=auto
+  export CGO_ENABLED=1
+  export GOFLAGS=-mod=mod
+  export GOPROXY=https://proxy.golang.org,direct
+  export GOSUMDB=sum.golang.org
+  # GUI build: stamp the embedded version, then build the default binary.
+  printf '%s' "{{ version }}" > assets/version
+  go build -ldflags "-s -w" -o bas-celik .
+  # Headless CLI variant (mark version, drop translations).
+  printf 'cli' >> assets/version
+  rm -rf embed/translation
+  go build -tags "cli" -ldflags "-s -w" -o cli-bas-celik .
+}
+
+package() {
+  cd "$srcdir/{{ source_folder_name }}"
+  install -Dm0755 bas-celik "$pkgdir/usr/bin/bas-celik"
+  install -Dm0755 cli-bas-celik "$pkgdir/usr/bin/cli-bas-celik"
+  install -Dm0644 assets/application.desktop "$pkgdir/usr/share/applications/bas-celik.desktop"
+  install -Dm0644 assets/logo.png "$pkgdir/usr/share/icons/hicolor/512x512/apps/bas-celik.png"
+}

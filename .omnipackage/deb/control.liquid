@@ -1,0 +1,14 @@
+Source: {{ package_name }}
+Priority: optional
+Maintainer: {{ maintainer }}
+Build-Depends: debhelper (>= 13), {{ build_dependencies | join: ', ' }}
+Standards-Version: 4.6.2
+Homepage: {{ homepage }}
+
+Package: {{ package_name }}
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, {{ runtime_dependencies | join: ', ' }}
+Description: {{ description }}
+ Baš Čelik reads Serbian government smart-card documents (ID cards, vehicle
+ registration cards, and medical insurance cards) and exports them to PDF,
+ JSON, or Excel. Ships a GUI (bas-celik) and a headless CLI (cli-bas-celik).

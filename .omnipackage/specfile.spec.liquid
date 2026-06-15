@@ -1,0 +1,59 @@
+# RPM spec template rendered at build time.
+Name:       {{ package_name }}
+Version:    {{ version }}
+Release:    1%{?dist}
+Summary:    {{ description }}
+License:    {{ license }}
+URL:        {{ homepage }}
+Source0:    {{ source_folder_name }}.tar.gz
+
+BuildRequires: {{ build_dependencies | join: ' ' }}
+{% if runtime_dependencies.size > 0 %}
+Requires: {{ runtime_dependencies | join: ', ' }}
+{% endif %}
+
+%define debug_package %{nil}
+%define _build_id_links none
+
+%description
+{{ description }}
+
+
+%prep
+%setup -q
+
+
+%build
+export GOTOOLCHAIN=auto
+export CGO_ENABLED=1
+export GOFLAGS=-mod=mod
+# Some distros (e.g. Mageia) ship GOSUMDB=off, which blocks the GOTOOLCHAIN
+# auto-download of go1.26; force the defaults so the toolchain can be verified.
+export GOPROXY=https://proxy.golang.org,direct
+export GOSUMDB=sum.golang.org
+# GUI build: write the version into the embedded file, then build the default binary.
+printf '%s' "{{ version }}" > assets/version
+go build -ldflags "-s -w" -o bas-celik .
+# Headless CLI variant (mirrors upstream CI: mark version, drop translations).
+printf 'cli' >> assets/version
+rm -rf embed/translation
+go build -tags "cli" -ldflags "-s -w" -o cli-bas-celik .
+
+
+%install
+install -Dm0755 bas-celik %{buildroot}/usr/bin/bas-celik
+install -Dm0755 cli-bas-celik %{buildroot}/usr/bin/cli-bas-celik
+install -Dm0644 assets/application.desktop %{buildroot}/usr/share/applications/bas-celik.desktop
+install -Dm0644 assets/logo.png %{buildroot}/usr/share/icons/hicolor/512x512/apps/bas-celik.png
+
+
+%files
+/usr/bin/bas-celik
+/usr/bin/cli-bas-celik
+/usr/share/applications/bas-celik.desktop
+/usr/share/icons/hicolor/512x512/apps/bas-celik.png
+
+
+%changelog
+* Mon Jun 15 2026 {{ maintainer }}
+- Initial package release
