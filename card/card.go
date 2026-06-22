@@ -91,6 +91,14 @@ func DetectCardDocument(sc Card) (CardDocument, error) {
 
 // Reads binary data from the card starting from the specified offset and with the specified length.
 func read(card Card, offset, length uint) ([]byte, error) {
+	if length == 0 {
+		return nil, nil
+	}
+
+	if offset >= 0xFFFF {
+		return nil, fmt.Errorf("reading binary: offset too large")
+	}
+
 	readSize := min(length, 0xFF)
 	apu := buildAPDU(0x00, 0xB0, byte((0xFF00&offset)>>8), byte(offset&0xFF), nil, readSize)
 	rsp, err := card.Transmit(apu)
