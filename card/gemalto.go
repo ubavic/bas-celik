@@ -337,7 +337,7 @@ func (card *Gemalto) ChangePin(newPin, oldPin string) (int, error) {
 	}
 
 	if !responseOK(rsp) {
-		return PinTriesLeft(rsp), fmt.Errorf("verifying old pin: response %s", hex.EncodeToString(rsp))
+		return PinTriesLeft(rsp), fmt.Errorf("changing pin: response %s", hex.EncodeToString(rsp))
 	}
 
 	return -1, nil

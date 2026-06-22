@@ -202,7 +202,7 @@ func renderCertInformationObjects() ([]fyne.CanvasObject, func(int)) {
 			subjectOUField.Hide()
 		} else {
 			subjectOField.Show()
-			subjectOField.Show()
+			subjectOUField.Show()
 		}
 	}
 
