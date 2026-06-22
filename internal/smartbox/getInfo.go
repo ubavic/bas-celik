@@ -29,11 +29,12 @@ func (s *SmartBoxServer) handleGetInfo(sessionId *string, data []byte, w io.Writ
 		return fmt.Errorf("invalid session id")
 	}
 
-	session, ok := s.sessions[msg.Input.SbSession]
+	session, ok := s.loadSession(msg.Input.SbSession)
 	if !ok {
-		s.sessions[msg.Input.SbSession] = SmartboxSession{
+		session = SmartboxSession{
 			id: msg.Input.SbSession,
 		}
+		s.storeSession(msg.Input.SbSession, session)
 	}
 
 	*sessionId = msg.Input.SbSession

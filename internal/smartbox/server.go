@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"sync"
 
 	"github.com/coder/websocket"
 	"github.com/ubavic/bas-celik/v2/internal/logger"
@@ -42,6 +43,7 @@ type PkcsSessionProvider func(vendor pkcs11.CardVendor) (PkcsModuleSession, erro
 
 type SmartBoxServer struct {
 	sessions        map[string]SmartboxSession
+	sessionsMutex   sync.Mutex
 	loadedVendors   []pkcs11.CardVendor
 	sessionProvider PkcsSessionProvider
 }
@@ -115,7 +117,7 @@ func (s *SmartBoxServer) onMessage(sessionId *string, ctx context.Context, conn 
 	}
 	defer w.Close()
 
-	session, ok := s.sessions[*sessionId]
+	session, ok := s.loadSession(*sessionId)
 	if !ok && msg.Operation != operationGetInfo {
 		return fmt.Errorf("session %s not found, operation %s", *sessionId, msg.Operation)
 	}
@@ -135,7 +137,22 @@ func (s *SmartBoxServer) onMessage(sessionId *string, ctx context.Context, conn 
 		err = fmt.Errorf("unknown operation %s in session %s", msg.Operation, *sessionId)
 	}
 
-	s.sessions[*sessionId] = session
+	s.storeSession(*sessionId, session)
 
 	return err
+}
+
+func (s *SmartBoxServer) loadSession(id string) (SmartboxSession, bool) {
+	s.sessionsMutex.Lock()
+	defer s.sessionsMutex.Unlock()
+
+	session, ok := s.sessions[id]
+	return session, ok
+}
+
+func (s *SmartBoxServer) storeSession(id string, session SmartboxSession) {
+	s.sessionsMutex.Lock()
+	defer s.sessionsMutex.Unlock()
+
+	s.sessions[id] = session
 }
