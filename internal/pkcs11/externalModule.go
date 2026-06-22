@@ -24,7 +24,7 @@ type PkcsModuleSession struct {
 	certs   []NamedCert
 }
 
-var mu sync.Mutex
+var gModuleContextsMu sync.Mutex
 var gModuleContexts map[CardVendor]*pkcs11.Ctx
 
 var ErrNilPkcsContext = fmt.Errorf("nil PKCS#11 context")
@@ -35,8 +35,8 @@ func init() {
 }
 
 func GetLoadedVendors() []CardVendor {
-	mu.Lock()
-	defer mu.Unlock()
+	gModuleContextsMu.Lock()
+	defer gModuleContextsMu.Unlock()
 
 	vendors := make([]CardVendor, 0, len(gModuleContexts))
 	for v, ctx := range gModuleContexts {
@@ -48,6 +48,9 @@ func GetLoadedVendors() []CardVendor {
 }
 
 func Deinit() {
+	gModuleContextsMu.Lock()
+	defer gModuleContextsMu.Unlock()
+
 	for _, c := range gModuleContexts {
 		if c == nil {
 			continue
@@ -74,6 +77,9 @@ func LoadModules(modulePaths []ModulePath) ([]CardVendor, error) {
 		foundVendor = append(foundVendor, mp.Vendor)
 	}
 
+	gModuleContextsMu.Lock()
+	defer gModuleContextsMu.Unlock()
+
 	for _, mp := range modulePaths {
 		pkcsCtx := pkcs11.New(mp.Path)
 		if pkcsCtx == nil {
@@ -95,8 +101,8 @@ func LoadModules(modulePaths []ModulePath) ([]CardVendor, error) {
 }
 
 func GetPkcsSession(vendor CardVendor) (PkcsModuleSession, error) {
-	mu.Lock()
-	defer mu.Unlock()
+	gModuleContextsMu.Lock()
+	defer gModuleContextsMu.Unlock()
 
 	var ctx *pkcs11.Ctx
 
@@ -312,9 +318,6 @@ func (pm *PkcsModuleSession) SignDigest(certId []byte, sha256digest []byte) ([]b
 }
 
 func (pm *PkcsModuleSession) CloseSession() error {
-	mu.Lock()
-	defer mu.Unlock()
-
 	if pm.context == nil {
 		return ErrNilPkcsContext
 	}
