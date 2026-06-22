@@ -64,16 +64,12 @@ func Test_SanitizeFilename(t *testing.T) {
 			expected: "ЖАРКО_ЉУБА_ПЕРИЋ",
 		},
 		{
-			input:    "John    Doe !!!#",
-			expected: "John_Doe",
+			input:    "John    Doe1 !!!#",
+			expected: "John_Doe1",
 		},
 		{
-			input:    "John    Doe !!!#",
-			expected: "John_Doe",
-		},
-		{
-			input:    "John    Doe !!!#",
-			expected: "John_Doe",
+			input:    "John  ^%#  Doe2 !!!#",
+			expected: "John_Doe2",
 		},
 		{
 			input:    "Аркадий Иванович Свидригайлов",

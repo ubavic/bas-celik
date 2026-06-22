@@ -270,7 +270,7 @@ func closeCryptoUi() {
 }
 
 func sanitizeFilename(input string) string {
-	re := regexp.MustCompile(`[ $&+,:;=?@#|'<>.^*()%!-/\\]+`)
+	re := regexp.MustCompile(`[ $&+,:;=?@#|'<>.^*()%!/\-\\]+`)
 	filename := re.ReplaceAllString(input, "_")
 
 	re2 := regexp.MustCompile(`_+`)
