@@ -271,7 +271,7 @@ func parseMedicalVariableAdminFile(data []byte, doc *document.MedicalDocument) e
 	descramble(fields, 1602)
 	tlv.AssignField(fields, 1602, &doc.ParentNameLatin)
 	if string(fields[1603]) == "01" {
-		doc.Gender = "Mушко"
+		doc.Gender = "Мушко"
 	} else {
 		doc.Gender = "Женско"
 	}
