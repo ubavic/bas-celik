@@ -220,7 +220,7 @@ func (doc *MedicalDocument) BuildPdf() (data []byte, fileName string, retErr err
 
 	putData("Име:", doc.CarrierGivenName+" ("+doc.CarrierGivenNameLatin+")")
 
-	putData("Презиме:", doc.CarrierFamilyName+" ("+doc.CarrierFamilyName+")")
+	putData("Презиме:", doc.CarrierFamilyName+" ("+doc.CarrierFamilyNameLatin+")")
 
 	putData("ЛБО:", doc.CarrierInsurantNumber)
 
