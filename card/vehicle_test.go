@@ -19,6 +19,10 @@ func Test_parseVehicleCardFileSize(t *testing.T) {
 			expectedError: cardErrors.ErrInvalidLength,
 		},
 		{
+			data:          []byte{0x01},
+			expectedError: cardErrors.ErrInvalidLength,
+		},
+		{
 			data:          []byte{0x01, 0x02, 0x03, 0x04},
 			expectedError: cardErrors.ErrInvalidLength,
 		},

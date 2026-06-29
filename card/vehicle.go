@@ -236,7 +236,7 @@ func (card *VehicleCard) Test() bool {
 }
 
 func parseVehicleCardFileSize(data []byte) (uint, uint, error) {
-	if len(data) < 1 {
+	if len(data) < 2 {
 		return 0, 0, cardErrors.ErrInvalidLength
 	}
 
