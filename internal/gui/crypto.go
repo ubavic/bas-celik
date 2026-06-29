@@ -171,7 +171,7 @@ func renderCertInformationObjects() ([]fyne.CanvasObject, func(int)) {
 	subjectGroup := widgets.NewGroup(t("crypto.subject"), subjectRow1, subjectRow2, subjectRow3)
 
 	selectCert := func(index int) {
-		if state.selectedCert >= len(state.certs) || state.selectedCert < 0 {
+		if index >= len(state.certs) || index < 0 {
 			return
 		}
 
