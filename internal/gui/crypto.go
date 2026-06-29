@@ -212,6 +212,10 @@ func renderCertInformationObjects() ([]fyne.CanvasObject, func(int)) {
 }
 
 func saveCert() {
+	if state.selectedCert < 0 || state.selectedCert >= len(state.certs) {
+		return
+	}
+
 	cert := state.certs[state.selectedCert]
 
 	fDialog := dialog.NewFileSave(func(w fyne.URIWriteCloser, err error) {
