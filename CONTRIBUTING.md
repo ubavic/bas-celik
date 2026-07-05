@@ -20,3 +20,10 @@ Da bi komunikacija i rad bili što efikasniji, navodim neke smernice za nove sar
 2. Ako *PR* podrazumeva uvođenje dodatnih funkcionalnosti, ili značajne izmene koda, tada je neophodno da prvo otvorite poseban *issue* u kom će te opisati razloge otvaranja *PR*-a. Da ne biste došli u situaciju da vam odbijem veliki *PR* na koji ste utrošili vreme, pre početka proverite da li sam uopšte zainteresovan za takav *PR*.
 3. Trudim se da git istoriju projekta držim čistom. Ako vaš *PR* sadrži više komitova, potrudite se da svaki komit ima smislenu poruku napisanu na engleskom. Kod svakog komita mora se uspešno kompajlirati i formatiran je sa `gofmt`. Svaki komit mora predstavljati smislenu izmenu koda.
 
+## Korišćenje veštačke inteligencije
+
+Doprinos velikih jezičkih modela se prihvata, dokle god je taj doprinos smislen.
+
+Od svakog *issue*-a i *PR*-a se očekuje da autor (osoba) u potpunosti razume sadržaj istog. Sadržaj koji je generisala veštačka inteligencija, a koji sam autor ne razume, odbaciću i označiti kao *AI slop*. Obiman sadržaj (veliki *PR*-ovi i *issue*-i) koji mi značajno oduzima vreme za pregled, odbaciću i označiti kao *AI slop*.
+
+
