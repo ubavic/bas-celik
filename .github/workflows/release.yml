@@ -61,8 +61,8 @@ jobs:
           VERSION=$(git describe --tags --abbrev=0 | tail -c +2)
           sed "s/__VERSION__/${VERSION}/g" packaging/nfpm/debian.yaml > nfpm.debian.yaml
           sed "s/__VERSION__/${VERSION}/g" packaging/nfpm/fedora.yaml > nfpm.fedora.yaml
-          "$(go env GOPATH)"/bin/nfpm package --packager deb --config nfpm.debian.yaml --target bas-celik_${VERSION}_amd64.deb
-          "$(go env GOPATH)"/bin/nfpm package --packager rpm --config nfpm.fedora.yaml --target bas-celik-${VERSION}-1.x86_64.rpm
+          "$(go env GOPATH)"/bin/nfpm package --packager deb --config nfpm.debian.yaml --target bas-celik.linux.amd64.deb
+          "$(go env GOPATH)"/bin/nfpm package --packager rpm --config nfpm.fedora.yaml --target bas-celik.linux.amd64.rpm
       - name: Build CLI version
         run: |
           echo -n "cli" >> assets/version
@@ -75,8 +75,8 @@ jobs:
           path: |
             bas-celik.linux.amd64.tar.xz
             bas-celik.linux.amd64.bin
-            bas-celik_*.deb
-            bas-celik-*.rpm
+            bas-celik.linux.amd64.deb
+            bas-celik.linux.amd64.rpm
             cli-bas-celik.linux.amd64
 
   buildWindows:
@@ -205,8 +205,8 @@ jobs:
           files: |
             bas-celik.linux.amd64.tar.xz
             bas-celik.linux.amd64.bin
-            bas-celik_*.deb
-            bas-celik-*.rpm
+            bas-celik.linux.amd64.deb
+            bas-celik.linux.amd64.rpm
             cli-bas-celik.linux.amd64
             bas-celik.windows.amd64.exe
             bas-celik.macos.arm.tar.gz
