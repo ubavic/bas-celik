@@ -20,7 +20,6 @@ type VehicleDocument struct {
 	DateOfFirstRegistration     string
 	EngineCapacity              string
 	EngineIdNumber              string
-	EngineRatedSpeed            string
 	ExpiryDate                  string
 	HomologationMark            string
 	IssuingDate                 string
