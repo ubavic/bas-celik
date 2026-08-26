@@ -2,7 +2,7 @@
 
 [![Go Reference](https://pkg.go.dev/badge/github.com/ubavic/bas-celik/v2.svg)](https://pkg.go.dev/github.com/ubavic/bas-celik/v2)
 
-**Baš Čelik** je čitač elektronskih ličnih karata, zdravstvenih knjižica i saobraćajnih dozvola. Program je osmišljen kao zamena za zvanične aplikacije poput *Čelika*. Nažalost, zvanične aplikacije mogu se pokrenuti samo na Windows operativnom sistemu, dok Baš Čelik funkcioniše na tri operativna sistema (Windows/Linux/OSX).
+**Baš Čelik** je čitač elektronskih ličnih karata, zdravstvenih knjižica i saobraćajnih dozvola. Program je osmišljen kao zamena za zvanične aplikacije poput *Čelika*. Program funkcioniše na Linux, macOS (Intel & ARM) i Windows (10+) operativnim sistemima.
 
 Baš Čelik je besplatan program, sa potpuno otvorenim kodom dostupnim na adresi [github.com/ubavic/bas-celik](https://github.com/ubavic/bas-celik).
 
@@ -71,7 +71,7 @@ Pri pokretanju sa `atr`, `help`, `list` ili `version` opcijama podaci sa kartice
 
 ### Čitači i drajveri
 
-Baš Čelik bi trebalo da funkcioniše sa svim čitačima pametnih kartica koji su trenutno dostupni u prodaji (Gemalto, Hama, Samtec...). Korisnici Windows (7, 8, 10, 11) i macOS operativnih sistema ne moraju da instaliraju nijedan dodatni program (drajver). Više o upotrebi na Linux-u dato je na [wiki stranici](https://github.com/ubavic/bas-celik/wiki/Linux).
+Baš Čelik bi trebalo da funkcioniše sa svim čitačima pametnih kartica koji su trenutno dostupni u prodaji (Gemalto, Hama, Samtec...). Korisnici Windows i macOS operativnih sistema ne moraju da instaliraju nijedan dodatni program (drajver). Više o upotrebi na Linux-u dato je na [wiki stranici](https://github.com/ubavic/bas-celik/wiki/Linux).
 
 ## Preuzimanje 
 
