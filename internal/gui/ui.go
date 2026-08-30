@@ -26,6 +26,7 @@ type State struct {
 	cryptoUiContainer       *fyne.Container
 	cryptoUi                *fyne.Container
 	startPage               *widgets.StartPage
+	unknownCardPage         *widgets.UnknownCardPage
 	documentUiMainContainer *fyne.Container
 	toolbar                 *widgets.Toolbar
 	statusBar               *widgets.StatusBar
@@ -60,6 +61,9 @@ func StartGui(version string) {
 	startPage := widgets.NewStartPage()
 	startPage.SetStatus("", "", false)
 
+	unknownCardPage := widgets.NewUnknownCardPage()
+	unknownCardPage.Hide()
+
 	mainContainer := container.New(layout.NewPaddedLayout())
 	win.SetContent(mainContainer)
 
@@ -73,6 +77,7 @@ func StartGui(version string) {
 		cryptoUiContainer:       cryptoContainer,
 		documentUiMainContainer: mainPage,
 		startPage:               startPage,
+		unknownCardPage:         unknownCardPage,
 		statusBar:               statusBar,
 		autoSaveMode:            AutoSaveMode(preferences.Int(autoSavePdfKey)),
 		autoSaveLocation:        preferences.String(autoSaveLocationKey),

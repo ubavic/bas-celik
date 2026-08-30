@@ -27,6 +27,7 @@
     "error.readerExplanation": "Считыватель подключён к компьютеру?",
     "error.readingCard": "Ошибка чтения карты",
     "error.unknownCard": "Неизвестная карта",
+    "error.unknownCard.copyAtr": "Копировать ATR",
     "error.writingPdf": "Ошибка записи PDF",
     "error.writingXlsx": "Ошибка записи Excel",
     "id.address": "Адрес проживания",

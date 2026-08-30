@@ -55,14 +55,14 @@ func tryToProcessCard(sCard *scard.Card) bool {
 	}
 
 	if err != nil {
-		message := ""
-		if err == card.ErrUnknownCard {
-			message = t("error.unknownCard") + " " + cardDoc.Atr().String()
+		if err == card.ErrUnknownCard && cardDoc != nil {
+			setUnknownCardPage(cardDoc.Atr().String(), fmt.Errorf("reading from card: %w", err))
+		} else {
+			setStartPage(
+				"error.readingCard",
+				"",
+				fmt.Errorf("reading from card: %w", err))
 		}
-		setStartPage(
-			"error.readingCard",
-			message,
-			fmt.Errorf("reading from card: %w", err))
 	} else {
 		state.mu.Lock()
 		state.cardDocument = cardDoc

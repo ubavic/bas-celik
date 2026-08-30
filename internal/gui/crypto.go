@@ -30,6 +30,7 @@ func cryptoList() {
 
 	if state.cryptoUi != nil {
 		state.startPage.Hide()
+		state.unknownCardPage.Hide()
 		state.documentUiMainContainer.Hide()
 		state.cryptoUiContainer.Add(state.cryptoUi)
 		state.cryptoUiContainer.Show()

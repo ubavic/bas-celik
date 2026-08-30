@@ -24,7 +24,7 @@ func startCardReaderUI() {
 
 	poller, pollerErr := reader.NewPoller(state.toolbar, connectToCard)
 
-	rows := container.New(layout.NewVBoxLayout(), state.toolbar, spacer, state.startPage, state.documentUiMainContainer, state.cryptoUiContainer)
+	rows := container.New(layout.NewVBoxLayout(), state.toolbar, spacer, state.startPage, state.unknownCardPage, state.documentUiMainContainer, state.cryptoUiContainer)
 	columns := container.New(layout.NewHBoxLayout(), layout.NewSpacer(), rows, layout.NewSpacer())
 
 	state.documentUi = columns
@@ -76,6 +76,7 @@ func setUI(doc document.Document) {
 		state.documentUiMainContainer.Add(buttonBar)
 
 		state.startPage.Hide()
+		state.unknownCardPage.Hide()
 		state.documentUiMainContainer.Show()
 	})
 
@@ -105,7 +106,32 @@ func setStartPage(statusId, explanation string, err error) {
 	state.documentUiMainContainer.RemoveAll()
 
 	state.documentUiMainContainer.Hide()
+	state.unknownCardPage.Hide()
 	state.startPage.Show()
+
+	resizeWindow(true)
+}
+
+func setUnknownCardPage(atr string, err error) {
+	state.mu.Lock()
+	defer state.mu.Unlock()
+
+	if err != nil {
+		logger.Error(err)
+	}
+
+	state.unknownCardPage.SetContent(
+		t("error.unknownCard"),
+		atr,
+		t("error.unknownCard.copyAtr"),
+	)
+	state.unknownCardPage.Refresh()
+
+	state.documentUiMainContainer.RemoveAll()
+
+	state.documentUiMainContainer.Hide()
+	state.startPage.Hide()
+	state.unknownCardPage.Show()
 
 	resizeWindow(true)
 }

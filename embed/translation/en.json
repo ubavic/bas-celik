@@ -27,6 +27,7 @@
     "error.readerExplanation": "Is reader connected to the computer?",
     "error.readingCard": "Error while reading card",
     "error.unknownCard": "Unknown card",
+    "error.unknownCard.copyAtr": "Copy ATR",
     "error.writingPdf": "Error while writing PDF",
     "error.writingXlsx": "Error while writing Excel",
     "id.address": "Residence address",

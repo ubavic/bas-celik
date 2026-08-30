@@ -27,6 +27,7 @@
   "error.readerExplanation": "Da li je čitač povezan za računar?",
   "error.readingCard": "Greška pri čitanju kartice",
   "error.unknownCard": "Nepoznata kartica",
+  "error.unknownCard.copyAtr": "Kopiraj ATR",
   "error.writingPdf": "Greška pri zapisivanju PDF-a",
   "error.writingXlsx": "Greška pri zapisivanju Excel-а",
   "id.address": "Prebivalište i adresa stana",
