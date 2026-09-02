@@ -6,7 +6,7 @@
 
 Baš Čelik je besplatan program, sa potpuno otvorenim kodom dostupnim na adresi [github.com/ubavic/bas-celik](https://github.com/ubavic/bas-celik).
 
-U nastavku su izložene osnovne informacije o programu. Uputstvo za upotrebu je dostupno na [ubavic.rs/e-documents/](https://ubavic.rs/e-documents/). Dodatna dokumentacija se može naći u [wikiju](https://github.com/ubavic/bas-celik/wiki) projekta.
+U nastavku su izložene osnovne informacije o programu. Uputstvo za upotrebu je dostupno na [e-documents.ubavic.rs](https://e-documents.ubavic.rs). Dodatna dokumentacija se može naći u [wikiju](https://github.com/ubavic/bas-celik/wiki) projekta.
 
 > [!NOTE]
 > Baš Čelik is software for reading smart-card documents issued by the government of Serbia. Supported cards include ID cards, vehicle registration cards, and medical insurance cards. The application is written completely from scratch in Go and supports Linux, macOS, and Windows.
