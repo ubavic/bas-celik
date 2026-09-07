@@ -232,6 +232,12 @@ func (card *VehicleCard) ReadFile(name []byte) ([]byte, error) {
 
 func (card *VehicleCard) Test() bool {
 	err := card.InitCard()
+	if err != nil {
+		return false
+	}
+	// Other cards (including PKS) can accept the same card-manager SELECT.
+	// Confirm that the first mandatory vehicle-document file actually exists.
+	_, err = card.selectFile([]byte{0xD0, 0x01})
 	return err == nil
 }
 

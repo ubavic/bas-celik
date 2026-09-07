@@ -44,14 +44,15 @@ var GEMALTO_ATR_4 = Atr([]byte{
 
 // Gemalto represents ID cards based with Gemalto Java OS. Gemalto replaced Apollo cards around 2014.
 type Gemalto struct {
-	atr           Atr
-	smartCard     Card
-	documentFile  []byte
-	personalFile  []byte
-	residenceFile []byte
-	photoFile     []byte
-	signature     [2][]byte
-	certificates  []*x509.Certificate
+	atr                Atr
+	smartCard          Card
+	documentFile       []byte
+	personalFile       []byte
+	residenceFile      []byte
+	photoFile          []byte
+	signature          [2][]byte
+	certificates       []*x509.Certificate
+	certificatesLoaded bool
 }
 
 func (card *Gemalto) InitCard() error {
@@ -195,23 +196,23 @@ func (card *Gemalto) readCertificateFile(name []byte) ([]byte, error) {
 		return nil, fmt.Errorf("selecting file: %w", err)
 	}
 
-	data, err := read(card.smartCard, 0, 2)
+	data, err := card.readCertificateChunk(0, 2)
 	if err != nil {
 		return nil, fmt.Errorf("reading file header: %w", err)
 	}
 
 	offset := uint(0)
 	length := uint(binary.LittleEndian.Uint16(data)) + 2
+	// READ BINARY uses a 15-bit offset; the high bit selects a short EF ID.
+	if length < 8 || length > 0x7FFF {
+		return nil, fmt.Errorf("invalid certificate file length: %d", length)
+	}
 
 	for length > 0 {
-		data, err := read(card.smartCard, offset, length)
+		data, err := card.readCertificateChunk(offset, min(length, 0xFF))
 
 		if err != nil {
 			return nil, fmt.Errorf("reading file: %w", err)
-		}
-
-		if len(data) == 0 {
-			break
 		}
 
 		output = append(output, data...)
@@ -221,6 +222,44 @@ func (card *Gemalto) readCertificateFile(name []byte) ([]byte, error) {
 	}
 
 	return output, nil
+}
+
+func (card *Gemalto) readCertificateChunk(offset, length uint) ([]byte, error) {
+	apu := buildAPDU(0x00, 0xB0, byte(offset>>8), byte(offset), nil, length)
+	rsp, err := card.smartCard.Transmit(apu)
+	if err != nil {
+		return nil, err
+	}
+	if len(rsp) < 2 {
+		return nil, fmt.Errorf("missing READ BINARY status")
+	}
+	if !responseOK(rsp) {
+		return nil, fmt.Errorf("READ BINARY status: %X", rsp[len(rsp)-2:])
+	}
+	if uint(len(rsp)-2) != length {
+		return nil, fmt.Errorf("short READ BINARY: got %d bytes, want %d", len(rsp)-2, length)
+	}
+	return rsp[:len(rsp)-2], nil
+}
+
+// ReadGemaltoCertificates reads public certificates independently of the identity
+// document application. This also supports certificate-only cards such as PKS
+// cards with the same application and file layout. An ATR match alone is not
+// sufficient: the application must be selected and the certificates parsed.
+// The caller must hold a card transaction for the duration of the read.
+// Valid certificates are returned even if another certificate fails to load.
+func ReadGemaltoCertificates(sc Card) ([]x509.Certificate, error) {
+	status, err := sc.Status()
+	if err != nil {
+		return nil, fmt.Errorf("reading card status: %w", err)
+	}
+	atr := Atr(status.Atr)
+	if !atr.Is(GEMALTO_ATR_1) && !atr.Is(GEMALTO_ATR_2) && !atr.Is(GEMALTO_ATR_3) && !atr.Is(GEMALTO_ATR_4) {
+		return nil, ErrUnknownCard
+	}
+	card := Gemalto{atr: atr, smartCard: sc}
+	err = card.LoadCertificates()
+	return card.GetCertificates(), err
 }
 
 func (card *Gemalto) selectFile(name []byte, selectionMethod, selectionOption byte, ne uint) ([]byte, error) {
@@ -360,9 +399,10 @@ func (card *Gemalto) ReadSignatures() error {
 }
 
 func (card *Gemalto) LoadCertificates() error {
-	if card.certificates != nil {
+	if card.certificatesLoaded {
 		return nil
 	}
+	card.certificates = nil
 
 	err := card.InitCrypto()
 	if err != nil {
@@ -398,7 +438,8 @@ func (card *Gemalto) LoadCertificates() error {
 			continue
 		}
 
-		decompressed, err := io.ReadAll(zlibReader)
+		const maxCertificateSize = 64 * 1024
+		decompressed, err := io.ReadAll(io.LimitReader(zlibReader, maxCertificateSize+1))
 		if err != nil {
 			zlibReader.Close()
 			allErrors = append(allErrors, fmt.Errorf("decompressing certificate from file %s: %w", filename, err))
@@ -408,6 +449,10 @@ func (card *Gemalto) LoadCertificates() error {
 		err = zlibReader.Close()
 		if err != nil {
 			allErrors = append(allErrors, fmt.Errorf("closing zlib reader for file %s: %w", filename, err))
+		}
+		if len(decompressed) > maxCertificateSize {
+			allErrors = append(allErrors, fmt.Errorf("certificate from file %s exceeds size limit", filename))
+			continue
 		}
 
 		cert, err := x509.ParseCertificate(decompressed)
@@ -419,7 +464,9 @@ func (card *Gemalto) LoadCertificates() error {
 		card.certificates = append(card.certificates, cert)
 	}
 
-	return errors.Join(allErrors...)
+	err = errors.Join(allErrors...)
+	card.certificatesLoaded = err == nil
+	return err
 }
 
 func (card *Gemalto) GetCertificates() []x509.Certificate {
@@ -430,7 +477,7 @@ func (card *Gemalto) GetCertificates() []x509.Certificate {
 			continue
 		}
 
-		newCert, err := x509.ParseCertificate(c.Raw)
+		newCert, err := x509.ParseCertificate(bytes.Clone(c.Raw))
 		if err != nil || newCert == nil {
 			continue
 		}

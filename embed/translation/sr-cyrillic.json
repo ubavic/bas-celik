@@ -132,6 +132,7 @@
   "crypto.general": "Опште",
   "crypto.issuer": "Издавач",
   "crypto.noCertFound": "Није пронађен ниједан сертификат",
+  "crypto.readError": "Неки сертификати нису могли да се прочитају. Извадите и поново убаците картицу да покушате поново.",
   "crypto.notAfter": "До",
   "crypto.notBefore": "Од",
   "crypto.reading": "Читам криптографске елементе",

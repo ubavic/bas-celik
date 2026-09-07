@@ -1,6 +1,7 @@
 package gui
 
 import (
+	"crypto/x509"
 	"encoding/pem"
 	"fmt"
 	"regexp"
@@ -25,21 +26,8 @@ func cryptoList() {
 	}
 
 	state.mu.Lock()
+	defer state.mu.Unlock()
 
-	createCryptoUI()
-
-	if state.cryptoUi != nil {
-		state.startPage.Hide()
-		state.unknownCardPage.Hide()
-		state.documentUiMainContainer.Hide()
-		state.cryptoUiContainer.Add(state.cryptoUi)
-		state.cryptoUiContainer.Show()
-	}
-
-	state.mu.Unlock()
-}
-
-func createCryptoUI() {
 	state.certs = nil
 	state.selectedCert = -1
 
@@ -53,18 +41,48 @@ func createCryptoUI() {
 	reader.CancelReaderPoler()
 
 	err := gemaltoCard.LoadCertificates()
-	if err != nil {
-		logger.Error(err)
-	}
 
 	state.certs = gemaltoCard.GetCertificates()
-	state.selectedCert = 0
 
 	logger.Info(fmt.Sprintf("loaded %d certificates", len(state.certs)))
 
 	reader.RestartReaderPoler()
+	showCryptoUI(true, err)
+}
 
+// setCertificateUI is called from the reader callback after reading a card that
+// has certificates but no supported identity, medical or vehicle document.
+func setCertificateUI(certs []x509.Certificate, err error) {
+	fyne.DoAndWait(func() {
+		state.mu.Lock()
+		defer state.mu.Unlock()
+		state.cardDocument = nil
+		state.certs = certs
+		showCryptoUI(false, err)
+	})
+	resizeWindow(false)
+}
+
+func showCryptoUI(identityCard bool, readErr error) {
+	createCryptoUI(identityCard, readErr)
+	state.startPage.Hide()
+	state.unknownCardPage.Hide()
+	state.documentUiMainContainer.Hide()
+	state.cryptoUiContainer.RemoveAll()
+	state.cryptoUiContainer.Add(state.cryptoUi)
+	state.cryptoUiContainer.Show()
+}
+
+func createCryptoUI(identityCard bool, readErr error) {
+	state.selectedCert = -1
+	state.certsSelectorButtons = nil
 	canvasObjects := []fyne.CanvasObject{}
+	if readErr != nil {
+		logger.Error(readErr)
+		warning := widget.NewLabel(t("crypto.readError"))
+		warning.Wrapping = fyne.TextWrapWord
+		canvasObjects = append(canvasObjects, warning)
+	}
 
 	if len(state.certs) == 0 {
 		spacer := `                                                     `
@@ -89,9 +107,13 @@ func createCryptoUI() {
 	}
 
 	buttons := []fyne.CanvasObject{}
-	exitButton := widget.NewButtonWithIcon(t("crypto.return"), theme.NavigateBackIcon(), closeCryptoUi)
-	changePinButton := widget.NewButton(t("crypto.changePin"), pinChange())
-	buttons = append(buttons, exitButton, layout.NewSpacer(), changePinButton)
+	if identityCard {
+		exitButton := widget.NewButtonWithIcon(t("crypto.return"), theme.NavigateBackIcon(), closeCryptoUi)
+		changePinButton := widget.NewButton(t("crypto.changePin"), pinChange())
+		buttons = append(buttons, exitButton, layout.NewSpacer(), changePinButton)
+	} else {
+		buttons = append(buttons, state.statusBar, layout.NewSpacer())
+	}
 
 	if len(state.certs) > 0 {
 		saveCertButton := widget.NewButton(t("crypto.saveCert"), saveCert)
@@ -229,10 +251,6 @@ func saveCert() {
 			return
 		}
 
-		if state.selectedCert >= len(state.certs) || state.selectedCert < 0 {
-			return
-		}
-
 		pemBlock := pem.Block{
 			Type:  "CERTIFICATE",
 			Bytes: cert.Raw,
@@ -240,6 +258,7 @@ func saveCert() {
 
 		err = pem.Encode(w, &pemBlock)
 		if err != nil {
+			w.Close()
 			setStatus("error.writingCert", fmt.Errorf("encoding certificate: %w", err))
 			return
 		}

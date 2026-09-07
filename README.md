@@ -24,6 +24,8 @@ Kreirani PDF dokument izgleda maksimalno približno dokumentu koji se dobija sa 
 
 Aplikacija dozvoljava čitanje sertifikata sa lične karte kao i promenu PIN-koda. Čitanje sertifikata sa ostalih dokumenata je u planu.
 
+Podržano je i čitanje sertifikata sa kompatibilnih PKS kartica, bez dodatnog PKCS#11 modula. Kada se kartica ubaci, prikazuju se sertifikati koje je moguće pregledati i sačuvati u PEM formatu. Za čitanje nije potreban PIN. Ova podrška je proverena na PKS kartici sa ATR kodom `3b9e968031fe4553434520382e302d433156300d0a6f` (SCE 8.0-C1V0); ne podrazumeva podršku za sve generacije PKS kartica. Promena PIN-a, potpisivanje i provera opoziva sertifikata nisu deo ove funkcionalnosti.
+
 ### eUprava i ePorezi
 
 Baš Čelik *ne* omogućava prijavu na eUpravu i druge državne portale korišćenjem kvalifikovanog elektronskog sertifikata na ličnoj karti. Za te potrebe namenjen je modul [srb-id-pkcs11](https://github.com/ubavic/srb-id-pkcs11).

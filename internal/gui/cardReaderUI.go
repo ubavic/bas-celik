@@ -34,7 +34,7 @@ func startCardReaderUI() {
 	state.cryptoUiContainer.Hide()
 
 	if pollerErr == nil {
-		poller.StartPoller()
+		go poller.StartPoller()
 	} else {
 		explanation := ""
 		if runtime.GOOS == "linux" {

@@ -132,6 +132,7 @@
     "crypto.general": "General",
     "crypto.issuer": "Issuer",
     "crypto.noCertFound": "No certificate found",
+    "crypto.readError": "Some certificates could not be read. Reinsert the card to try again.",
     "crypto.notAfter": "Not after",
     "crypto.notBefore": "Not before",
     "crypto.reading": "Reading cryptographic elements",
