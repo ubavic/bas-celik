@@ -157,8 +157,8 @@ func Test_GetExpiryDateFromRfzo(t *testing.T) {
 
 func Test_parseDateFromRfzoResponse(t *testing.T) {
 	_, err := document.ParseValidUntilDateFromRfzoResponse("[]")
-	if err != document.ErrNoSubmatchFound {
-		t.Errorf("Expected the NoSubmatchFound error but got %v", err)
+	if err != document.ErrNoDataFound {
+		t.Errorf("Expected the NoDataFound error but got %v", err)
 	}
 
 	_, err = document.ParseValidUntilDateFromRfzoResponse("")
