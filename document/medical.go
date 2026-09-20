@@ -26,8 +26,8 @@ var ErrInvalidCardNo = errors.New("invalid card number length")
 // Insurance number doesn't have exactly 11 digits.
 var ErrInvalidInsuranceNo = errors.New("invalid insurance number length")
 
-// Date `ValidUntil` could not be extracted from RFZO response.
-var ErrNoSubmatchFound = errors.New("no submatch found")
+// RFZO returned no record for the given card and insurance number.
+var ErrNoDataFound = errors.New("no data found")
 
 // The RFZO page no longer carries the key its script sends to the API.
 var ErrNoApiKeyFound = errors.New("no API key found")
@@ -339,7 +339,7 @@ func ParseValidUntilDateFromRfzoResponse(response string) (string, error) {
 	}
 
 	if len(records) == 0 || records[0].ValidUntil == "" {
-		return "", ErrNoSubmatchFound
+		return "", ErrNoDataFound
 	}
 
 	// The card itself stores the date with a trailing dot, the API omits it.
