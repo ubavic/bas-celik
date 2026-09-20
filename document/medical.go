@@ -17,7 +17,8 @@ import (
 	"github.com/ubavic/bas-celik/v2/localization"
 )
 
-const rfzoServiceUrl = "https://www.rfzo.rs/proveraUplateDoprinosa2.php"
+const rfzoServiceUrl = "https://rfzo.rs/api_overa.php"
+const rfzoPageUrl = "https://rfzo.rs/proveraUplateDoprinosa2.php"
 
 // Card number doesn't have exactly 11 digits.
 var ErrInvalidCardNo = errors.New("invalid card number length")
@@ -27,6 +28,9 @@ var ErrInvalidInsuranceNo = errors.New("invalid insurance number length")
 
 // Date `ValidUntil` could not be extracted from RFZO response.
 var ErrNoSubmatchFound = errors.New("no submatch found")
+
+// The RFZO page no longer carries the key its script sends to the API.
+var ErrNoApiKeyFound = errors.New("no API key found")
 
 // Represents a document stored on a Serbian public medical insurance card.
 type MedicalDocument struct {
@@ -285,9 +289,23 @@ func (doc *MedicalDocument) UpdateValidUntilDateFromRfzo() error {
 		return ErrInvalidInsuranceNo
 	}
 
-	resp, err := http.PostForm(rfzoServiceUrl, url.Values{"zk": {doc.CardId}, "lbo": {doc.InsurantNumber}})
+	apiKey, err := fetchRfzoApiKey()
 	if err != nil {
-		return fmt.Errorf("posting: %w", err)
+		return fmt.Errorf("fetching api key: %w", err)
+	}
+
+	query := url.Values{"bzk": {doc.CardId}, "lbo": {doc.InsurantNumber}}
+
+	req, err := http.NewRequest(http.MethodGet, rfzoServiceUrl+"?"+query.Encode(), nil)
+	if err != nil {
+		return fmt.Errorf("creating request: %w", err)
+	}
+
+	req.Header.Set("X-API-Secret", apiKey)
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return fmt.Errorf("requesting: %w", err)
 	}
 
 	defer resp.Body.Close()
@@ -308,14 +326,46 @@ func (doc *MedicalDocument) UpdateValidUntilDateFromRfzo() error {
 }
 
 func ParseValidUntilDateFromRfzoResponse(response string) (string, error) {
-	regex, err := regexp.Compile(`оверена до: <strong>(\d+\.\d+\.\d+\.)</strong>`)
-	if err != nil {
-		return "", fmt.Errorf("compiling regex: %w", err)
+	var records []struct {
+		ValidUntil string `json:"overena_do_poslednja"`
 	}
 
-	matches := regex.FindStringSubmatch(response)
-	if len(matches) < 2 {
+	if err := json.Unmarshal([]byte(response), &records); err != nil {
+		return "", fmt.Errorf("decoding json: %w", err)
+	}
+
+	if len(records) == 0 || records[0].ValidUntil == "" {
 		return "", ErrNoSubmatchFound
+	}
+
+	// The card itself stores the date with a trailing dot, the API omits it.
+	return strings.TrimSuffix(records[0].ValidUntil, ".") + ".", nil
+}
+
+var rfzoApiKeyRegex = regexp.MustCompile(`['"]X-API-Secret['"]\s*:\s*['"]([^'"]+)['"]`)
+
+// The key is not documented anywhere; the check page passes it to the
+// API from its inline JavaScript, so take it from there.
+func fetchRfzoApiKey() (string, error) {
+	resp, err := http.Get(rfzoPageUrl)
+	if err != nil {
+		return "", fmt.Errorf("requesting page: %w", err)
+	}
+
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", fmt.Errorf("reading page: %w", err)
+	}
+
+	return ParseApiKeyFromRfzoPage(string(body))
+}
+
+func ParseApiKeyFromRfzoPage(page string) (string, error) {
+	matches := rfzoApiKeyRegex.FindStringSubmatch(page)
+	if len(matches) < 2 {
+		return "", ErrNoApiKeyFound
 	}
 
 	return matches[1], nil

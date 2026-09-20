@@ -156,12 +156,17 @@ func Test_GetExpiryDateFromRfzo(t *testing.T) {
 }
 
 func Test_parseDateFromRfzoResponse(t *testing.T) {
-	_, err := document.ParseValidUntilDateFromRfzoResponse("")
+	_, err := document.ParseValidUntilDateFromRfzoResponse("[]")
 	if err != document.ErrNoSubmatchFound {
 		t.Errorf("Expected the NoSubmatchFound error but got %v", err)
 	}
 
-	date, err := document.ParseValidUntilDateFromRfzoResponse("Ваши иницијали су <strong>Н.Н.</strong> (ЛБО: 123456789)<br />Матична филијала: <strong>Београд</strong>.<br/>Ваша здравствена књижица је оверена до: <strong>3.4.2025.</strong>")
+	_, err = document.ParseValidUntilDateFromRfzoResponse("")
+	if err == nil {
+		t.Errorf("Expected a decoding error but got none")
+	}
+
+	date, err := document.ParseValidUntilDateFromRfzoResponse(`[{"overena_do_poslednja":"3.4.2025","ustanova_naziv":"Ispostava Stari Grad"}]`)
 	if err != nil {
 		t.Errorf("Expected no error but got %v", err)
 	}
@@ -170,12 +175,32 @@ func Test_parseDateFromRfzoResponse(t *testing.T) {
 		t.Errorf("Expected date `3.4.2025.` but got `%s`", date)
 	}
 
-	date, err = document.ParseValidUntilDateFromRfzoResponse("Ваша здравствена књижица је оверена до: <strong>31.12.2023.</strong>")
+	date, err = document.ParseValidUntilDateFromRfzoResponse(`[{"overena_do_poslednja":"31.12.2023."}]`)
 	if err != nil {
 		t.Errorf("Expected no error but got %v", err)
 	}
 
 	if date != "31.12.2023." {
 		t.Errorf("Expected date `31.12.2023.` but got `%s`", date)
+	}
+}
+
+func Test_parseApiKeyFromRfzoPage(t *testing.T) {
+	_, err := document.ParseApiKeyFromRfzoPage("<html></html>")
+	if err != document.ErrNoApiKeyFound {
+		t.Errorf("Expected the NoApiKeyFound error but got %v", err)
+	}
+
+	key, err := document.ParseApiKeyFromRfzoPage(`const response = await fetch(apiUrl, {
+    headers: {
+        'X-API-Secret': 'ab12cd34-0000-1111-2222-333344445555'
+    }
+});`)
+	if err != nil {
+		t.Errorf("Expected no error but got %v", err)
+	}
+
+	if key != "ab12cd34-0000-1111-2222-333344445555" {
+		t.Errorf("Expected key `ab12cd34-0000-1111-2222-333344445555` but got `%s`", key)
 	}
 }
