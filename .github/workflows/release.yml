@@ -43,7 +43,7 @@ jobs:
       - name: Generate version file
         run: |
           VERSION=$(git describe --tags --abbrev=0 | tail -c +2)
-          echo "$VERSION" >> assets/version
+          printf '%s' "$VERSION" >> assets/version
           echo "  Version = \"$VERSION\"" >> FyneApp.toml
       - name: Build and package GUI version
         run: |
@@ -94,7 +94,7 @@ jobs:
       - name: Generate version file
         run: |
           $version = (git describe --tags --abbrev=0).Substring(1)
-          $version | Out-File -FilePath "assets/version" -Append
+          $version | Out-File -FilePath "assets/version" -Append -NoNewline
           "  Version = `"$version`"" | Out-File -FilePath "FyneApp.toml" -Append
       - name: Build
         run: |
@@ -121,7 +121,7 @@ jobs:
       - name: Generate version file
         run: |
           VERSION=$(git describe --tags --abbrev=0 | tail -c +2)
-          echo "$VERSION" >> assets/version
+          printf '%s' "$VERSION" >> assets/version
           echo "  Version = \"$VERSION\"" >> FyneApp.toml
       - name: Build GUI version
         run: |
@@ -159,7 +159,7 @@ jobs:
       - name: Generate version file
         run: |
           VERSION=$(git describe --tags --abbrev=0 | tail -c +2)
-          echo "$VERSION" >> assets/version
+          printf '%s' "$VERSION" >> assets/version
           echo "  Version = \"$VERSION\"" >> FyneApp.toml
       - name: Build GUI version
         run: |
