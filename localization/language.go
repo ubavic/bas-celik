@@ -6,3 +6,5 @@ const SrLatin = Language("sr-latin")
 const SrCyrillic = Language("sr-cyrillic")
 const En = Language("en")
 const Ru = Language("ru")
+
+var Languages = []Language{SrLatin, SrCyrillic, En, Ru}

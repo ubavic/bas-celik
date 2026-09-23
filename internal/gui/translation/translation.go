@@ -15,8 +15,7 @@ var currentLanguage localization.Language
 func SetTranslations(embedFS embed.FS) error {
 	translations = make(map[localization.Language]map[string]string)
 
-	languages := []localization.Language{localization.SrLatin, localization.SrCyrillic, localization.En, localization.Ru}
-	for _, lang := range languages {
+	for _, lang := range localization.Languages {
 		langJson, err := embedFS.ReadFile("embed/translation/" + string(lang) + ".json")
 		if err != nil {
 			return fmt.Errorf("reading %s translation: %w", lang, err)
