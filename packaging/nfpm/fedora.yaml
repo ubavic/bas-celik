@@ -1,5 +1,5 @@
 name: bas-celik
-arch: amd64
+arch: __ARCH__
 platform: linux
 version: __VERSION__
 release: 1
@@ -14,7 +14,7 @@ depends:
   - pcsc-lite
   - pcsc-lite-ccid
 contents:
-  - src: ./bas-celik.linux.amd64.bin
+  - src: ./bas-celik.linux.__ARCH__.bin
     dst: /usr/bin/bas-celik
     file_info:
       mode: 0755

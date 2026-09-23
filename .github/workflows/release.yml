@@ -59,8 +59,8 @@ jobs:
       - name: Build DEB and RPM packages
         run: |
           VERSION=$(git describe --tags --abbrev=0 | tail -c +2)
-          sed "s/__VERSION__/${VERSION}/g" packaging/nfpm/debian.yaml > nfpm.debian.yaml
-          sed "s/__VERSION__/${VERSION}/g" packaging/nfpm/fedora.yaml > nfpm.fedora.yaml
+          sed -e "s/__VERSION__/${VERSION}/g" -e "s/__ARCH__/amd64/g" packaging/nfpm/debian.yaml > nfpm.debian.yaml
+          sed -e "s/__VERSION__/${VERSION}/g" -e "s/__ARCH__/amd64/g" packaging/nfpm/fedora.yaml > nfpm.fedora.yaml
           "$(go env GOPATH)"/bin/nfpm package --packager deb --config nfpm.debian.yaml --target bas-celik.linux.amd64.deb
           "$(go env GOPATH)"/bin/nfpm package --packager rpm --config nfpm.fedora.yaml --target bas-celik.linux.amd64.rpm
       - name: Build CLI version
@@ -78,6 +78,61 @@ jobs:
             bas-celik.linux.amd64.deb
             bas-celik.linux.amd64.rpm
             cli-bas-celik.linux.amd64
+
+  buildLinuxArm:
+    runs-on: ubuntu-24.04-arm
+    needs: [test]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Install Linux deps
+        run: |
+          sudo apt update
+          sudo apt install -y build-essential pkg-config libpcsclite-dev libgl1-mesa-dev xorg-dev
+      - name: Install Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: "stable"
+      - name: Install Fyne
+        run: go install fyne.io/tools/cmd/fyne@latest
+      - name: Generate version file
+        run: |
+          VERSION=$(git describe --tags --abbrev=0 | tail -c +2)
+          printf '%s' "$VERSION" >> assets/version
+          echo "  Version = \"$VERSION\"" >> FyneApp.toml
+      - name: Build and package GUI version
+        run: |
+          fyne package -os linux -release
+          mv 'Bas Celik.tar.xz' bas-celik.linux.arm64.tar.xz
+      - name: Extract bin
+        run: |
+          mkdir tmpcelik
+          tar -xf bas-celik.linux.arm64.tar.xz -C tmpcelik/
+          cp tmpcelik/bas-celik/usr/local/bin/bas-celik bas-celik.linux.arm64.bin
+      - name: Install nfpm
+        run: go install github.com/goreleaser/nfpm/v2/cmd/nfpm@latest
+      - name: Build DEB and RPM packages
+        run: |
+          VERSION=$(git describe --tags --abbrev=0 | tail -c +2)
+          sed -e "s/__VERSION__/${VERSION}/g" -e "s/__ARCH__/arm64/g" packaging/nfpm/debian.yaml > nfpm.debian.yaml
+          sed -e "s/__VERSION__/${VERSION}/g" -e "s/__ARCH__/arm64/g" packaging/nfpm/fedora.yaml > nfpm.fedora.yaml
+          "$(go env GOPATH)"/bin/nfpm package --packager deb --config nfpm.debian.yaml --target bas-celik.linux.arm64.deb
+          "$(go env GOPATH)"/bin/nfpm package --packager rpm --config nfpm.fedora.yaml --target bas-celik.linux.arm64.rpm
+      - name: Build CLI version
+        run: |
+          echo -n "cli" >> assets/version
+          rm -R embed/translation
+          go build -tags "cli" -ldflags "-s -w" -o cli-bas-celik.linux.arm64 .
+      - name: Upload Linux ARM artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: linux-arm-build-artifact
+          path: |
+            bas-celik.linux.arm64.tar.xz
+            bas-celik.linux.arm64.bin
+            bas-celik.linux.arm64.deb
+            bas-celik.linux.arm64.rpm
+            cli-bas-celik.linux.arm64
 
   buildWindows:
     runs-on: windows-latest
@@ -181,7 +236,7 @@ jobs:
 
   release:
     runs-on: ubuntu-latest
-    needs: [buildLinux, buildWindows, buildMacOsArm, buildMacOsIntel]
+    needs: [buildLinux, buildLinuxArm, buildWindows, buildMacOsArm, buildMacOsIntel]
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -189,6 +244,7 @@ jobs:
       - name: Move files
         run: |
           mv linux-build-artifact/* .
+          mv linux-arm-build-artifact/* .
           mv windows-build-artifact/* .
           mv macos-arm-build-artifact/* .
           mv macos-intel-build-artifact/* .
@@ -208,6 +264,11 @@ jobs:
             bas-celik.linux.amd64.deb
             bas-celik.linux.amd64.rpm
             cli-bas-celik.linux.amd64
+            bas-celik.linux.arm64.tar.xz
+            bas-celik.linux.arm64.bin
+            bas-celik.linux.arm64.deb
+            bas-celik.linux.arm64.rpm
+            cli-bas-celik.linux.arm64
             bas-celik.windows.amd64.exe
             bas-celik.macos.arm.tar.gz
             cli-bas-celik.macos.arm
