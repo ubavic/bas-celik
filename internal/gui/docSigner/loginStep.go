@@ -9,8 +9,9 @@ import (
 )
 
 type loginStep struct {
-	pinEntry *widget.Entry
-	errLabel *widget.Label
+	pinEntry   *widget.Entry
+	pinWarning *widget.Label
+	errLabel   *widget.Label
 }
 
 func (l *loginStep) activate() *fyne.Container {
@@ -26,6 +27,11 @@ func (l *loginStep) activate() *fyne.Container {
 		}
 	}
 
+	if l.pinWarning == nil {
+		l.pinWarning = widget.NewLabel(gWizard.t("xmlSign.pinWarning"))
+		l.pinWarning.Importance = widget.WarningImportance
+	}
+
 	if l.errLabel == nil {
 		l.errLabel = widget.NewLabel("")
 	}
@@ -34,13 +40,15 @@ func (l *loginStep) activate() *fyne.Container {
 	l.pinEntry.SetText("")
 	l.pinEntry.Enable()
 
+	l.pinWarning.Show()
+
 	l.errLabel.SetText("")
 	l.errLabel.Hide()
 	gWizard.loginErr = l.errLabel
 
 	gWizard.nextBtn.Disable()
 
-	return container.New(layout.NewVBoxLayout(), l.pinEntry, l.errLabel)
+	return container.New(layout.NewVBoxLayout(), l.pinEntry, l.pinWarning, l.errLabel)
 }
 
 func (l *loginStep) complete() *stepError {
@@ -89,6 +97,9 @@ func (l *loginStep) complete() *stepError {
 			gWizard.certs = certs
 			if l.errLabel != nil {
 				l.errLabel.Hide()
+			}
+			if l.pinWarning != nil {
+				l.pinWarning.Hide()
 			}
 
 			gWizard.nextBtn.SetText(gWizard.t("xmlSign.next"))
