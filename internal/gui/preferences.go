@@ -202,7 +202,7 @@ func showSetupBox() func() {
 
 		ghUrl, _ := url.Parse("https://github.com/ubavic/bas-celik")
 		authorUrl, _ := ghUrl.Parse("https://ubavic.rs")
-		guideUrl, _ := ghUrl.Parse("https://ubavic.rs/e-documents/")
+		guideUrl, _ := ghUrl.Parse("https://e-documents.ubavic.rs/")
 		newVersionInfoLabel := widget.NewLabel("")
 		go populateNewVersionInfo(newVersionInfoLabel)
 
@@ -218,7 +218,7 @@ func showSetupBox() func() {
 			widget.NewLabel(t("about.author")),
 			widget.NewHyperlink("Nikola Ubavić", authorUrl),
 			widget.NewLabel(t("about.guide")),
-			widget.NewHyperlink("ubavic.rs/e-documents", guideUrl),
+			widget.NewHyperlink("e-documents.ubavic.rs", guideUrl),
 		)
 
 		tabs := container.NewAppTabs(
