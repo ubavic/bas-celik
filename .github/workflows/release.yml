@@ -17,7 +17,7 @@ jobs:
       - name: Install Linux deps
         run: |
           sudo apt update
-          sudo apt install -y build-essential pkg-config libpcsclite-dev libgl1-mesa-dev xorg-dev
+          sudo apt install -y build-essential pkg-config libpcsclite-dev libgl1-mesa-dev xorg-dev libwayland-dev libxkbcommon-dev
       - name: Install Go
         uses: actions/setup-go@v6
         with:
@@ -38,7 +38,7 @@ jobs:
       - name: Install Linux deps
         run: |
           sudo apt update
-          sudo apt install -y build-essential pkg-config libpcsclite-dev libgl1-mesa-dev xorg-dev
+          sudo apt install -y build-essential pkg-config libpcsclite-dev libgl1-mesa-dev xorg-dev libwayland-dev libxkbcommon-dev
       - name: Install Go
         uses: actions/setup-go@v6
         with:
@@ -95,7 +95,7 @@ jobs:
       - name: Install Linux deps
         run: |
           sudo apt update
-          sudo apt install -y build-essential pkg-config libpcsclite-dev libgl1-mesa-dev xorg-dev
+          sudo apt install -y build-essential pkg-config libpcsclite-dev libgl1-mesa-dev xorg-dev libwayland-dev libxkbcommon-dev
       - name: Install Go
         uses: actions/setup-go@v6
         with:
