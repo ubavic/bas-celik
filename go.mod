@@ -4,7 +4,7 @@ go 1.26.0
 
 require (
 	fyne.io/fyne/v2 v2.8.1
-	github.com/beevik/etree v1.8.0
+	github.com/beevik/etree v1.8.1
 	github.com/coder/websocket v1.8.15
 	github.com/ebfe/scard v0.0.0-20241214075232-7af069cabc25
 	github.com/miekg/pkcs11 v1.1.2
@@ -49,7 +49,7 @@ require (
 	github.com/srwiley/rasterx v0.0.0-20220730225603-2ab79fcdd4ef // indirect
 	github.com/stretchr/testify v1.12.1 // indirect
 	github.com/tiendc/go-deepcopy v1.7.2 // indirect
-	github.com/xuri/efp v0.0.1 // indirect
+	github.com/xuri/efp v0.0.2 // indirect
 	github.com/xuri/nfp v0.0.2-0.20250530014748-2ddeb826f9a9 // indirect
 	github.com/yuin/goldmark v1.8.6 // indirect
 	go.yaml.in/yaml/v3 v3.0.5 // indirect
