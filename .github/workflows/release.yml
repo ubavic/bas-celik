@@ -170,11 +170,18 @@ jobs:
         run: |
           fyne package -os windows -release
           mv 'Bas Celik.exe' bas-celik.windows.amd64.exe
+      - name: Build CLI version
+        run: |
+          "cli" | Out-File -FilePath "assets/version" -Append -NoNewline
+          Remove-Item -Recurse -Force embed/translation
+          go build -tags "cli" -ldflags "-s -w" -o cli-bas-celik.windows.amd64.exe .
       - name: Upload executables
         uses: actions/upload-artifact@v7
         with:
           name: windows-build-artifact
-          path: bas-celik.windows.amd64.exe
+          path: |
+            bas-celik.windows.amd64.exe
+            cli-bas-celik.windows.amd64.exe
 
   buildMacOsArm:
     runs-on: macos-latest
@@ -293,6 +300,7 @@ jobs:
             bas-celik.linux.arm64.rpm
             cli-bas-celik.linux.arm64
             bas-celik.windows.amd64.exe
+            cli-bas-celik.windows.amd64.exe
             bas-celik.macos.arm.tar.gz
             cli-bas-celik.macos.arm
             bas-celik.macos.intel.tar.gz
