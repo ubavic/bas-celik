@@ -9,6 +9,8 @@ import (
 	"fyne.io/fyne/v2/storage"
 	"github.com/ubavic/bas-celik/v2/document"
 	"github.com/ubavic/bas-celik/v2/internal/logger"
+    "os"
+    "os/exec"
 )
 
 func savePdf(doc document.Document) func() {
@@ -152,4 +154,58 @@ func getLastUsedDirectory() fyne.ListableURI {
 	}
 
 	return listableURI
+}
+
+    //Dodajemo print funkciju
+
+func printPdf(doc document.Document) func() {
+	return func() {
+		if doc == nil {
+			return
+		}
+
+		switch doc := doc.(type) {
+		case *document.IdDocument:
+			if state.pdfCyrillicLabels {
+				doc.SetCyrillicLabels()
+			}
+		}
+
+		pdf, _, err := doc.BuildPdf()
+		if err != nil {
+			setStatus("error.generatingPdf", fmt.Errorf("generating PDF: %w", err))
+			return
+		}
+
+		// Pravimo privremeni PDF fajl
+		tempFile, err := os.CreateTemp("", "bas-celik-print-*.pdf")
+		if err != nil {
+			logger.Error(fmt.Errorf("creating temp print file: %w", err))
+			return
+		}
+		tempPath := tempFile.Name()
+
+		if _, err := tempFile.Write(pdf); err != nil {
+			tempFile.Close()
+			os.Remove(tempPath)
+			logger.Error(fmt.Errorf("writing temp print file: %w", err))
+			return
+		}
+		tempFile.Close()
+
+		// Šaljemo na podrazumevani štampač preko CUPS komande 'lpr'
+		cmd := exec.Command("lpr", tempPath)
+		err = cmd.Run()
+
+		// Brišemo privremeni fajl
+		_ = os.Remove(tempPath)
+
+		if err != nil {
+			logger.Error(fmt.Errorf("running lpr: %w", err))
+			return
+		}
+
+		// Obaveštenje u statusnoj traci
+		setTimedStatus("Dokument poslat na štampu")
+	}
 }

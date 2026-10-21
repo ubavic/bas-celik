@@ -63,10 +63,12 @@ func setUI(doc document.Document) {
 	case *document.VehicleDocument:
 		page = pageVehicle(doc)
 	}
-
+    
+    //Dodajemo "Štampaj" dugme    
+	printPdfButton := widget.NewButton("Štampaj", printPdf(doc))
 	savePdfButton := widget.NewButton(t("ui.savePdf"), savePdf(doc))
 	saveXlsxButton := widget.NewButton(t("ui.saveXlsx"), saveXlsx(doc))
-	buttonBarObjects = append(buttonBarObjects, saveXlsxButton, savePdfButton)
+	buttonBarObjects = append(buttonBarObjects, printPdfButton,  saveXlsxButton, savePdfButton)
 
 	buttonBar := container.New(layout.NewHBoxLayout(), buttonBarObjects...)
 
