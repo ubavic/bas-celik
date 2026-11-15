@@ -10,7 +10,7 @@ U nastavku su izložene osnovne informacije o programu. Uputstvo za upotrebu je 
 
 > [!NOTE]
 > Baš Čelik is software for reading smart-card documents issued by the government of Serbia. Supported cards include ID cards, vehicle registration cards, and medical insurance cards. The application is written completely from scratch in Go and supports Linux, macOS, and Windows.
-> The rest of this document is in Serbian, but the entire codebase is in English, and the interface includes English and Russian support. Additional information can be found in the project [wiki](https://github.com/ubavic/bas-celik/wiki).
+> The rest of this document is in Serbian, but the entire codebase is in English, and the interface includes English and Russian support. User manual on Serbian can be found on [e-documents.ubavic.rs](https://e-documents.ubavic.rs)
 
 ![Interfejs](assets/ui.png)
 
@@ -79,7 +79,7 @@ Izvršne datoteke poslednje verzije programa možete preuzeti sa [Releases](http
 
 ## Kompilacija
 
-Potrebno je posedovati `go` kompajler. Na Linuksu je potrebno instalirati i `libpcsclite-dev` i [pakete za Fyne](https://developer.fyne.io/started/#prerequisites) (možda i `pkg-config`).
+Potrebno je posedovati `go` kompajler. Na Linuksu je potrebno instalirati i `libpcsclite-dev` i [pakete za Fyne](https://docs.fyne.io/started/quick/#prerequisites).
 
 Nakon preuzimanja repozitorijuma, dovoljno je pokrenuti
 
@@ -88,7 +88,7 @@ go mod download
 go build -v
 ```
 
-Prva kompilacija može potrajati nekoliko minuta (i do deset), jer je neophodno da se preuzmu i kompajliraju sve Golang biblioteke. Sve naredne kompilacije se izvršavaju u nekoliko sekundi.
+Prva kompilacija može potrajati nekoliko minuta (i do desetak), jer je neophodno da se preuzmu i kompajliraju sve Golang biblioteke. Sve naredne kompilacije se izvršavaju u nekoliko sekundi.
 
 ## Arhitektura aplikacije
 
