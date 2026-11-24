@@ -2,7 +2,6 @@ package card
 
 import (
 	"encoding/binary"
-	"encoding/hex"
 	"fmt"
 	"strings"
 
@@ -49,18 +48,10 @@ var MED_VARIABLE_PERSONAL_FILE_LOC = []byte{0x0D, 0x03}
 var MED_VARIABLE_ADMIN_FILE_LOC = []byte{0x0D, 0x04}
 
 func (card *MedicalCard) InitCard() error {
-	s1 := []byte{0xF3, 0x81, 0x00, 0x00, 0x02, 0x53, 0x45, 0x52, 0x56, 0x53, 0x5A, 0x4B, 0x01}
-	apu := buildAPDU(0x00, 0xA4, 0x04, 0x00, s1, 0)
-
-	rsp, err := card.smartCard.Transmit(apu)
-	if err != nil {
-		return err
+	aid := []byte{0xF3, 0x81, 0x00, 0x00, 0x02, 0x53, 0x45, 0x52, 0x56, 0x53, 0x5A, 0x4B, 0x01}
+	if err := card.selectWithGetResponse(0x04, aid); err != nil {
+		return fmt.Errorf("initializing card: %w", err)
 	}
-
-	if !responseOK(rsp) {
-		return fmt.Errorf("initializing card: response %s", hex.EncodeToString(rsp))
-	}
-
 	return nil
 }
 
@@ -137,9 +128,8 @@ func descramble(fields map[uint][]byte, tag uint) {
 func (card *MedicalCard) ReadFile(name []byte) ([]byte, error) {
 	output := make([]byte, 0)
 
-	_, err := card.selectFile(name)
-	if err != nil {
-		return nil, fmt.Errorf("selecting file: %w", err)
+	if err := card.selectWithGetResponse(0x00, name); err != nil {
+		return nil, fmt.Errorf("selecting file %x: %w", name, err)
 	}
 
 	data, err := read(card.smartCard, 0, 4)
@@ -172,26 +162,38 @@ func (card *MedicalCard) ReadFile(name []byte) ([]byte, error) {
 	return output, nil
 }
 
-func (card *MedicalCard) selectFile(name []byte) ([]byte, error) {
-	apu := buildAPDU(0x00, 0xA4, 0x00, 0x00, name, 0)
-	rsp, err := card.smartCard.Transmit(apu)
-	if err != nil {
-		return nil, fmt.Errorf("selecting file %s: %w", hex.EncodeToString(name), err)
-	}
+// Some RFZO cards return 61xx after SELECT. Finish the command with GET
+// RESPONSE before sending another command, even though we do not use the FCI.
+func (card *MedicalCard) selectWithGetResponse(p1 byte, name []byte) error {
+	command := buildAPDU(0x00, 0xA4, p1, 0x00, name, 0)
+	const maxGetResponses = 16
+	for remaining := maxGetResponses; ; remaining-- {
+		response, err := card.smartCard.Transmit(command)
+		if err != nil {
+			return err
+		}
+		if len(response) < 2 {
+			return fmt.Errorf("missing SELECT status word")
+		}
+		status := response[len(response)-2:]
+		if status[0] != 0x61 {
+			if !responseOK(response) {
+				return fmt.Errorf("SELECT status %x", status)
+			}
+			return nil
+		}
+		if remaining == 0 {
+			return fmt.Errorf("too many GET RESPONSE commands after SELECT")
+		}
 
-	if !responseOK(rsp) {
-		return nil, fmt.Errorf("selecting file %s: response %s", hex.EncodeToString(name), hex.EncodeToString(rsp))
+		// In a short APDU, Le=0 encodes 256 bytes.
+		command = []byte{0x00, 0xC0, 0x00, 0x00, status[1]}
 	}
-
-	return rsp, nil
 }
 
 // Newer medical cards share ATR with the ID cards (GEMALTO_ATR_2)
 func (card *MedicalCard) Test() bool {
-	s1 := []byte{0xF3, 0x81, 0x00, 0x00, 0x02, 0x53, 0x45, 0x52, 0x56, 0x53, 0x5A, 0x4B, 0x01}
-	apu := buildAPDU(0x00, 0xA4, 0x04, 0x00, s1, 0)
-	_, err := card.smartCard.Transmit(apu)
-	if err != nil {
+	if err := card.InitCard(); err != nil {
 		return false
 	}
 

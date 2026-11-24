@@ -65,3 +65,50 @@ func Test_descramble(t *testing.T) {
 		},
 	)
 }
+
+func TestMedicalCardAcceptsSelectWithResponseAvailable(t *testing.T) {
+	document := medRecord(1553, u16("Републички фонд за здравствено осигурање"))
+	chip := &scriptedMedicalCard{
+		t: t,
+		steps: []medicalExchange{
+			{[]byte{0x00, 0xA4, 0x04, 0x00, 0x0D, 0xF3, 0x81, 0x00, 0x00, 0x02, 0x53, 0x45, 0x52, 0x56, 0x53, 0x5A, 0x4B, 0x01}, []byte{0x61, 0x24}},
+			{[]byte{0x00, 0xC0, 0x00, 0x00, 0x24}, []byte{0x61, 0x00}},
+			{[]byte{0x00, 0xC0, 0x00, 0x00, 0x00}, []byte{0x90, 0x00}},
+			{[]byte{0x00, 0xA4, 0x00, 0x00, 0x02, 0x0D, 0x01}, []byte{0x61, 0x0A}},
+			{[]byte{0x00, 0xC0, 0x00, 0x00, 0x0A}, []byte{0x90, 0x00}},
+			{[]byte{0x00, 0xB0, 0x00, 0x00, 0x04}, []byte{0x00, 0x00, byte(len(document)), 0x00, 0x90, 0x00}},
+			{[]byte{0x00, 0xB0, 0x00, 0x04, byte(len(document))}, append(document, 0x90, 0x00)},
+		},
+	}
+	card := MedicalCard{smartCard: chip}
+	if !card.Test() {
+		t.Fatal("failed to detect the medical card")
+	}
+	if len(chip.steps) != 0 {
+		t.Fatalf("%d APDU exchanges were skipped", len(chip.steps))
+	}
+}
+
+type medicalExchange struct {
+	command  []byte
+	response []byte
+}
+
+type scriptedMedicalCard struct {
+	Card
+	t     *testing.T
+	steps []medicalExchange
+}
+
+func (card *scriptedMedicalCard) Transmit(command []byte) ([]byte, error) {
+	card.t.Helper()
+	if len(card.steps) == 0 {
+		card.t.Fatalf("unexpected APDU %x", command)
+	}
+	step := card.steps[0]
+	card.steps = card.steps[1:]
+	if !slices.Equal(command, step.command) {
+		card.t.Fatalf("APDU %x, want %x", command, step.command)
+	}
+	return step.response, nil
+}
