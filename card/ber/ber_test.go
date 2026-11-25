@@ -2,10 +2,39 @@ package ber
 
 import (
 	"encoding/binary"
+	"errors"
 	"testing"
 
 	"github.com/ubavic/bas-celik/v2/card/cardErrors"
 )
+
+func Test_ParseBER_Truncated(t *testing.T) {
+	testCases := [][]byte{
+		{0x81, 0x82, 0x00, 0x04, 0x41, 0x42},
+		{0x81, 0x03, 0x41, 0x42},
+		{0x71, 0x04, 0x81, 0x05, 0x41, 0x42},
+		{0x81, 0x84, 0xFF, 0xFF, 0xFF, 0xFF, 0x41},
+	}
+
+	for _, data := range testCases {
+		_, err := ParseBER(data)
+		if !errors.Is(err, cardErrors.ErrInvalidLength) {
+			t.Errorf("Expected error '%v' for % X, but error is '%v'", cardErrors.ErrInvalidLength, data, err)
+		}
+	}
+}
+
+func Test_ParseBER_ExactLength(t *testing.T) {
+	ber, err := ParseBER([]byte{0x71, 0x04, 0x81, 0x02, 0x41, 0x42})
+	if err != nil {
+		t.Fatalf("Unexpected error: %v", err)
+	}
+
+	value, err := ber.access(0x71, 0x81)
+	if err != nil || string(value) != "AB" {
+		t.Errorf("Expected value 'AB', but got '%s' (error '%v')", value, err)
+	}
+}
 
 func Test_parseBerLength(t *testing.T) {
 	testCases := []struct {

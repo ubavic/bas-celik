@@ -168,11 +168,12 @@ func parseBERLayer(data []byte) (map[uint32][]byte, map[uint32][]byte, error) {
 			return nil, nil, fmt.Errorf("parsing BER record length: %w", err)
 		}
 
-		if uint32(len(data)) <= offset+length {
+		offset += offsetDelta
+
+		if length > uint32(len(data))-offset {
 			return nil, nil, fmt.Errorf("parsing BER record data: %w", cardErrors.ErrInvalidLength)
 		}
 
-		offset += offsetDelta
 		value := data[offset : offset+length]
 
 		if primitive {
