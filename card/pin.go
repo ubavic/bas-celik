@@ -1,9 +1,6 @@
 package card
 
-import (
-	"slices"
-	"unicode"
-)
+import "slices"
 
 // Checks if the PIN consists only of digits,
 // and it's length is between 4 and 8.
@@ -14,7 +11,7 @@ func ValidatePin(pin string) bool {
 	}
 
 	for _, r := range pin {
-		if !unicode.IsDigit(r) {
+		if r < '0' || r > '9' {
 			return false
 		}
 	}

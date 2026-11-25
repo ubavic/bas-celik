@@ -40,6 +40,14 @@ func Test_ValidatePin(t *testing.T) {
 			pin:            "123456789",
 			expectedResult: false,
 		},
+		{
+			pin:            "١٢٣٤",
+			expectedResult: false,
+		},
+		{
+			pin:            "12٣4",
+			expectedResult: false,
+		},
 	}
 
 	for _, testCase := range testCases {
