@@ -18,7 +18,7 @@ func ParseTLV(data []byte) (map[uint][]byte, error) {
 	offset := uint(0)
 
 	for {
-		if uint(len(data)) <= offset+4 {
+		if uint(len(data)) < offset+4 {
 			return nil, fmt.Errorf("parsing TLV record tag and length: %w", cardErrors.ErrInvalidLength)
 		}
 
