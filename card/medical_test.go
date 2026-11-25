@@ -118,3 +118,29 @@ func (card *scriptedMedicalCard) Transmit(command []byte) ([]byte, error) {
 	}
 	return step.response, nil
 }
+
+func Test_parseMedicalGender(t *testing.T) {
+	testCases := []struct {
+		value    []byte
+		expected string
+	}{
+		{[]byte("010"), ""},
+		{[]byte("01"), "Мушко"},
+		{[]byte("02"), "Женско"},
+		{[]byte("1"), ""},
+		{[]byte{}, ""},
+		{nil, ""},
+	}
+
+	for i, testCase := range testCases {
+		t.Run(
+			fmt.Sprintf("Case %d", i),
+			func(t *testing.T) {
+				gender := parseMedicalGender(testCase.value)
+				if gender != testCase.expected {
+					t.Errorf("Got %q, but expected %q", gender, testCase.expected)
+				}
+			},
+		)
+	}
+}

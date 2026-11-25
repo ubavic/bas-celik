@@ -274,11 +274,7 @@ func parseMedicalVariableAdminFile(data []byte, doc *document.MedicalDocument) e
 	tlv.AssignField(fields, 1601, &doc.ParentName)
 	descramble(fields, 1602)
 	tlv.AssignField(fields, 1602, &doc.ParentNameLatin)
-	if string(fields[1603]) == "01" {
-		doc.Gender = "Мушко"
-	} else {
-		doc.Gender = "Женско"
-	}
+	doc.Gender = parseMedicalGender(fields[1603])
 	tlv.AssignField(fields, 1604, &doc.PersonalNumber)
 	descramble(fields, 1605)
 	tlv.AssignField(fields, 1605, &doc.Street)
@@ -325,4 +321,16 @@ func parseMedicalVariableAdminFile(data []byte, doc *document.MedicalDocument) e
 	tlv.AssignField(fields, 1634, &doc.TaxpayerActivityCode)
 
 	return nil
+}
+
+// Returns an empty string for missing or unknown values.
+func parseMedicalGender(value []byte) string {
+	switch string(value) {
+	case "01":
+		return "Мушко"
+	case "02":
+		return "Женско"
+	default:
+		return ""
+	}
 }
