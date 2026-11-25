@@ -163,7 +163,7 @@ func (card *Gemalto) ReadFile(name []byte) ([]byte, error) {
 	}
 
 	offset := uint(len(data))
-	if offset < 3 {
+	if offset < 4 {
 		return nil, fmt.Errorf("file too short")
 	}
 	length := uint(binary.LittleEndian.Uint16(data[2:]))
@@ -198,6 +198,10 @@ func (card *Gemalto) readCertificateFile(name []byte) ([]byte, error) {
 	data, err := read(card.smartCard, 0, 2)
 	if err != nil {
 		return nil, fmt.Errorf("reading file header: %w", err)
+	}
+
+	if len(data) < 2 {
+		return nil, fmt.Errorf("file too short")
 	}
 
 	offset := uint(0)

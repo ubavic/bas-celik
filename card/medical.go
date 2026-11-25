@@ -148,7 +148,7 @@ func (card *MedicalCard) ReadFile(name []byte) ([]byte, error) {
 	}
 
 	offset := uint(len(data))
-	if offset < 3 {
+	if offset < 4 {
 		return nil, fmt.Errorf("file too short")
 	}
 	length := uint(binary.LittleEndian.Uint16(data[2:]))

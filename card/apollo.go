@@ -100,7 +100,7 @@ func (card *Apollo) ReadFile(name []byte) ([]byte, error) {
 		return nil, fmt.Errorf("reading file header: %w", err)
 	}
 
-	if len(data) < 5 {
+	if len(data) < 6 {
 		return nil, fmt.Errorf("file too short")
 	}
 	length := uint(binary.LittleEndian.Uint16(data[4:]))
