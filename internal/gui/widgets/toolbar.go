@@ -48,7 +48,7 @@ func (t *Toolbar) CreateRenderer() fyne.WidgetRenderer {
 
 	onChange := func(reader string) {
 		if t.onReaderChange != nil {
-			t.onReaderChange(reader)
+			go t.onReaderChange(reader)
 		}
 	}
 
@@ -115,16 +115,20 @@ func (r *ToolbarRenderer) Objects() []fyne.CanvasObject {
 
 func (r *ToolbarRenderer) Destroy() {}
 
+// Safe to call from any goroutine.
 func (r *Toolbar) SetReaders(readers []string, selectedReader string) {
-	r.readers = make([]string, 0, len(readers))
+	filtered := make([]string, 0, len(readers))
 
 	for i := range readers {
 		if !strings.HasPrefix(readers[i], "Windows Hello for Business") {
-			r.readers = append(r.readers, readers[i])
+			filtered = append(filtered, readers[i])
 		}
 	}
 
-	r.selectedReader = selectedReader
+	fyne.Do(func() {
+		r.readers = filtered
+		r.selectedReader = selectedReader
 
-	r.Refresh()
+		r.Refresh()
+	})
 }

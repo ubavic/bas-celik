@@ -56,9 +56,7 @@ func (r *StatusBarRenderer) Refresh() {
 		r.statusText.Color = theme.Color(theme.ColorNameForeground)
 	}
 
-	fyne.Do(func() {
-		r.statusText.Refresh()
-	})
+	r.statusText.Refresh()
 }
 
 func (r *StatusBarRenderer) Layout(s fyne.Size) {

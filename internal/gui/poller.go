@@ -3,6 +3,7 @@ package gui
 import (
 	"fmt"
 
+	"fyne.io/fyne/v2"
 	"github.com/ebfe/scard"
 	"github.com/ubavic/bas-celik/v2/card"
 	"github.com/ubavic/bas-celik/v2/document"
@@ -17,8 +18,10 @@ func connectToCard(selectedReader string, ctx *scard.Context) {
 	state.selectedCert = -1
 	state.mu.Unlock()
 
-	state.cryptoUiContainer.Hide()
-	state.cryptoUiContainer.RemoveAll()
+	fyne.Do(func() {
+		state.cryptoUiContainer.Hide()
+		state.cryptoUiContainer.RemoveAll()
+	})
 
 	readers, _ := ctx.ListReaders()
 	if selectedReader == "" || len(readers) == 0 {
@@ -90,8 +93,10 @@ func tryToProcessCard(sCard *scard.Card) bool {
 
 func showWindowFromTray() {
 	if state.runInBackground && state.autoSaveMode != AutoSaveSaveAndOpen {
-		state.window.Show()
-		state.window.RequestFocus()
+		fyne.Do(func() {
+			state.window.Show()
+			state.window.RequestFocus()
+		})
 	}
 }
 

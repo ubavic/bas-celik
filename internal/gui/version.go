@@ -12,14 +12,14 @@ import (
 )
 
 func checkVersionOnStartup() {
-	time.Sleep(time.Second)
-
 	preferences := state.app.Preferences()
 	if !preferences.BoolWithFallback(checkVersionOnStartupKey, true) {
 		return
 	}
 
 	go func() {
+		time.Sleep(time.Second)
+
 		newVersion, err := checkForUpdate()
 		if err != nil {
 			logger.Error(fmt.Errorf("checking version: %w", err))

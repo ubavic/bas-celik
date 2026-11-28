@@ -26,7 +26,7 @@ func (s *slotStep) activate() *fyne.Container {
 
 	if s.refreshButton == nil {
 		s.refreshButton = widget.NewButton(gWizard.t("xmlSign.refresh"), func() {
-			s.loadSlots()
+			go s.loadSlots()
 		})
 	}
 	s.refreshButton.DisableableWidget.Enable()

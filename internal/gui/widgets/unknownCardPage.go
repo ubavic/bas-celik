@@ -73,11 +73,9 @@ func (r *UnknownCardPageRenderer) Refresh() {
 
 	r.statusText.Color = theme.Color(theme.ColorNameError)
 
-	fyne.Do(func() {
-		r.statusText.Refresh()
-		r.atrText.Refresh()
-		r.copyAtrLabel.Refresh()
-	})
+	r.statusText.Refresh()
+	r.atrText.Refresh()
+	r.copyAtrLabel.Refresh()
 }
 
 func (r *UnknownCardPageRenderer) Layout(s fyne.Size) {

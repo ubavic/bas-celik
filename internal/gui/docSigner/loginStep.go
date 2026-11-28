@@ -6,6 +6,7 @@ import (
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
 	"github.com/ubavic/bas-celik/v2/internal/logger"
+	"github.com/ubavic/bas-celik/v2/internal/pkcs11"
 )
 
 type loginStep struct {
@@ -69,11 +70,20 @@ func (l *loginStep) complete() *stepError {
 	}
 
 	go func() {
-		err := gWizard.session.OpenSessionAndLogin(pin, slotId)
+		// Both PKCS#11 calls are slow, so they stay off the Fyne goroutine;
+		// only the widget updates below are queued with fyne.Do.
+		loginErr := gWizard.session.OpenSessionAndLogin(pin, slotId)
+
+		var certs []pkcs11.NamedCert
+		var certsErr error
+		if loginErr == nil {
+			certs, certsErr = gWizard.session.GetCertificates()
+		}
+
 		fyne.Do(func() {
-			if err != nil {
+			if loginErr != nil {
 				l.showError(gWizard.t("xmlSign.loginError"))
-				logger.Error(err)
+				logger.Error(loginErr)
 				gWizard.nextBtn.Enable()
 				gWizard.backBtn.Enable()
 				l.pinEntry.DisableableWidget.Enable()
@@ -81,11 +91,10 @@ func (l *loginStep) complete() *stepError {
 				return
 			}
 
-			certs, err := gWizard.session.GetCertificates()
-			if err != nil || len(certs) == 0 {
+			if certsErr != nil || len(certs) == 0 {
 				msg := gWizard.t("crypto.noCertFound")
-				if err != nil {
-					msg += ": " + err.Error()
+				if certsErr != nil {
+					msg += ": " + certsErr.Error()
 				}
 				l.showError(msg)
 				gWizard.nextBtn.Enable()
