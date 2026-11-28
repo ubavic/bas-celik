@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/telesma-app/iso7816"
 	"github.com/ubavic/bas-celik/v2/card/tlv"
 	"github.com/ubavic/bas-celik/v2/document"
 	"github.com/ubavic/bas-celik/v2/localization"
@@ -170,17 +171,18 @@ func (card *MedicalCard) selectWithGetResponse(p1 byte, name []byte) error {
 	command := buildAPDU(0x00, 0xA4, p1, 0x00, name, 0)
 	const maxGetResponses = 16
 	for remaining := maxGetResponses; ; remaining-- {
-		response, err := card.smartCard.Transmit(command)
+		raw, err := card.smartCard.Transmit(command)
 		if err != nil {
 			return err
 		}
-		if len(response) < 2 {
+		response, err := iso7816.ParseResponse(raw)
+		if err != nil {
 			return fmt.Errorf("missing SELECT status word")
 		}
-		status := response[len(response)-2:]
-		if status[0] != 0x61 {
-			if !responseOK(response) {
-				return fmt.Errorf("SELECT status %x", status)
+		status := response.Status
+		if status.SW1() != 0x61 {
+			if !status.IsSuccess() {
+				return fmt.Errorf("SELECT status %s", status)
 			}
 			return nil
 		}
@@ -188,8 +190,8 @@ func (card *MedicalCard) selectWithGetResponse(p1 byte, name []byte) error {
 			return fmt.Errorf("too many GET RESPONSE commands after SELECT")
 		}
 
-		// In a short APDU, Le=0 encodes 256 bytes.
-		command = []byte{0x00, 0xC0, 0x00, 0x00, status[1]}
+		length, _ := status.MoreDataLength()
+		command = buildAPDU(0x00, 0xC0, 0x00, 0x00, nil, uint(length))
 	}
 }
 

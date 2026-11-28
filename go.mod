@@ -10,6 +10,7 @@ require (
 	github.com/miekg/pkcs11 v1.1.2
 	github.com/moov-io/signedxml v1.4.3
 	github.com/signintech/gopdf v0.38.7
+	github.com/telesma-app/iso7816 v0.7.1
 	github.com/xuri/excelize/v2 v2.11.1
 	golang.org/x/text v0.44.0
 )

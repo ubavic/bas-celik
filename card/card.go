@@ -6,9 +6,9 @@ package card
 import (
 	"errors"
 	"fmt"
-	"slices"
 
 	"github.com/ebfe/scard"
+	"github.com/telesma-app/iso7816"
 	doc "github.com/ubavic/bas-celik/v2/document"
 )
 
@@ -106,11 +106,12 @@ func read(card Card, offset, length uint) ([]byte, error) {
 		return nil, fmt.Errorf("reading binary: %w", err)
 	}
 
-	if len(rsp) < 2 {
+	response, err := iso7816.ParseResponse(rsp)
+	if err != nil {
 		return nil, fmt.Errorf("reading binary: bad status code")
 	}
 
-	return rsp[:len(rsp)-2], nil
+	return response.Data, nil
 }
 
 // Checks if the card response indicates no error.
@@ -119,7 +120,7 @@ func responseOK(rsp []byte) bool {
 		return false
 	}
 
-	return slices.Equal(rsp[len(rsp)-2:], []byte{0x90, 0x00})
+	return iso7816.NewStatusWord(rsp[len(rsp)-2], rsp[len(rsp)-1]).IsSuccess()
 }
 
 // Trim four bytes from the start of the slice

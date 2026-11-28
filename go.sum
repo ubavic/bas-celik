@@ -106,6 +106,8 @@ github.com/srwiley/rasterx v0.0.0-20261128054241-78f2104be592 h1:pd3VnNYlvepO3o7
 github.com/srwiley/rasterx v0.0.0-20261128054241-78f2104be592/go.mod h1:nXTWP6+gD5+LUJ8krVhhoeHjvHTutPxMYl5SvkcnJNE=
 github.com/stretchr/testify v1.12.1 h1:EuwCh5fleGS7H32xRwO3wRGT7DxrDhLAT6FF8MpWDWE=
 github.com/stretchr/testify v1.12.1/go.mod h1:MDEgiDPPsNp5cuIrHPPCyornHKgEVbtFUmoNlxoYthg=
+github.com/telesma-app/iso7816 v0.7.1 h1:yYWt5Y9E68RLLnKNR/k3KbSyuYutekBoPGY1I/+OiKU=
+github.com/telesma-app/iso7816 v0.7.1/go.mod h1:pG9OM02efkokxd8M7TyWucqSIDXlCTdy5Vf2fwcodlc=
 github.com/tiendc/go-deepcopy v1.7.2 h1:Ut2yYR7W9tWjTQitganoIue4UGxZwCcJy3orjrrIj44=
 github.com/tiendc/go-deepcopy v1.7.2/go.mod h1:4bKjNC2r7boYOkD2IOuZpYjmlDdzjbpTRyCx+goBCJQ=
 github.com/xuri/efp v0.0.3-0.20260924042702-217b81952dec h1:sZZokRLgr8nyrzkDDCQcvEYBsTrZr6eqXa/R9qALoQA=
