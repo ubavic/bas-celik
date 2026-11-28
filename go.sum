@@ -14,8 +14,8 @@ github.com/clipperhouse/uax29/v2 v2.7.0 h1:+gs4oBZ2gPfVrKPthwbMzWZDaAFPGYK72F0NJ
 github.com/clipperhouse/uax29/v2 v2.7.0/go.mod h1:EFJ2TJMRUaplDxHKj1qAEhCtQPW2tJSwu5BF98AuoVM=
 github.com/coder/websocket v1.8.15 h1:6B2JPeOGlpff2Uz6vOEH1Vzpi0iUz20A+lPVhPHtNUA=
 github.com/coder/websocket v1.8.15/go.mod h1:NX3SzP+inril6yawo5CQXx8+fk145lPDC6pumgx0mVg=
-github.com/ebitengine/purego v0.11.2 h1:WWiTx8rD8zYdOwSj8O/NiNbsOvSAgJMTlyV1XlbUSeU=
-github.com/ebitengine/purego v0.11.2/go.mod h1:DCHPP08djqhNSoTfImcnHYQRZmd0qhakvrozqaEYhGQ=
+github.com/ebitengine/purego v0.11.3 h1:OB+JLpdm7ioymhyA+6s5kbb/uOuYycAgL8NNTFc5MLg=
+github.com/ebitengine/purego v0.11.3/go.mod h1:DCHPP08djqhNSoTfImcnHYQRZmd0qhakvrozqaEYhGQ=
 github.com/fsnotify/fsnotify v1.10.1 h1:b0/UzAf9yR5rhf3RPm9gf3ehBPpf0oZKIjtpKrx59Ho=
 github.com/fsnotify/fsnotify v1.10.1/go.mod h1:TLheqan6HD6GBK6PrDWyDPBaEV8LspOxvPSjC+bVfgo=
 github.com/fyne-io/gl-js v0.2.1-0.20261121122654-840fe93a293a h1:uruotqSpCeKY0Ylfx0cci56t3dvpEB0hdvJqBL6HW2Y=
@@ -92,8 +92,8 @@ github.com/stretchr/testify v1.12.1 h1:EuwCh5fleGS7H32xRwO3wRGT7DxrDhLAT6FF8MpWD
 github.com/stretchr/testify v1.12.1/go.mod h1:MDEgiDPPsNp5cuIrHPPCyornHKgEVbtFUmoNlxoYthg=
 github.com/telesma-app/iso7816 v0.7.1 h1:yYWt5Y9E68RLLnKNR/k3KbSyuYutekBoPGY1I/+OiKU=
 github.com/telesma-app/iso7816 v0.7.1/go.mod h1:pG9OM02efkokxd8M7TyWucqSIDXlCTdy5Vf2fwcodlc=
-github.com/telesma-app/pcsc v0.10.0 h1:8wK+nEuVgRaEp+3pLGEmptj612pzV9TTKGZd3+R8V9s=
-github.com/telesma-app/pcsc v0.10.0/go.mod h1:cdjqtNEzkIv+q/zkAm5OUHUSAhyi9C1xRjn+U1a9JbM=
+github.com/telesma-app/pcsc v0.10.2 h1:WXu73RvySEU1XF6SPey1BmCqy2ArioviSE5d/IUWBRk=
+github.com/telesma-app/pcsc v0.10.2/go.mod h1:Is7BfM1TWdOZL1W4teYxIGFJo36hZVqgJ6zCVv98SWk=
 github.com/tiendc/go-deepcopy v1.7.2 h1:Ut2yYR7W9tWjTQitganoIue4UGxZwCcJy3orjrrIj44=
 github.com/tiendc/go-deepcopy v1.7.2/go.mod h1:4bKjNC2r7boYOkD2IOuZpYjmlDdzjbpTRyCx+goBCJQ=
 github.com/xuri/efp v0.0.3-0.20260924042702-217b81952dec h1:sZZokRLgr8nyrzkDDCQcvEYBsTrZr6eqXa/R9qALoQA=
