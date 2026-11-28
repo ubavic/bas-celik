@@ -77,8 +77,14 @@ func TestMedicalCardAcceptsSelectWithResponseAvailable(t *testing.T) {
 			{[]byte{0x00, 0xA4, 0x00, 0x00, 0x02, 0x0D, 0x01}, []byte{0x61, 0x0A}},
 			{[]byte{0x00, 0xC0, 0x00, 0x00, 0x0A}, []byte{0x90, 0x00}},
 			{[]byte{0x00, 0xB0, 0x00, 0x00, 0x04}, []byte{0x00, 0x00, byte(len(document)), 0x00, 0x90, 0x00}},
-			{[]byte{0x00, 0xB0, 0x00, 0x04, byte(len(document))}, append(document, 0x90, 0x00)},
 		},
+	}
+	for offset := 0; offset < len(document); offset += 32 {
+		end := min(offset+32, len(document))
+		chip.steps = append(chip.steps, medicalExchange{
+			command:  []byte{0x00, 0xB0, 0x00, byte(offset + 4), byte(end - offset)},
+			response: append(slices.Clone(document[offset:end]), 0x90, 0x00),
+		})
 	}
 	card := MedicalCard{smartCard: chip}
 	if !card.Test() {

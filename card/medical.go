@@ -143,8 +143,10 @@ func (card *MedicalCard) ReadFile(name []byte) ([]byte, error) {
 	}
 	length := uint(binary.LittleEndian.Uint16(data[2:]))
 
+	// Some readers return an empty response to larger RFZO READ BINARY commands.
+	const maxReadSize = 32
 	for length > 0 {
-		data, err := read(card.smartCard, offset, length)
+		data, err := read(card.smartCard, offset, min(length, maxReadSize))
 		if err != nil {
 			return nil, fmt.Errorf("reading file: %w", err)
 		}
