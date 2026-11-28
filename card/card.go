@@ -4,22 +4,21 @@
 package card
 
 import (
+	"context"
 	"errors"
 	"fmt"
 
-	"github.com/ebfe/scard"
 	"github.com/telesma-app/iso7816"
+	"github.com/telesma-app/pcsc"
 	doc "github.com/ubavic/bas-celik/v2/document"
 )
 
-// Represents a physical or virtual smart card.
-// Essentially it is just a wrapper for the scard.Card type,
-// but it also allows virtual cards which can be useful for testing.
+// Card represents a PC/SC connection or a virtual card used in tests.
 type Card interface {
-	Status() (*scard.CardStatus, error)
-	Transmit([]byte) ([]byte, error)
-	BeginTransaction() error
-	EndTransaction(scard.Disposition) error
+	Status() (*pcsc.CardStatus, error)
+	Transmit(context.Context, []byte) ([]byte, error)
+	BeginTransaction(context.Context) error
+	EndTransaction(pcsc.Disposition) error
 }
 
 // Represents a smart card with a document.
@@ -56,7 +55,7 @@ func DetectCardDocument(sc Card) (CardDocument, error) {
 		return nil, fmt.Errorf("reading card status %w", err)
 	}
 
-	atr := Atr(smartCardStatus.Atr)
+	atr := Atr(smartCardStatus.ATR)
 
 	possibleCardTypes := DetectCardDocumentByAtr(atr)
 
@@ -101,7 +100,7 @@ func read(card Card, offset, length uint) ([]byte, error) {
 
 	readSize := min(length, 0xFF)
 	apu := buildAPDU(0x00, 0xB0, byte((0xFF00&offset)>>8), byte(offset&0xFF), nil, readSize)
-	rsp, err := card.Transmit(apu)
+	rsp, err := card.Transmit(context.Background(), apu)
 	if err != nil {
 		return nil, fmt.Errorf("reading binary: %w", err)
 	}

@@ -1,6 +1,7 @@
 package card
 
 import (
+	"context"
 	"encoding/hex"
 	"fmt"
 
@@ -55,7 +56,7 @@ var VEHICLE_ATR_4 = Atr([]byte{
 func (card *VehicleCard) InitCard() error {
 	tryToSelect := func(cmd1, cmd2, cmd3 []byte) error {
 		apu := buildAPDU(0x00, 0xA4, 0x04, 0x00, cmd1, 0)
-		rsp, err := card.smartCard.Transmit(apu)
+		rsp, err := card.smartCard.Transmit(context.Background(), apu)
 		if err != nil {
 			return fmt.Errorf("first command: %w", err)
 		}
@@ -65,13 +66,13 @@ func (card *VehicleCard) InitCard() error {
 		}
 
 		apu = buildAPDU(0x00, 0xA4, 0x04, 0x00, cmd2, 0)
-		_, err = card.smartCard.Transmit(apu)
+		_, err = card.smartCard.Transmit(context.Background(), apu)
 		if err != nil {
 			return fmt.Errorf("second command: %w", err)
 		}
 
 		apu = buildAPDU(0x00, 0xA4, 0x04, 0x0C, cmd3, 0)
-		_, err = card.smartCard.Transmit(apu)
+		_, err = card.smartCard.Transmit(context.Background(), apu)
 		if err != nil {
 			return fmt.Errorf("third command: %w", err)
 		}
@@ -268,7 +269,7 @@ func parseVehicleCardFileSize(data []byte) (uint, uint, error) {
 func (card *VehicleCard) selectFile(name []byte) ([]byte, error) {
 	apu := buildAPDU(0x00, 0xA4, 0x02, 0x04, name, 0)
 
-	rsp, err := card.smartCard.Transmit(apu)
+	rsp, err := card.smartCard.Transmit(context.Background(), apu)
 	if err != nil {
 		return nil, fmt.Errorf("selecting file %s: %w", hex.EncodeToString(name), err)
 	}

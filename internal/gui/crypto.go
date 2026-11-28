@@ -14,7 +14,6 @@ import (
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 	"github.com/ubavic/bas-celik/v2/card"
-	"github.com/ubavic/bas-celik/v2/internal/gui/reader"
 	"github.com/ubavic/bas-celik/v2/internal/gui/widgets"
 	"github.com/ubavic/bas-celik/v2/internal/logger"
 )
@@ -50,8 +49,6 @@ func createCryptoUI() {
 		return
 	}
 
-	reader.CancelReaderPoler()
-
 	err := gemaltoCard.LoadCertificates()
 	if err != nil {
 		logger.Error(err)
@@ -61,8 +58,6 @@ func createCryptoUI() {
 	state.selectedCert = 0
 
 	logger.Info(fmt.Sprintf("loaded %d certificates", len(state.certs)))
-
-	reader.RestartReaderPoler()
 
 	canvasObjects := []fyne.CanvasObject{}
 

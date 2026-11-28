@@ -7,32 +7,31 @@ import (
 	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/widget"
 	"github.com/ubavic/bas-celik/v2/card"
-	"github.com/ubavic/bas-celik/v2/internal/gui/reader"
 	"github.com/ubavic/bas-celik/v2/internal/gui/widgets"
 	"github.com/ubavic/bas-celik/v2/internal/logger"
 )
 
 func pinChange() func() {
 	return func() {
+		state.mu.Lock()
 		gemaltoCard, ok := state.cardDocument.(*card.Gemalto)
 		if !ok {
+			state.mu.Unlock()
 			return
 		}
 
-		reader.CancelReaderPoler()
-		defer reader.RestartReaderPoler()
-
 		triesLeft, err := gemaltoCard.PinTriesLeft()
+		state.mu.Unlock()
 		if err != nil {
 			logger.Error(err)
 			return
 		}
 
-		pinForm(triesLeft)
+		pinForm(gemaltoCard, triesLeft)
 	}
 }
 
-func pinForm(triesLeft int) {
+func pinForm(gemaltoCard *card.Gemalto, triesLeft int) {
 	var pinDialog *dialog.CustomDialog
 
 	triesLeftLabel := widget.NewLabel(strconv.Itoa(triesLeft))
@@ -55,12 +54,6 @@ func pinForm(triesLeft int) {
 		Items:      formItems,
 		SubmitText: t("pinChange.change"),
 		OnSubmit: func() {
-			gemaltoCard, ok := state.cardDocument.(*card.Gemalto)
-			if !ok {
-				pinDialog.Hide()
-				return
-			}
-
 			if newPinEntry.Text != confirmNewPinEntry.Text {
 				err := errors.New(t("pinChange.pinsNotEqual"))
 				dialog.ShowError(err, state.window)
@@ -85,16 +78,17 @@ func pinForm(triesLeft int) {
 				return
 			}
 
-			if state.cardDocument == nil {
+			state.mu.Lock()
+			if state.cardDocument != gemaltoCard {
+				state.mu.Unlock()
+				pinDialog.Hide()
 				err := errors.New(t("pinChange.errorNoCard"))
 				dialog.ShowError(err, state.window)
 				return
 			}
 
-			reader.CancelReaderPoler()
-			defer reader.RestartReaderPoler()
-
 			triesLeft, err := gemaltoCard.ChangePin(newPinEntry.Text, oldPinEntry.Text)
+			state.mu.Unlock()
 			if err != nil {
 				pinDialog.Hide()
 				message := t("pinChange.error")

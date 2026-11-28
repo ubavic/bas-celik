@@ -1,6 +1,6 @@
 package card
 
-import "github.com/ebfe/scard"
+import "github.com/telesma-app/pcsc"
 
 type VirtualCard struct {
 	atr   []byte
@@ -16,8 +16,8 @@ func MakeVirtualCard(atr []byte, fs map[uint32][]byte) *VirtualCard {
 	return &vc
 }
 
-func (card *VirtualCard) Status() (*scard.CardStatus, error) {
-	status := scard.CardStatus{Atr: card.atr, Reader: "Virtual", State: scard.Powered}
+func (card *VirtualCard) Status() (*pcsc.CardStatus, error) {
+	status := pcsc.CardStatus{ATR: card.atr, ReaderNames: []string{"Virtual"}, State: pcsc.CardStatePowered}
 	return &status, nil
 }
 

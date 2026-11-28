@@ -6,11 +6,11 @@ require (
 	fyne.io/fyne/v2 v2.8.3
 	github.com/beevik/etree v1.8.1
 	github.com/coder/websocket v1.8.15
-	github.com/ebfe/scard v0.0.0-20241214075232-7af069cabc25
 	github.com/miekg/pkcs11 v1.1.2
 	github.com/moov-io/signedxml v1.4.3
 	github.com/signintech/gopdf v0.38.7
 	github.com/telesma-app/iso7816 v0.7.1
+	github.com/telesma-app/pcsc v0.10.0
 	github.com/xuri/excelize/v2 v2.11.1
 	golang.org/x/text v0.44.0
 )
@@ -21,6 +21,7 @@ require (
 	github.com/FyshOS/fancyfs v0.0.1 // indirect
 	github.com/anthonynsimon/bild v0.17.1 // indirect
 	github.com/clipperhouse/uax29/v2 v2.7.0 // indirect
+	github.com/ebitengine/purego v0.11.2 // indirect
 	github.com/fsnotify/fsnotify v1.10.1 // indirect
 	github.com/fyne-io/gl-js v0.2.1-0.20261121122654-840fe93a293a // indirect
 	github.com/fyne-io/glfw-js v0.4.0 // indirect

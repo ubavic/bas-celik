@@ -1,91 +1,121 @@
 package gui
 
 import (
+	"context"
+	"errors"
 	"fmt"
 
-	"github.com/ebfe/scard"
+	"fyne.io/fyne/v2"
+	"github.com/telesma-app/pcsc"
 	"github.com/ubavic/bas-celik/v2/card"
 	"github.com/ubavic/bas-celik/v2/document"
 	"github.com/ubavic/bas-celik/v2/internal/logger"
 )
 
-func connectToCard(selectedReader string, ctx *scard.Context) {
+func releaseReaderCard() {
 	state.mu.Lock()
+	sCard := state.readerCard
+	state.readerCard = nil
 	state.cardDocument = nil
-	state.cryptoUi = nil
-	state.certs = nil
-	state.selectedCert = -1
 	state.mu.Unlock()
 
-	state.cryptoUiContainer.Hide()
-	state.cryptoUiContainer.RemoveAll()
+	if sCard != nil {
+		_ = sCard.Close()
+	}
+}
 
-	readers, _ := ctx.ListReaders()
-	if selectedReader == "" || len(readers) == 0 {
-		setStartPage("error.noReader", t("error.noReaderExplanation"), nil)
+func connectToCard(selectedReader string, present bool) {
+	releaseReaderCard()
+	fyne.Do(func() {
+		state.mu.Lock()
+		state.cryptoUi = nil
+		state.certs = nil
+		state.selectedCert = -1
+		state.cryptoUiContainer.Hide()
+		state.cryptoUiContainer.RemoveAll()
+		state.mu.Unlock()
+
+		switch {
+		case selectedReader == "":
+			setStartPage("error.noReader", t("error.noReaderExplanation"), nil)
+		case !present:
+			setStartPage("error.readingCard", t("error.isCardPresent"), nil)
+		default:
+			setStartPage("poller.connectingReader", "", nil)
+		}
+	})
+	if !present {
 		return
 	}
 
-	setStartPage("poller.connectingReader", "", nil)
-
-	sCard, err := ctx.Connect(selectedReader, scard.ShareShared, scard.ProtocolAny)
+	sCard, err := pcsc.Open(selectedReader)
 	if err == nil {
-		err = sCard.BeginTransaction()
-		if err == nil {
-			tryToProcessCard(sCard)
-			sCard.EndTransaction(scard.LeaveCard)
-			return
+		err = sCard.BeginTransaction(context.Background())
+	}
+	if err != nil {
+		if sCard != nil {
+			_ = sCard.Close()
 		}
+		fyne.Do(func() {
+			setStartPage("error.readingCard", t("error.isCardPresent"),
+				fmt.Errorf("connecting reader %s: %w", selectedReader, err))
+		})
+		return
 	}
 
-	setStartPage(
-		"error.readingCard",
-		t("error.isCardPresent"),
-		fmt.Errorf("connecting reader %s: %w", selectedReader, err))
-}
-
-func tryToProcessCard(sCard *scard.Card) bool {
-	loaded := false
-
-	setStartPage("poller.readingFromCard", "", nil)
+	fyne.Do(func() {
+		setStartPage("poller.readingFromCard", "", nil)
+	})
 
 	cardDoc, err := card.DetectCardDocument(sCard)
 	if cardDoc != nil {
 		logger.Info("ATR read: " + cardDoc.Atr().String())
 	}
+	var doc document.Document
+	if err == nil {
+		doc, err = initCardAndReadDoc(cardDoc)
+	}
 
+	endErr := sCard.EndTransaction(pcsc.DispositionLeaveCard)
+	if err == nil {
+		err = endErr
+	}
 	if err != nil {
-		if err == card.ErrUnknownCard && cardDoc != nil {
-			setUnknownCardPage(cardDoc.Atr().String(), fmt.Errorf("reading from card: %w", err))
-		} else {
-			setStartPage(
-				"error.readingCard",
-				"",
-				fmt.Errorf("reading from card: %w", err))
-		}
-	} else {
+		_ = sCard.Close()
+		fyne.Do(func() {
+			readErr := fmt.Errorf("reading from card: %w", err)
+			if errors.Is(err, card.ErrUnknownCard) && cardDoc != nil {
+				setUnknownCardPage(cardDoc.Atr().String(), readErr)
+			} else {
+				setStartPage("error.readingCard", "", readErr)
+			}
+		})
+		return
+	}
+
+	state.mu.Lock()
+	if state.readerStopped {
+		state.mu.Unlock()
+		_ = sCard.Close()
+		return
+	}
+	state.readerCard = sCard
+	state.mu.Unlock()
+
+	fyne.Do(func() {
 		state.mu.Lock()
+		if state.readerCard != sCard {
+			state.mu.Unlock()
+			return
+		}
 		state.cardDocument = cardDoc
 		state.mu.Unlock()
 
-		doc, err := initCardAndReadDoc(cardDoc)
-		if err != nil {
-			setStartPage(
-				"error.readingCard",
-				"",
-				fmt.Errorf("reading from card: %w", err))
-		} else {
-			setStatus("poller.documentRead", nil)
-			setUI(doc)
-			loaded = true
-		}
-
+		setStatus("poller.documentRead", nil)
+		setUI(doc)
 		go autoSave(doc)
-
 		showWindowFromTray()
-	}
-
-	return loaded
+	})
 }
 
 func showWindowFromTray() {

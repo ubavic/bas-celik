@@ -1,9 +1,10 @@
 package card
 
 import (
+	"context"
 	"testing"
 
-	"github.com/ebfe/scard"
+	"github.com/telesma-app/pcsc"
 )
 
 // Answers every READ BINARY with the same data and every other command with 9000.
@@ -11,11 +12,11 @@ type shortHeaderCard struct {
 	header []byte
 }
 
-func (c *shortHeaderCard) Status() (*scard.CardStatus, error) {
-	return &scard.CardStatus{}, nil
+func (c *shortHeaderCard) Status() (*pcsc.CardStatus, error) {
+	return &pcsc.CardStatus{}, nil
 }
 
-func (c *shortHeaderCard) Transmit(apdu []byte) ([]byte, error) {
+func (c *shortHeaderCard) Transmit(_ context.Context, apdu []byte) ([]byte, error) {
 	if len(apdu) > 1 && apdu[1] == 0xB0 {
 		return append(append([]byte{}, c.header...), 0x90, 0x00), nil
 	}
@@ -23,11 +24,11 @@ func (c *shortHeaderCard) Transmit(apdu []byte) ([]byte, error) {
 	return []byte{0x90, 0x00}, nil
 }
 
-func (c *shortHeaderCard) BeginTransaction() error {
+func (c *shortHeaderCard) BeginTransaction(context.Context) error {
 	return nil
 }
 
-func (c *shortHeaderCard) EndTransaction(scard.Disposition) error {
+func (c *shortHeaderCard) EndTransaction(pcsc.Disposition) error {
 	return nil
 }
 

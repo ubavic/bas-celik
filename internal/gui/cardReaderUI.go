@@ -35,6 +35,13 @@ func startCardReaderUI() {
 
 	if pollerErr == nil {
 		poller.StartPoller()
+		defer func() {
+			state.mu.Lock()
+			state.readerStopped = true
+			state.mu.Unlock()
+			_ = poller.Close()
+			releaseReaderCard()
+		}()
 	} else {
 		explanation := ""
 		if runtime.GOOS == "linux" {
@@ -70,15 +77,13 @@ func setUI(doc document.Document) {
 
 	buttonBar := container.New(layout.NewHBoxLayout(), buttonBarObjects...)
 
-	fyne.DoAndWait(func() {
-		state.documentUiMainContainer.RemoveAll()
-		state.documentUiMainContainer.Add(page)
-		state.documentUiMainContainer.Add(buttonBar)
+	state.documentUiMainContainer.RemoveAll()
+	state.documentUiMainContainer.Add(page)
+	state.documentUiMainContainer.Add(buttonBar)
 
-		state.startPage.Hide()
-		state.unknownCardPage.Hide()
-		state.documentUiMainContainer.Show()
-	})
+	state.startPage.Hide()
+	state.unknownCardPage.Hide()
+	state.documentUiMainContainer.Show()
 
 	resizeWindow(false)
 }

@@ -10,6 +10,7 @@ import (
 	"fyne.io/fyne/v2/driver/desktop"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
+	"github.com/telesma-app/pcsc"
 	"github.com/ubavic/bas-celik/v2/card"
 	"github.com/ubavic/bas-celik/v2/internal/gui/celiktheme"
 	"github.com/ubavic/bas-celik/v2/internal/gui/translation"
@@ -30,6 +31,8 @@ type State struct {
 	documentUiMainContainer *fyne.Container
 	toolbar                 *widgets.Toolbar
 	statusBar               *widgets.StatusBar
+	readerCard              *pcsc.Card
+	readerStopped           bool
 	cardDocument            card.CardDocument
 	selectedCert            int
 	certs                   []x509.Certificate

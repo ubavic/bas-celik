@@ -1,6 +1,7 @@
 package card
 
 import (
+	"context"
 	"encoding/hex"
 	"fmt"
 	"slices"
@@ -129,7 +130,7 @@ type scriptedMedicalCard struct {
 	steps []medicalExchange
 }
 
-func (card *scriptedMedicalCard) Transmit(command []byte) ([]byte, error) {
+func (card *scriptedMedicalCard) Transmit(_ context.Context, command []byte) ([]byte, error) {
 	card.t.Helper()
 	if len(card.steps) == 0 {
 		card.t.Fatalf("unexpected APDU %x", command)

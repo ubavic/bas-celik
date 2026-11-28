@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/ebfe/scard"
 	"github.com/ubavic/bas-celik/v2/card"
 	"github.com/ubavic/bas-celik/v2/document"
 )
@@ -23,13 +22,6 @@ type LaunchConfig struct {
 }
 
 func readAndSave(cfg LaunchConfig) error {
-	ctx, err := scard.EstablishContext()
-	if err != nil {
-		return fmt.Errorf("establishing context: %w", err)
-	}
-
-	defer ctx.Release()
-
 	if len(cfg.PdfPath) > 0 {
 		if _, err := os.Stat(cfg.PdfPath); err != nil && !errors.Is(err, os.ErrNotExist) {
 			return fmt.Errorf("opening file %s: %w", cfg.PdfPath, err)
@@ -48,25 +40,11 @@ func readAndSave(cfg LaunchConfig) error {
 		}
 	}
 
-	readersNames, err := ctx.ListReaders()
+	sCard, err := openReader(cfg.Reader)
 	if err != nil {
-		return fmt.Errorf("listing readers: %w", err)
+		return err
 	}
-
-	if len(readersNames) == 0 {
-		return fmt.Errorf("no reader found")
-	}
-
-	if cfg.Reader >= uint(len(readersNames)) {
-		return fmt.Errorf("only %d readers found", len(readersNames))
-	}
-
-	sCard, err := ctx.Connect(readersNames[cfg.Reader], scard.ShareShared, scard.ProtocolAny)
-	if err != nil {
-		return fmt.Errorf("connecting reader %s: %w", readersNames[cfg.Reader], err)
-	}
-
-	defer sCard.Disconnect(scard.LeaveCard)
+	defer sCard.Close()
 
 	cardDoc, err := card.DetectCardDocument(sCard)
 	if err != nil {

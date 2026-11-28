@@ -3,14 +3,14 @@ package card_test
 import (
 	"testing"
 
-	"github.com/ebfe/scard"
+	"github.com/telesma-app/pcsc"
 	"github.com/ubavic/bas-celik/v2/card"
 )
 
 func TestFormatState(t *testing.T) {
 	tests := []struct {
 		name  string
-		state scard.StateFlag
+		state pcsc.ReaderState
 		want  string
 	}{
 		{
@@ -20,29 +20,29 @@ func TestFormatState(t *testing.T) {
 		},
 		{
 			name:  "single flag",
-			state: scard.StatePresent,
+			state: pcsc.ReaderStatePresent,
 			want:  "StatePresent",
 		},
 		{
 			name:  "state unaware is indistinguishable from zero",
-			state: scard.StateUnaware,
+			state: pcsc.ReaderStateUnaware,
 			want:  "",
 		},
 		{
 			name:  "multiple flags keep declaration order",
-			state: scard.StateMute | scard.StateChanged,
+			state: pcsc.ReaderStateMute | pcsc.ReaderStateChanged,
 			want:  "StateChanged StateMute",
 		},
 		{
-			name:  "all known flags",
-			state: scard.StateIgnore |
-				scard.StateChanged |
-				scard.StateUnknown |
-				scard.StatePresent |
-				scard.StateAtrmatch |
-				scard.StateExclusive |
-				scard.StateMute |
-				scard.StateUnpowered,
+			name: "all known flags",
+			state: pcsc.ReaderStateIgnore |
+				pcsc.ReaderStateChanged |
+				pcsc.ReaderStateUnknown |
+				pcsc.ReaderStatePresent |
+				pcsc.ReaderStateATRMatch |
+				pcsc.ReaderStateExclusive |
+				pcsc.ReaderStateMute |
+				pcsc.ReaderStateUnpowered,
 			want: "StateIgnore StateChanged StateUnknown StatePresent StateAtrmatch StateExclusive StateMute StateUnpowered",
 		},
 	}

@@ -1,6 +1,7 @@
 package card
 
 import (
+	"context"
 	"encoding/binary"
 	"fmt"
 	"strings"
@@ -171,7 +172,7 @@ func (card *MedicalCard) selectWithGetResponse(p1 byte, name []byte) error {
 	command := buildAPDU(0x00, 0xA4, p1, 0x00, name, 0)
 	const maxGetResponses = 16
 	for remaining := maxGetResponses; ; remaining-- {
-		raw, err := card.smartCard.Transmit(command)
+		raw, err := card.smartCard.Transmit(context.Background(), command)
 		if err != nil {
 			return err
 		}
