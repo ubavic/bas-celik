@@ -78,6 +78,10 @@ type MedicalDocument struct {
 	TaxpayerNumber         string
 	TaxpayerIdNumber       string
 	TaxpayerActivityCode   string
+	CountryCode            string
+	InsurerUnitCode        string
+	InsurerBranch          string
+	InsurerOffice          string
 }
 
 func (doc *MedicalDocument) GetFullName() string {
