@@ -3,25 +3,25 @@ module github.com/ubavic/bas-celik/v2
 go 1.26.0
 
 require (
-	fyne.io/fyne/v2 v2.8.2
+	fyne.io/fyne/v2 v2.8.3
 	github.com/beevik/etree v1.8.1
 	github.com/coder/websocket v1.8.15
 	github.com/ebfe/scard v0.0.0-20241214075232-7af069cabc25
 	github.com/miekg/pkcs11 v1.1.2
-	github.com/moov-io/signedxml v1.4.2
-	github.com/signintech/gopdf v0.38.4
+	github.com/moov-io/signedxml v1.4.3
+	github.com/signintech/gopdf v0.38.7
 	github.com/xuri/excelize/v2 v2.11.1
 	golang.org/x/text v0.44.0
 )
 
 require (
-	fyne.io/systray v1.12.3-0.20261024200948-5545d859c68f // indirect
+	fyne.io/systray v1.12.3-0.20261122161555-64abb450ee55 // indirect
 	github.com/BurntSushi/toml v1.6.0 // indirect
 	github.com/FyshOS/fancyfs v0.0.1 // indirect
 	github.com/anthonynsimon/bild v0.17.1 // indirect
 	github.com/clipperhouse/uax29/v2 v2.7.0 // indirect
 	github.com/fsnotify/fsnotify v1.10.1 // indirect
-	github.com/fyne-io/gl-js v0.2.1-0.20260315212741-029c47fd27e8 // indirect
+	github.com/fyne-io/gl-js v0.2.1-0.20261121122654-840fe93a293a // indirect
 	github.com/fyne-io/glfw-js v0.4.0 // indirect
 	github.com/fyne-io/image v0.1.1 // indirect
 	github.com/fyne-io/oksvg v0.2.1-0.20260918172519-a9af55fa95d9 // indirect
@@ -40,21 +40,21 @@ require (
 	github.com/nicksnyder/go-i18n/v2 v2.7.0 // indirect
 	github.com/phpdave11/gofpdi v1.0.16 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
-	github.com/richardlehane/mscfb v1.0.9 // indirect
+	github.com/richardlehane/mscfb v1.0.10 // indirect
 	github.com/richardlehane/msoleps v1.0.6 // indirect
 	github.com/russellhaering/goxmldsig v1.6.1 // indirect
 	github.com/rymdport/portal v0.4.2 // indirect
 	github.com/sirosfoundation/go-cryptoutil v0.7.2 // indirect
-	github.com/srwiley/oksvg v0.0.0-20221011165216-be6e8873101c // indirect
-	github.com/srwiley/rasterx v0.0.0-20220730225603-2ab79fcdd4ef // indirect
+	github.com/srwiley/oksvg v0.0.0-20261128051108-63f39d1445ed // indirect
+	github.com/srwiley/rasterx v0.0.0-20261128054241-78f2104be592 // indirect
 	github.com/stretchr/testify v1.12.1 // indirect
 	github.com/tiendc/go-deepcopy v1.7.2 // indirect
 	github.com/xuri/efp v0.0.3-0.20260924042702-217b81952dec // indirect
 	github.com/xuri/nfp v0.0.2-0.20250530014748-2ddeb826f9a9 // indirect
 	github.com/yuin/goldmark v1.8.7 // indirect
 	go.yaml.in/yaml/v3 v3.0.6 // indirect
-	golang.org/x/crypto v0.58.0 // indirect
+	golang.org/x/crypto v0.59.0 // indirect
 	golang.org/x/image v0.48.0 // indirect
-	golang.org/x/net v0.62.0 // indirect
+	golang.org/x/net v0.63.0 // indirect
 	golang.org/x/sys v0.50.0 // indirect
 )
