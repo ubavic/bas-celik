@@ -1,6 +1,7 @@
 package card
 
 import (
+	"context"
 	"encoding/binary"
 	"encoding/hex"
 	"fmt"
@@ -131,7 +132,7 @@ func (card *Apollo) Test() bool {
 
 func (card *Apollo) selectFile(name []byte, ne uint) ([]byte, error) {
 	apu := buildAPDU(0x00, 0xA4, 0x08, 0x00, name, ne)
-	rsp, err := card.smartCard.Transmit(apu)
+	rsp, err := card.smartCard.Transmit(context.Background(), apu)
 	if err != nil {
 		return nil, fmt.Errorf("selecting file %s: %w", hex.EncodeToString(name), err)
 	}

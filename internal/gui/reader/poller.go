@@ -2,25 +2,18 @@ package reader
 
 import (
 	"fmt"
+	"maps"
 	"slices"
-	"sync/atomic"
+	"strings"
 
-	"github.com/ebfe/scard"
-	"github.com/ubavic/bas-celik/v2/card"
-	"github.com/ubavic/bas-celik/v2/internal/logger"
+	"github.com/telesma-app/pcsc"
 )
 
-var created = false
-var createdPoller *ReaderPoller
-
 type ReaderPoller struct {
-	readerListerContext *scard.Context
-	singleReaderContext *scard.Context
-	readerLister        ReaderLister
-	currentReader       string
-	readers             []string
-	readerPollerStarted atomic.Bool
-	onCardEvent         func(string, *scard.Context)
+	watcher      pcsc.Watcher
+	readerLister ReaderLister
+	onCardEvent  func(string, bool)
+	selections   chan string
 }
 
 type ReaderLister interface {
@@ -28,136 +21,102 @@ type ReaderLister interface {
 	HookReaderChange(func(string))
 }
 
-func NewPoller(readerLister ReaderLister, onCardEvent func(string, *scard.Context)) (*ReaderPoller, error) {
-	if created {
-		logger.Info("NewPoller called more than once")
-		return createdPoller, nil
-	}
-
-	readerListerContext, err := scard.EstablishContext()
+func NewPoller(readerLister ReaderLister, onCardEvent func(string, bool)) (*ReaderPoller, error) {
+	watcher, err := pcsc.Watch()
 	if err != nil {
-		return nil, fmt.Errorf("creating reader list context: %w", err)
+		return nil, fmt.Errorf("watching smart card readers: %w", err)
 	}
 
-	singleReaderContext, err := scard.EstablishContext()
-	if err != nil {
-		return nil, fmt.Errorf("creating single reader context: %w", err)
+	poller := &ReaderPoller{
+		watcher:      watcher,
+		readerLister: readerLister,
+		onCardEvent:  onCardEvent,
+		selections:   make(chan string, 1),
 	}
+	readerLister.HookReaderChange(poller.selectReader)
 
-	poller := ReaderPoller{
-		readerListerContext: readerListerContext,
-		singleReaderContext: singleReaderContext,
-		readerLister:        readerLister,
-		onCardEvent:         onCardEvent,
-	}
-
-	readerLister.HookReaderChange(poller.SetReader)
-
-	created = true
-	createdPoller = &poller
-
-	return createdPoller, nil
+	return poller, nil
 }
 
 func (rp *ReaderPoller) StartPoller() {
-	rp.onCardEvent("", rp.singleReaderContext)
 	go rp.pollReaders()
 }
 
+func (rp *ReaderPoller) Close() error {
+	return rp.watcher.Close()
+}
+
+func (rp *ReaderPoller) selectReader(name string) {
+	// Fyne delivers selections serially. Keep the latest if a card is still being read.
+	select {
+	case <-rp.selections:
+	default:
+	}
+	rp.selections <- name
+}
+
 func (rp *ReaderPoller) pollReaders() {
-	newReaders, _ := rp.readerListerContext.ListReaders()
-	newReader := ""
-	if len(rp.readers) > 0 {
-		newReader = rp.readers[0]
+	readers := make(map[string]bool)
+	for _, info := range rp.watcher.Snapshot().Readers {
+		if !strings.HasPrefix(info.Name, "Windows Hello for Business") {
+			readers[info.Name] = info.State&pcsc.ReaderStatePresent != 0
+		}
 	}
 
-	rp.readerLister.SetReaders(newReaders, newReader)
+	selected := rp.updateReaders(readers, "")
+	rp.onCardEvent(selected, readers[selected])
 
-	readerToSelect := ""
-
+	events := rp.watcher.Listen()
 	for {
-		newReaders, _ = rp.readerListerContext.ListReaders()
-
-		readersCount := len(newReaders)
-
-		if slices.Compare(rp.readers, newReaders) != 0 {
-			logger.Debug("New readers list: " + fmt.Sprintf("%v", newReaders))
-
-			rp.readers = newReaders
-
-			if slices.Contains(rp.readers, rp.currentReader) {
-				readerToSelect = rp.currentReader
-			} else {
-				if len(rp.readers) == 0 {
-					readerToSelect = ""
-				} else {
-					readerToSelect = rp.readers[0]
-				}
+		select {
+		case name := <-rp.selections:
+			if _, exists := readers[name]; exists && name != selected {
+				selected = name
+				rp.onCardEvent(selected, readers[selected])
+			}
+		case event, ok := <-events:
+			if !ok {
+				return
 			}
 
-			rp.readerLister.SetReaders(rp.readers, readerToSelect)
-			rp.SetReader(readerToSelect)
+			info := event.ReaderInfo
+			if strings.HasPrefix(info.Name, "Windows Hello for Business") {
+				continue
+			}
+			name := info.Name
+			switch event.Type {
+			case pcsc.DeviceEventReaderConnected, pcsc.DeviceEventReaderDisconnected:
+				if event.Type == pcsc.DeviceEventReaderConnected {
+					readers[name] = info.State&pcsc.ReaderStatePresent != 0
+				} else {
+					delete(readers, name)
+				}
+				newSelection := rp.updateReaders(readers, selected)
+				if newSelection != selected {
+					selected = newSelection
+					rp.onCardEvent(selected, readers[selected])
+				}
+			case pcsc.DeviceEventCardInserted, pcsc.DeviceEventCardRemoved:
+				present := event.Type == pcsc.DeviceEventCardInserted
+				if previous, exists := readers[name]; exists && previous != present {
+					readers[name] = present
+					if name == selected {
+						rp.onCardEvent(name, present)
+					}
+				}
+			}
 		}
-
-		rp.waitForReaderChange(readersCount)
-		logger.Debug("Readers changed...")
 	}
 }
 
-func (rp *ReaderPoller) SetReader(newReader string) {
-	if rp.currentReader == newReader {
-		return
+func (rp *ReaderPoller) updateReaders(readers map[string]bool, selected string) string {
+	names := slices.Sorted(maps.Keys(readers))
+	if _, exists := readers[selected]; !exists {
+		selected = ""
+		if len(names) > 0 {
+			selected = names[0]
+		}
 	}
-
-	logger.Debug("Setting reader: " + newReader)
-
-	rp.currentReader = newReader
-	CancelReaderPoler()
-	rp.onCardEvent(newReader, rp.singleReaderContext)
-	go rp.readerPoller(newReader)
-}
-
-func (rp *ReaderPoller) readerPoller(selectedReader string) {
-	for {
-		if selectedReader == "" {
-			return
-		}
-
-		state := scard.ReaderState{
-			Reader:       selectedReader,
-			CurrentState: scard.StateUnaware,
-		}
-
-		states := []scard.ReaderState{state}
-
-		rp.singleReaderContext.GetStatusChange(states, 0)
-		for i := range states {
-			states[i].CurrentState = states[i].EventState
-		}
-
-		logger.Debug("Reader poller event 1: " + card.FormatState(states[0].CurrentState))
-
-		rp.readerPollerStarted.Store(true)
-		err := rp.singleReaderContext.GetStatusChange(states, -1)
-		if err != nil {
-			return
-		}
-
-		logger.Debug("Reader poller event 2: " + card.FormatState(states[0].CurrentState))
-
-		rp.onCardEvent(selectedReader, rp.singleReaderContext)
-	}
-}
-
-func CancelReaderPoler() {
-	logger.Debug("Canceling reader poller...")
-	if createdPoller.readerPollerStarted.Load() {
-		createdPoller.readerPollerStarted.Store(false)
-		createdPoller.singleReaderContext.Cancel()
-	}
-}
-
-func RestartReaderPoler() {
-	logger.Debug("Restarting reader poller...")
-	go createdPoller.readerPoller(createdPoller.currentReader)
+	rp.readerLister.SetReaders(names, selected)
+	return selected
 }

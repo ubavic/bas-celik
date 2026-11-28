@@ -3,37 +3,37 @@ package card
 import (
 	"strings"
 
-	"github.com/ebfe/scard"
+	"github.com/telesma-app/pcsc"
 )
 
-func FormatState(state scard.StateFlag) string {
+func FormatState(state pcsc.ReaderState) string {
 	states := []string{}
 
-	if state&scard.StateUnaware != 0 {
+	if state&pcsc.ReaderStateUnaware != 0 {
 		states = append(states, "StateUnaware")
 	}
-	if state&scard.StateIgnore != 0 {
+	if state&pcsc.ReaderStateIgnore != 0 {
 		states = append(states, "StateIgnore")
 	}
-	if state&scard.StateChanged != 0 {
+	if state&pcsc.ReaderStateChanged != 0 {
 		states = append(states, "StateChanged")
 	}
-	if state&scard.StateUnknown != 0 {
+	if state&pcsc.ReaderStateUnknown != 0 {
 		states = append(states, "StateUnknown")
 	}
-	if state&scard.StatePresent != 0 {
+	if state&pcsc.ReaderStatePresent != 0 {
 		states = append(states, "StatePresent")
 	}
-	if state&scard.StateAtrmatch != 0 {
+	if state&pcsc.ReaderStateATRMatch != 0 {
 		states = append(states, "StateAtrmatch")
 	}
-	if state&scard.StateExclusive != 0 {
+	if state&pcsc.ReaderStateExclusive != 0 {
 		states = append(states, "StateExclusive")
 	}
-	if state&scard.StateMute != 0 {
+	if state&pcsc.ReaderStateMute != 0 {
 		states = append(states, "StateMute")
 	}
-	if state&scard.StateUnpowered != 0 {
+	if state&pcsc.ReaderStateUnpowered != 0 {
 		states = append(states, "StateUnpowered")
 	}
 

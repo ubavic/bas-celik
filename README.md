@@ -79,7 +79,7 @@ Izvršne datoteke poslednje verzije programa možete preuzeti sa [Releases](http
 
 ## Kompilacija
 
-Potrebno je posedovati `go` kompajler. Na Linuksu je potrebno instalirati i `libpcsclite-dev` i [pakete za Fyne](https://docs.fyne.io/started/quick/#prerequisites).
+Potrebno je posedovati `go` kompajler. Za kompilaciju grafičke aplikacije na Linuksu potrebni su i [paketi za Fyne](https://docs.fyne.io/started/quick/#prerequisites). Za čitanje kartica na Linuksu potrebni su servis `pcscd` i biblioteka `libpcsclite.so.1`.
 
 Nakon preuzimanja repozitorijuma, dovoljno je pokrenuti
 

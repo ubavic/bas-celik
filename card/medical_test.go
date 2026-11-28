@@ -1,6 +1,7 @@
 package card
 
 import (
+	"context"
 	"encoding/hex"
 	"fmt"
 	"slices"
@@ -95,6 +96,29 @@ func TestMedicalCardAcceptsSelectWithResponseAvailable(t *testing.T) {
 	}
 }
 
+func TestMedicalCardLimitsPendingSelectResponses(t *testing.T) {
+	chip := &scriptedMedicalCard{
+		t: t,
+		steps: []medicalExchange{
+			{[]byte{0x00, 0xA4, 0x00, 0x00, 0x02, 0x0D, 0x01}, []byte{0x61, 0x00}},
+		},
+	}
+	for range 16 {
+		chip.steps = append(chip.steps, medicalExchange{
+			command:  []byte{0x00, 0xC0, 0x00, 0x00, 0x00},
+			response: []byte{0x61, 0x00},
+		})
+	}
+	medical := MedicalCard{smartCard: chip}
+	err := medical.selectWithGetResponse(0x00, MED_DOCUMENT_FILE_LOC)
+	if err == nil || err.Error() != "too many GET RESPONSE commands after SELECT" {
+		t.Fatalf("unexpected response to pending SELECT: %v", err)
+	}
+	if len(chip.steps) != 0 {
+		t.Fatalf("%d APDU exchanges were skipped", len(chip.steps))
+	}
+}
+
 type medicalExchange struct {
 	command  []byte
 	response []byte
@@ -106,7 +130,7 @@ type scriptedMedicalCard struct {
 	steps []medicalExchange
 }
 
-func (card *scriptedMedicalCard) Transmit(command []byte) ([]byte, error) {
+func (card *scriptedMedicalCard) Transmit(_ context.Context, command []byte) ([]byte, error) {
 	card.t.Helper()
 	if len(card.steps) == 0 {
 		card.t.Fatalf("unexpected APDU %x", command)

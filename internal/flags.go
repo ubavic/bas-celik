@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/ebfe/scard"
+	"github.com/telesma-app/pcsc"
 )
 
 var version string
@@ -59,59 +59,55 @@ func ProcessFlags() (LaunchConfig, bool) {
 }
 
 func printATR(reader uint) error {
-	ctx, err := scard.EstablishContext()
+	sCard, err := openReader(reader)
 	if err != nil {
-		return fmt.Errorf("establishing context: %w", err)
+		return err
 	}
-
-	defer ctx.Release()
-
-	readersNames, err := ctx.ListReaders()
-	if err != nil {
-		return fmt.Errorf("listing readers: %w", err)
-	}
-
-	if len(readersNames) == 0 {
-		return fmt.Errorf("no reader found")
-	}
-
-	if reader >= uint(len(readersNames)) {
-		return fmt.Errorf("only %d readers found", len(readersNames))
-	}
-
-	sCard, err := ctx.Connect(readersNames[reader], scard.ShareShared, scard.ProtocolAny)
-	if err != nil {
-		return fmt.Errorf("connecting reader %s: %w", readersNames[reader], err)
-	}
-
-	defer sCard.Disconnect(scard.LeaveCard)
+	defer sCard.Close()
 
 	smartCardStatus, err := sCard.Status()
 	if err != nil {
-		return fmt.Errorf("reading card in reader %s: %w", readersNames[reader], err)
+		return fmt.Errorf("reading card status: %w", err)
 	}
 
-	fmt.Println(hex.EncodeToString(smartCardStatus.Atr))
-
+	fmt.Println(hex.EncodeToString(smartCardStatus.ATR))
 	return nil
 }
 
-func listReaders() error {
-	ctx, err := scard.EstablishContext()
+func openReader(reader uint) (*pcsc.Card, error) {
+	readersNames, err := readerNames()
 	if err != nil {
-		return fmt.Errorf("establishing context: %w", err)
+		return nil, err
+	}
+	if len(readersNames) == 0 {
+		return nil, fmt.Errorf("no reader found")
+	}
+	if reader >= uint(len(readersNames)) {
+		return nil, fmt.Errorf("only %d readers found", len(readersNames))
 	}
 
-	defer ctx.Release()
-
-	readersNames, err := ctx.ListReaders()
+	sCard, err := pcsc.Open(readersNames[reader])
 	if err != nil {
-		if err.Error() == "scard: Cannot find a smart card reader." {
-			fmt.Println("No readers found.")
-			return nil
-		}
+		return nil, fmt.Errorf("connecting reader %s: %w", readersNames[reader], err)
+	}
+	return sCard, nil
+}
 
-		return fmt.Errorf("listing readers: %w", err)
+func readerNames() ([]string, error) {
+	var names []string
+	for reader, err := range pcsc.Enumerate() {
+		if err != nil {
+			return nil, fmt.Errorf("listing readers: %w", err)
+		}
+		names = append(names, reader.Name)
+	}
+	return names, nil
+}
+
+func listReaders() error {
+	readersNames, err := readerNames()
+	if err != nil {
+		return err
 	}
 
 	if len(readersNames) == 0 {

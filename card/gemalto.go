@@ -3,6 +3,7 @@ package card
 import (
 	"bytes"
 	"compress/zlib"
+	"context"
 	"crypto/x509"
 	"encoding/binary"
 	"encoding/hex"
@@ -10,7 +11,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/ebfe/scard"
+	"github.com/telesma-app/pcsc"
 	"github.com/ubavic/bas-celik/v2/document"
 )
 
@@ -57,7 +58,7 @@ type Gemalto struct {
 func (card *Gemalto) InitCard() error {
 	data := []byte{0xF3, 0x81, 0x00, 0x00, 0x02, 0x53, 0x45, 0x52, 0x49, 0x44, 0x01}
 	apu := buildAPDU(0x00, 0xA4, 0x04, 0x00, data, 0)
-	rsp, err := card.smartCard.Transmit(apu)
+	rsp, err := card.smartCard.Transmit(context.Background(), apu)
 	if err != nil {
 		return fmt.Errorf("initializing ID card: %w", err)
 	}
@@ -68,7 +69,7 @@ func (card *Gemalto) InitCard() error {
 
 	data = []byte{0xF3, 0x81, 0x00, 0x00, 0x02, 0x53, 0x45, 0x52, 0x49, 0x46, 0x01}
 	apu = buildAPDU(0x00, 0xA4, 0x04, 0x00, data, 0)
-	rsp, err = card.smartCard.Transmit(apu)
+	rsp, err = card.smartCard.Transmit(context.Background(), apu)
 	if err != nil {
 		return fmt.Errorf("initializing IF card: %w", err)
 	}
@@ -79,7 +80,7 @@ func (card *Gemalto) InitCard() error {
 
 	data = []byte{0xF3, 0x81, 0x00, 0x00, 0x02, 0x53, 0x45, 0x52, 0x52, 0x50, 0x01}
 	apu = buildAPDU(0x00, 0xA4, 0x04, 0x00, data, 0)
-	rsp, err = card.smartCard.Transmit(apu)
+	rsp, err = card.smartCard.Transmit(context.Background(), apu)
 	if err != nil {
 		return fmt.Errorf("initializing RP card: %w", err)
 	}
@@ -229,7 +230,7 @@ func (card *Gemalto) readCertificateFile(name []byte) ([]byte, error) {
 
 func (card *Gemalto) selectFile(name []byte, selectionMethod, selectionOption byte, ne uint) ([]byte, error) {
 	apu := buildAPDU(0x00, 0xA4, selectionMethod, selectionOption, name, ne)
-	rsp, err := card.smartCard.Transmit(apu)
+	rsp, err := card.smartCard.Transmit(context.Background(), apu)
 	if err != nil {
 		return nil, fmt.Errorf("selecting file: %w", err)
 	}
@@ -268,12 +269,12 @@ func (card *Gemalto) InitCrypto() error {
 }
 
 func (card *Gemalto) PinTriesLeft() (int, error) {
-	err := card.smartCard.BeginTransaction()
+	err := card.smartCard.BeginTransaction(context.Background())
 	if err != nil {
 		return -1, err
 	}
 
-	defer card.smartCard.EndTransaction(scard.LeaveCard)
+	defer card.smartCard.EndTransaction(pcsc.DispositionLeaveCard)
 
 	err = card.InitCrypto()
 	if err != nil {
@@ -282,7 +283,7 @@ func (card *Gemalto) PinTriesLeft() (int, error) {
 
 	apu := buildAPDU(0x00, 0x20, 0x00, 0x80, nil, 0)
 
-	rsp, err := card.smartCard.Transmit(apu)
+	rsp, err := card.smartCard.Transmit(context.Background(), apu)
 	if err != nil {
 		return -1, fmt.Errorf("getting pin tries left: %w", err)
 	}
@@ -298,12 +299,12 @@ func (card *Gemalto) PinTriesLeft() (int, error) {
 // Returns number of tries left, and occurred error.
 // -1 signifies unknown number of tries left
 func (card *Gemalto) ChangePin(newPin, oldPin string) (int, error) {
-	err := card.smartCard.BeginTransaction()
+	err := card.smartCard.BeginTransaction(context.Background())
 	if err != nil {
 		return -1, err
 	}
 
-	defer card.smartCard.EndTransaction(scard.LeaveCard)
+	defer card.smartCard.EndTransaction(pcsc.DispositionLeaveCard)
 
 	err = card.InitCrypto()
 	if err != nil {
@@ -321,7 +322,7 @@ func (card *Gemalto) ChangePin(newPin, oldPin string) (int, error) {
 	}
 
 	apu := buildAPDU(0x00, 0x20, 0x00, 0x80, PadPin(oldPin), 0)
-	rsp, err := card.smartCard.Transmit(apu)
+	rsp, err := card.smartCard.Transmit(context.Background(), apu)
 	if err != nil {
 		return -1, fmt.Errorf("verifying old pin: %w", err)
 	}
@@ -335,7 +336,7 @@ func (card *Gemalto) ChangePin(newPin, oldPin string) (int, error) {
 	data = append(data, PadPin(newPin)...)
 
 	apu = buildAPDU(0x00, 0x24, 0x00, 0x80, data, 0)
-	rsp, err = card.smartCard.Transmit(apu)
+	rsp, err = card.smartCard.Transmit(context.Background(), apu)
 	if err != nil {
 		return -1, fmt.Errorf("changing pin: %w", err)
 	}
